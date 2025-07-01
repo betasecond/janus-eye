@@ -66,6 +66,7 @@ import NotificationList from './components/base/NotificationList.vue'
 import Home from './views/Home.vue'
 import Dashboard from './views/Dashboard.vue'
 import Overview from './views/Overview.vue'
+import Question from './views/Question.vue'
 
 // 导入模拟数据
 import { 
@@ -116,7 +117,7 @@ const handleMenuClick = (item: MenuItem) => {
   const viewMap: Record<string, any> = {
     '/home': Home,
     '/lesson-prep': Overview,
-    '/assessment': 'Assessment',
+    '/assessment': Question,
     '/analytics': Dashboard,
     '/resources': 'Resources',
     '/profile': 'Profile',
