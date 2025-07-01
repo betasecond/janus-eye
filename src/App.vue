@@ -67,6 +67,7 @@ import Home from './views/Home.vue'
 import Dashboard from './views/Dashboard.vue'
 import Overview from './views/Overview.vue'
 import Question from './views/Question.vue'
+import Syllabus from './views/Syllabus.vue'
 
 // 导入模拟数据
 import { 
@@ -119,7 +120,7 @@ const handleMenuClick = (item: MenuItem) => {
     '/lesson-prep': Overview,
     '/assessment': Question,
     '/analytics': Dashboard,
-    '/resources': 'Resources',
+    '/resources': Syllabus,
     '/profile': 'Profile',
     '/learning': 'Learning',
     '/practice': 'Practice',
