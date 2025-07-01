@@ -65,6 +65,7 @@ import Header from './components/layout/Header.vue'
 import NotificationList from './components/base/NotificationList.vue'
 import Home from './views/Home.vue'
 import Dashboard from './views/Dashboard.vue'
+import Overview from './views/Overview.vue'
 
 // 导入模拟数据
 import { 
@@ -114,7 +115,7 @@ const handleMenuClick = (item: MenuItem) => {
   // 导航到对应页面
   const viewMap: Record<string, any> = {
     '/home': Home,
-    '/lesson-prep': 'LessonPrep',
+    '/lesson-prep': Overview,
     '/assessment': 'Assessment',
     '/analytics': Dashboard,
     '/resources': 'Resources',

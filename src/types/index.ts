@@ -90,6 +90,15 @@ export interface Syllabus {
   progress: number
 }
 
+// 学生分析数据类型
+export interface StudentAnalysis {
+  id: string
+  studentName: string
+  incorrectQuestions: string
+  errorLocation: string
+  suggestedCorrection: string
+}
+
 // 导航菜单项类型
 export interface MenuItem {
   id: string

@@ -1,4 +1,4 @@
-import type { User, Course, Question, Assignment, Notification, PerformanceStats, Chapter, Syllabus, MenuItem } from '../types'
+import type { User, Course, Question, Assignment, Notification, PerformanceStats, Chapter, Syllabus, MenuItem, StudentAnalysis } from '../types'
 
 // 模拟用户数据
 export const mockUsers: User[] = [
@@ -190,6 +190,31 @@ export const mockChapters: Chapter[] = [
     content: '学习条件语句、循环语句等控制流结构',
     exercises: mockQuestions.slice(4, 5),
     isCompleted: false
+  }
+]
+
+// 模拟学生分析数据
+export const mockStudentAnalysis: StudentAnalysis[] = [
+  {
+    id: '1',
+    studentName: 'Ethan Harper',
+    incorrectQuestions: 'Question 5, Question 8',
+    errorLocation: 'Step 2, Step 4',
+    suggestedCorrection: 'Review algebraic equations'
+  },
+  {
+    id: '2',
+    studentName: 'Olivia Bennett',
+    incorrectQuestions: 'Question 3, Question 7',
+    errorLocation: 'Step 1, Step 3',
+    suggestedCorrection: 'Practice geometry proofs'
+  },
+  {
+    id: '3',
+    studentName: 'Noah Carter',
+    incorrectQuestions: 'Question 2, Question 6',
+    errorLocation: 'Step 3, Step 5',
+    suggestedCorrection: 'Understand function concepts'
   }
 ]
 
