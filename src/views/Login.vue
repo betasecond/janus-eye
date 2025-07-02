@@ -110,75 +110,6 @@
               </button>
             </div>
           </form>
-
-          <!-- 角色选择 -->
-          <h2 class="text-[#0d131c] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">选择您的角色</h2>
-          
-          <!-- 教师角色 -->
-          <div class="p-4">
-            <div class="flex items-stretch justify-between gap-4 rounded-lg cursor-pointer hover:bg-[#e7ecf4] transition-colors p-2" @click="selectRole('teacher')">
-              <div class="flex flex-[2_2_0px] flex-col gap-4">
-                <div class="flex flex-col gap-1">
-                  <p class="text-[#0d131c] text-base font-bold leading-tight">教师</p>
-                  <p class="text-[#49699c] text-sm font-normal leading-normal">管理课程、创建作业并跟踪学生进度。</p>
-                </div>
-                <button
-                  class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 flex-row-reverse bg-[#e7ecf4] text-[#0d131c] text-sm font-medium leading-normal w-fit hover:bg-[#d0dae8] transition-colors"
-                  :class="{ 'bg-[#2071f3] text-white': selectedRole === 'teacher' }"
-                >
-                  <span class="truncate">{{ selectedRole === 'teacher' ? '已选择' : '选择' }}</span>
-                </button>
-              </div>
-              <div
-                class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg flex-1"
-                style='background-image: url("https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=200&fit=crop");'
-              ></div>
-            </div>
-          </div>
-
-          <!-- 学生角色 -->
-          <div class="p-4">
-            <div class="flex items-stretch justify-between gap-4 rounded-lg cursor-pointer hover:bg-[#e7ecf4] transition-colors p-2" @click="selectRole('student')">
-              <div class="flex flex-[2_2_0px] flex-col gap-4">
-                <div class="flex flex-col gap-1">
-                  <p class="text-[#0d131c] text-base font-bold leading-tight">学生</p>
-                  <p class="text-[#49699c] text-sm font-normal leading-normal">访问课程材料、提交作业并查看成绩。</p>
-                </div>
-                <button
-                  class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 flex-row-reverse bg-[#e7ecf4] text-[#0d131c] text-sm font-medium leading-normal w-fit hover:bg-[#d0dae8] transition-colors"
-                  :class="{ 'bg-[#2071f3] text-white': selectedRole === 'student' }"
-                >
-                  <span class="truncate">{{ selectedRole === 'student' ? '已选择' : '选择' }}</span>
-                </button>
-              </div>
-              <div
-                class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg flex-1"
-                style='background-image: url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=300&h=200&fit=crop");'
-              ></div>
-            </div>
-          </div>
-
-          <!-- 管理员角色 -->
-          <div class="p-4">
-            <div class="flex items-stretch justify-between gap-4 rounded-lg cursor-pointer hover:bg-[#e7ecf4] transition-colors p-2" @click="selectRole('admin')">
-              <div class="flex flex-[2_2_0px] flex-col gap-4">
-                <div class="flex flex-col gap-1">
-                  <p class="text-[#0d131c] text-base font-bold leading-tight">管理员</p>
-                  <p class="text-[#49699c] text-sm font-normal leading-normal">监督平台、管理用户并生成报告。</p>
-                </div>
-                <button
-                  class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 flex-row-reverse bg-[#e7ecf4] text-[#0d131c] text-sm font-medium leading-normal w-fit hover:bg-[#d0dae8] transition-colors"
-                  :class="{ 'bg-[#2071f3] text-white': selectedRole === 'admin' }"
-                >
-                  <span class="truncate">{{ selectedRole === 'admin' ? '已选择' : '选择' }}</span>
-                </button>
-              </div>
-              <div
-                class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg flex-1"
-                style='background-image: url("https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=200&fit=crop");'
-              ></div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -187,8 +118,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import Icon from '../components/base/Icon.vue'
-import type { User } from '../types'
 
 interface LoginForm {
   username: string
@@ -196,11 +127,7 @@ interface LoginForm {
   rememberPassword: boolean
 }
 
-interface Emits {
-  (e: 'login-success', user: User): void
-}
-
-const emit = defineEmits<Emits>()
+const router = useRouter()
 
 // 响应式数据
 const loginForm = ref<LoginForm>({
@@ -209,31 +136,18 @@ const loginForm = ref<LoginForm>({
   rememberPassword: false
 })
 
-const selectedRole = ref<'teacher' | 'student' | 'admin'>('teacher')
-
 // 计算属性
 const isFormValid = computed(() => {
   return loginForm.value.username.trim() !== '' && loginForm.value.password.trim() !== ''
 })
 
-// 方法
-const selectRole = (role: 'teacher' | 'student' | 'admin') => {
-  selectedRole.value = role
-}
-
 const handleLogin = () => {
   if (!isFormValid.value) return
 
   // 模拟登录逻辑
-  const mockUser: User = {
-    id: '1',
-    name: selectedRole.value === 'teacher' ? '张老师' : selectedRole.value === 'student' ? '李小明' : '王管理员',
-    email: loginForm.value.username + '@example.com',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face',
-    role: selectedRole.value
-  }
+  console.log('Login attempt with:', loginForm.value)
 
-  // 发送登录成功事件
-  emit('login-success', mockUser)
+  // 导航到角色选择页面
+  router.push('/select-role')
 }
 </script> 

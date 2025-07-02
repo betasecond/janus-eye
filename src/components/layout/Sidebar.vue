@@ -12,16 +12,22 @@
 
       <!-- 导航菜单 -->
       <div class="flex flex-col gap-2">
-        <div
+        <router-link
           v-for="item in menuItems"
           :key="item.id"
-          class="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-[#e7ecf4] transition-colors"
-          :class="{ 'bg-[#e7ecf4]': item.isActive }"
-          @click="handleMenuClick(item)"
+          :to="item.path"
+          custom
+          v-slot="{ navigate, isActive }"
         >
-          <Icon :name="item.icon" size="24" :color="item.isActive ? '#0d131c' : '#0d131c'" />
-          <p class="text-[#0d131c] text-sm font-medium leading-normal">{{ item.label }}</p>
-        </div>
+          <div
+            class="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-[#e7ecf4] transition-colors"
+            :class="{ 'bg-[#e7ecf4]': isActive }"
+            @click="navigate"
+          >
+            <Icon :name="item.icon" size="24" :color="isActive ? '#0d131c' : '#0d131c'" />
+            <p class="text-[#0d131c] text-sm font-medium leading-normal">{{ item.label }}</p>
+          </div>
+        </router-link>
       </div>
     </div>
 
@@ -45,17 +51,7 @@ interface Props {
   appName?: string
 }
 
-interface Emits {
-  (e: 'menu-click', item: MenuItem): void
-}
-
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   appName: 'EduAssist'
 })
-
-const emit = defineEmits<Emits>()
-
-const handleMenuClick = (item: MenuItem) => {
-  emit('menu-click', item)
-}
 </script> 

@@ -1,5 +1,6 @@
 <template>
   <div class="relative flex size-full min-h-screen flex-col bg-[#f8f9fc] group/design-root overflow-x-hidden" style='font-family: Lexend, "Noto Sans", sans-serif;'>
+    <ToastNotifications />
     <div class="layout-container flex h-full grow flex-col">
       <!-- 主布局：侧边栏 + 内容区域 -->
       <div class="gap-1 px-6 flex flex-1 justify-center py-5">
@@ -9,7 +10,6 @@
             :menu-items="currentMenuItems"
             :user="currentUser"
             app-name="EduAssist"
-            @menu-click="handleMenuClick"
           />
         </div>
 
@@ -28,8 +28,7 @@
           />
 
           <!-- 页面内容 -->
-          <component
-            :is="currentView"
+          <router-view
             :user="currentUser"
             :notifications="notifications"
             @navigate="handleNavigate"
@@ -60,47 +59,44 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import Sidebar from './components/layout/Sidebar.vue'
 import Header from './components/layout/Header.vue'
 import NotificationList from './components/base/NotificationList.vue'
-import Home from './views/Home.vue'
-import Dashboard from './views/Dashboard.vue'
-import Overview from './views/Overview.vue'
-import Question from './views/Question.vue'
-import Syllabus from './views/Syllabus.vue'
+import ToastNotifications from './components/base/ToastNotifications.vue'
+import { currentUser } from '@/store'
 
 // 导入模拟数据
-import { 
-  currentUser, 
-  teacherMenuItems, 
-  studentMenuItems, 
-  mockNotifications 
+import {
+  teacherMenuItems,
+  studentMenuItems,
+  adminMenuItems,
+  mockNotifications
 } from './data/mockData'
-import type { MenuItem, Notification } from './types'
+import type { Notification } from './types'
+
+const route = useRoute();
 
 // 响应式数据
-const currentView = ref('Home')
 const notifications = ref(mockNotifications)
 const showNotificationPanel = ref(false)
 
 // 计算属性
 const currentMenuItems = computed(() => {
-  return currentUser.role === 'teacher' ? teacherMenuItems : studentMenuItems
+  switch (currentUser.value.role) {
+    case 'teacher':
+      return teacherMenuItems;
+    case 'student':
+      return studentMenuItems;
+    case 'admin':
+      return adminMenuItems;
+    default:
+      return [];
+  }
 })
 
 const currentTitle = computed(() => {
-  const titleMap: Record<string, string> = {
-    'Home': `${currentUser.name} - 计算机科学`,
-    'LessonPrep': '课程准备',
-    'Assessment': '作业生成',
-    'Analytics': '学习分析',
-    'Resources': '资源管理',
-    'Profile': '个人中心',
-    'Learning': '在线学习',
-    'Practice': '练习评估',
-    'Library': '资源库'
-  }
-  return titleMap[currentView.value] || 'EduAssist'
+  return route.name as string || 'EduAssist';
 })
 
 const unreadNotificationCount = computed(() => {
@@ -108,31 +104,6 @@ const unreadNotificationCount = computed(() => {
 })
 
 // 事件处理函数
-const handleMenuClick = (item: MenuItem) => {
-  // 更新菜单激活状态
-  currentMenuItems.value.forEach(menuItem => {
-    menuItem.isActive = menuItem.id === item.id
-  })
-  
-  // 导航到对应页面
-  const viewMap: Record<string, any> = {
-    '/home': Home,
-    '/lesson-prep': Overview,
-    '/assessment': Question,
-    '/analytics': Dashboard,
-    '/resources': Syllabus,
-    '/profile': 'Profile',
-    '/learning': 'Learning',
-    '/practice': 'Practice',
-    '/library': 'Library'
-  }
-  
-  const targetView = viewMap[item.path]
-  if (targetView) {
-    currentView.value = targetView
-  }
-}
-
 const handleSearch = (searchValue: string) => {
   console.log('搜索:', searchValue)
   // 实现搜索逻辑
