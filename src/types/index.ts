@@ -106,4 +106,11 @@ export interface MenuItem {
   icon: string
   path: string
   isActive?: boolean
+}
+
+export interface ToastNotification {
+  id: number
+  title: string
+  content: string
+  type: 'success' | 'error' | 'info' | 'warning'
 } 

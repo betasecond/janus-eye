@@ -27,33 +27,35 @@
         <div class="flex gap-2">
           <!-- Action Buttons -->
         </div>
-        <button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#2071f3] text-[#f8f9fc] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-4">
+        <button @click="handleGenerateContent" class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#2071f3] text-[#f8f9fc] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-4">
           <Icon name="magicWand" size="20" color="white" />
           <span class="truncate">Generate Content</span>
         </button>
       </div>
 
-      <div class="flex flex-col gap-3 p-4" v-if="syllabus.isGenerating">
-        <p class="text-[#0d131c] text-base font-medium leading-normal">Generating Content</p>
-        <div class="rounded bg-[#ced8e8]">
-          <div class="h-2 rounded bg-[#2071f3]" :style="{ width: syllabus.progress + '%' }"></div>
+      <div class="flex flex-col gap-3 p-4" v-if="isGenerating">
+        <p class="text-[#0d131c] text-base font-medium leading-normal">AI 正在生成内容...</p>
+        <div class="w-full bg-gray-200 rounded-full h-2.5">
+          <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: progress + '%' }"></div>
         </div>
-        <p class="text-[#49699c] text-sm font-normal leading-normal">This may take a few minutes...</p>
+        <p class="text-[#49699c] text-sm font-normal leading-normal">这可能需要一点时间，请稍候...</p>
       </div>
 
-      <h2 class="text-[#0d131c] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Knowledge Explanation</h2>
-      <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-        <textarea class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d131c] focus:outline-0 focus:ring-0 border border-[#ced8e8] bg-[#f8f9fc] min-h-36 p-[15px] text-base"
-                  v-model="selectedChapter.content"></textarea>
-      </div>
-
-      <h2 class="text-[#0d131c] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Practice Exercises</h2>
-      <div v-for="exercise in selectedChapter.exercises" :key="exercise.id" class="flex items-center gap-4 bg-[#f8f9fc] px-4 min-h-14">
-        <div class="text-[#0d131c] flex items-center justify-center rounded-lg bg-[#e7ecf4] shrink-0 size-10">
-          <Icon name="listBullets" size="24" />
+      <template v-else>
+        <h2 class="text-[#0d131c] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Knowledge Explanation</h2>
+        <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+          <textarea class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d131c] focus:outline-0 focus:ring-0 border border-[#ced8e8] bg-[#f8f9fc] min-h-36 p-[15px] text-base"
+                    v-model="selectedChapter.content"></textarea>
         </div>
-        <p class="text-[#0d131c] text-base font-normal leading-normal flex-1 truncate">{{ exercise.title }}</p>
-      </div>
+
+        <h2 class="text-[#0d131c] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Practice Exercises</h2>
+        <div v-for="exercise in selectedChapter.exercises" :key="exercise.id" class="flex items-center gap-4 bg-[#f8f9fc] px-4 min-h-14">
+          <div class="text-[#0d131c] flex items-center justify-center rounded-lg bg-[#e7ecf4] shrink-0 size-10">
+            <Icon name="listBullets" size="24" />
+          </div>
+          <p class="text-[#0d131c] text-base font-normal leading-normal flex-1 truncate">{{ exercise.title }}</p>
+        </div>
+      </template>
     </div>
      <div v-else class="flex flex-1 items-center justify-center text-gray-500">
       Select a chapter to see the details.
@@ -66,12 +68,42 @@ import { ref } from 'vue';
 import type { Syllabus, Chapter, Course } from '@/types';
 import { mockSyllabus, mockCourses } from '@/data/mockData';
 import Icon from '@/components/base/Icon.vue';
+import { addNotification } from '@/store';
 
 const syllabus = ref<Syllabus>(mockSyllabus);
 const courses = ref<Course[]>(mockCourses);
 const selectedChapter = ref<Chapter | null>(syllabus.value.chapters[0]);
+const isGenerating = ref(false);
+const progress = ref(0);
 
 const selectChapter = (chapter: Chapter) => {
   selectedChapter.value = chapter;
 };
-</script> 
+
+const handleGenerateContent = () => {
+  isGenerating.value = true;
+  progress.value = 0;
+
+  const interval = setInterval(() => {
+    if (progress.value < 90) {
+      progress.value += 10;
+    }
+  }, 200);
+
+  setTimeout(() => {
+    clearInterval(interval);
+    progress.value = 100;
+    setTimeout(() => {
+      isGenerating.value = false;
+      if(selectedChapter.value) {
+        selectedChapter.value.content = `[AI 生成内容]：这是为 "${selectedChapter.value.title}" 生成的详细讲解。首先我们来探讨...`;
+        addNotification({
+          title: '操作成功',
+          content: 'AI 内容已成功生成并填充。',
+          type: 'success',
+        });
+      }
+    }, 500);
+  }, 2500);
+};
+</script>
