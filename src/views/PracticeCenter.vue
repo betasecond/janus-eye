@@ -2,7 +2,7 @@
   <div class="p-6">
     <h1 class="text-2xl font-bold mb-4">练习中心</h1>
 
-    <div class="max-w-2xl mx-auto bg-white shadow rounded-lg p-6">
+    <div v-if="currentQuestion" class="max-w-2xl mx-auto bg-white shadow rounded-lg p-6">
       <!-- 问题 -->
       <div class="mb-6">
         <p class="text-gray-500 mb-1">题目 1/10</p>
@@ -37,22 +37,26 @@
         </button>
       </div>
     </div>
+    <div v-else class="text-center text-gray-500">
+      <p>Loading question...</p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import type { Question } from '@/types';
+import { getQuestions } from '@/api';
 
-const currentQuestion = ref({
-  title: '在Vue 3中，用于定义响应式数据的最佳实践是什么？',
-  options: [
-    '使用 `Vue.set`',
-    '直接修改 `data` 对象',
-    '使用 `ref` 或 `reactive`',
-    '将所有数据放在 `methods` 中'
-  ],
-  correctAnswer: 2
+const questions = ref<Question[]>([]);
+const currentQuestion = ref<Question | null>(null);
+const selectedOption = ref<number | null>(null);
+
+onMounted(async () => {
+  questions.value = await getQuestions();
+  if (questions.value.length > 0) {
+    currentQuestion.value = questions.value[0];
+  }
 });
 
-const selectedOption = ref<number | null>(null);
 </script> 

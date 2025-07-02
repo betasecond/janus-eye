@@ -1,5 +1,5 @@
 <template>
-  <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+  <div v-if="!loading" class="layout-content-container flex flex-col max-w-[960px] flex-1">
     <div class="flex flex-wrap justify-between gap-3 p-4">
       <p class="text-[#0d131c] tracking-light text-[32px] font-bold leading-tight min-w-72">Questions</p>
       <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-[#e7ecf4] text-[#0d131c] text-sm font-medium leading-normal">
@@ -35,16 +35,25 @@
        <!-- Pagination controls would go here -->
     </div>
   </div>
+  <div v-else class="flex items-center justify-center flex-1">
+    <p>Loading questions...</p>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import type { Question } from '@/types';
-import { mockQuestions } from '@/data/mockData';
+import { getQuestions } from '@/api';
 import Icon from '@/components/base/Icon.vue';
 
-const questions = ref<Question[]>(mockQuestions);
+const loading = ref(true);
+const questions = ref<Question[]>([]);
 const selectedQuestion = ref<string | null>(null);
+
+onMounted(async () => {
+  questions.value = await getQuestions();
+  loading.value = false;
+});
 
 // Basic filtering logic (can be expanded)
 const filteredQuestions = computed(() => {

@@ -86,11 +86,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import type { Notification, User, Course } from '@/types';
 import NotificationList from '@/components/base/NotificationList.vue';
-import { mockNotifications, mockCourses } from '@/data/mockData';
+import { getCourses, getNotifications } from '@/api';
 import Card from '@/components/base/Card.vue';
 import Icon from '@/components/base/Icon.vue';
 
@@ -100,9 +100,15 @@ interface Props {
 
 defineProps<Props>();
 
-const notifications = ref<Notification[]>(mockNotifications.slice(0, 3));
-const courses = ref<Course[]>(mockCourses);
+const notifications = ref<Notification[]>([]);
+const courses = ref<Course[]>([]);
 const router = useRouter();
+
+onMounted(async () => {
+  courses.value = await getCourses();
+  const allNotifications = await getNotifications();
+  notifications.value = allNotifications.slice(0, 3);
+});
 
 const handleNotificationClick = (notification: Notification) => {
   console.log('Notification clicked:', notification);

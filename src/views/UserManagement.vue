@@ -32,9 +32,6 @@
                 角色
               </th>
               <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                状态
-              </th>
-              <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 操作
               </th>
             </tr>
@@ -49,9 +46,6 @@
               </td>
               <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                 <p class="text-gray-900 whitespace-no-wrap">{{ user.role }}</p>
-              </td>
-              <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                <span :class="user.status === 'active' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'" class="px-2 py-1 rounded-full text-xs">{{ user.status === 'active' ? '活跃' : '禁用' }}</span>
               </td>
               <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                 <button class="text-blue-500 hover:underline mr-2">编辑</button>
@@ -77,17 +71,17 @@
   </template>
   
   <script setup lang="ts">
-  import { ref } from 'vue';
+  import { ref, onMounted } from 'vue';
   import Modal from '../components/base/Modal.vue';
   import { addNotification } from '@/store';
+  import { getUsers } from '@/api';
+  import type { User } from '@/types';
   
-  const users = ref([
-    { id: 'usr001', name: '张三', role: '教师', status: 'active' },
-    { id: 'usr002', name: '李四', role: '学生', status: 'active' },
-    { id: 'usr003', name: '王五', role: '学生', status: 'inactive' },
-    { id: 'usr004', name: '赵六', role: '管理员', status: 'active' },
-    { id: 'usr005', name: '孙七', role: '教师', status: 'active' },
-  ]);
+  const users = ref<User[]>([]);
+  
+  onMounted(async () => {
+    users.value = await getUsers();
+  });
   
   const showDeleteModal = ref(false);
   const userToDeleteId = ref<string | null>(null);

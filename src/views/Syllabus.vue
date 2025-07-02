@@ -1,5 +1,5 @@
 <template>
-  <div class="gap-1 px-6 flex flex-1 justify-center py-5">
+  <div v-if="!loading && syllabus" class="gap-1 px-6 flex flex-1 justify-center py-5">
     <!-- Left Panel: Syllabus Chapters -->
     <div class="layout-content-container flex flex-col w-80">
       <h2 class="text-[#0d131c] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Syllabus</h2>
@@ -61,20 +61,33 @@
       Select a chapter to see the details.
     </div>
   </div>
+  <div v-else class="flex items-center justify-center flex-1">
+    <p>Loading...</p>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import type { Syllabus, Chapter, Course } from '@/types';
-import { mockSyllabus, mockCourses } from '@/data/mockData';
+import { getSyllabus, getCourses } from '@/api';
 import Icon from '@/components/base/Icon.vue';
 import { addNotification } from '@/store';
 
-const syllabus = ref<Syllabus>(mockSyllabus);
-const courses = ref<Course[]>(mockCourses);
-const selectedChapter = ref<Chapter | null>(syllabus.value.chapters[0]);
+const loading = ref(true);
+const syllabus = ref<Syllabus | null>(null);
+const courses = ref<Course[]>([]);
+const selectedChapter = ref<Chapter | null>(null);
 const isGenerating = ref(false);
 const progress = ref(0);
+
+onMounted(async () => {
+  syllabus.value = await getSyllabus();
+  courses.value = await getCourses();
+  if (syllabus.value && syllabus.value.chapters.length > 0) {
+    selectedChapter.value = syllabus.value.chapters[0];
+  }
+  loading.value = false;
+});
 
 const selectChapter = (chapter: Chapter) => {
   selectedChapter.value = chapter;
