@@ -70,6 +70,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import Card from '../components/base/Card.vue'
 import Icon from '../components/base/Icon.vue'
 import NotificationList from '../components/base/NotificationList.vue'
@@ -88,44 +89,45 @@ interface QuickAction {
 }
 
 const props = defineProps<Props>()
+const router = useRouter()
 
 const emit = defineEmits<{
-  'navigate': [path: string]
   'notification-click': [notification: Notification]
 }>()
 
 const quickActions = computed<QuickAction[]>(() => {
   if (props.user.role === 'teacher') {
     return [
-      { id: '1', label: '创建课程', icon: 'book', action: '/courses/create' },
-      { id: '2', label: '生成题目', icon: 'magicWand', action: '/questions/generate' },
-      { id: '3', label: '学生管理', icon: 'user', action: '/students' },
-      { id: '4', label: '成绩分析', icon: 'chart', action: '/analytics' }
+      { id: '1', label: '课程准备', icon: 'book', action: '/syllabus' },
+      { id: '2', label: '题目管理', icon: 'magicWand', action: '/question' },
+      { id: '3', label: '学情分析', icon: 'chart', action: '/overview' },
+      { id: '4', label: '用户管理', icon: 'users', action: '/admin/users' }
     ]
   } else {
     return [
-      { id: '1', label: '我的课程', icon: 'book', action: '/my-courses' },
-      { id: '2', label: '练习题库', icon: 'file', action: '/practice' },
-      { id: '3', label: '学习进度', icon: 'chart', action: '/progress' },
-      { id: '4', label: '资源库', icon: 'bookmark', action: '/library' }
+      { id: '1', label: '我的作业', icon: 'book', action: '/assignments' },
+      { id: '2', label: '练习中心', icon: 'file', action: '/practice' },
+      { id: '3', label: '学习进度', icon: 'chart', action: '/home' }, // Placeholder
+      { id: '4.ts', label: '资源库', icon: 'bookmark', action: '/home' } // Placeholder
     ]
   }
 })
 
 const handleLessonPrepClick = () => {
-  emit('navigate', '/lesson-prep')
+  router.push('/syllabus')
 }
 
 const handleGradingClick = () => {
-  emit('navigate', '/grading')
+  router.push('/question')
 }
 
 const handleAnnouncementClick = () => {
-  emit('navigate', '/announcements')
+  // We can decide where this goes later
+  router.push('/home')
 }
 
 const handleQuickAction = (action: QuickAction) => {
-  emit('navigate', action.action)
+  router.push(action.action)
 }
 
 const handleNotificationClick = (notification: Notification) => {
