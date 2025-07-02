@@ -113,4 +113,15 @@ export interface ToastNotification {
   title: string
   content: string
   type: 'success' | 'error' | 'info' | 'warning'
+}
+
+// 资源管理相关类型
+export interface Resource {
+  id: string;
+  title: string;
+  type: 'video' | 'document' | 'image' | 'assessment';
+  subject: string;
+  uploader: string;
+  uploadDate: string;
+  thumbnail?: string;
 } 

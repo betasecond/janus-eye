@@ -1,4 +1,4 @@
-import type { User, Course, Question, Assignment, Notification, PerformanceStats, Chapter, Syllabus, MenuItem, StudentAnalysis } from '../types'
+import type { User, Course, Question, Assignment, Notification, PerformanceStats, Chapter, Syllabus, MenuItem, StudentAnalysis, Resource } from '../types'
 
 // 模拟用户数据
 export const mockUsers: User[] = [
@@ -248,9 +248,18 @@ export const studentMenuItems: MenuItem[] = [
 
 // 管理员导航菜单
 export const adminMenuItems: MenuItem[] = [
-  { id: '1', label: '仪表盘', icon: 'dashboard', path: '/dashboard', isActive: true },
+  { id: '1', label: '主页', icon: 'home', path: '/admin/dashboard' },
   { id: '2', label: '用户管理', icon: 'users', path: '/admin/users' },
   { id: '3', label: '资源管理', icon: 'folder', path: '/admin/resources' },
+  { id: '4.ts', label: '系统设置', icon: 'gear', path: '/admin/settings' }
+]
+
+// 模拟资源数据
+export const mockResources: Resource[] = [
+  { id: 'res001', title: '计算机科学导论.ppt', type: 'document', subject: '计算机科学', uploader: '张老师', uploadDate: '2024-07-20', thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=200&fit=crop' },
+  { id: 'res002', title: '期中考试试卷.pdf', type: 'assessment', subject: '数学', uploader: '张老师', uploadDate: '2024-07-18', thumbnail: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&h=200&fit=crop' },
+  { id: 'res003', title: 'Python编程练习.docx', type: 'document', subject: '编程', uploader: '李老师', uploadDate: '2024-07-15', thumbnail: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400&h=200&fit=crop' },
+  { id: 'res004', title: '数据结构视频.mp4', type: 'video', subject: '计算机科学', uploader: '王老师', uploadDate: '2024-07-12', thumbnail: 'https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=400&h=200&fit=crop' },
 ]
 
 // 默认模拟用户
