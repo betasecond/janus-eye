@@ -230,21 +230,28 @@ export const mockSyllabus: Syllabus = {
 // 教师导航菜单
 export const teacherMenuItems: MenuItem[] = [
   { id: '1', label: '主页', icon: 'home', path: '/home', isActive: true },
-  { id: '2', label: '课程准备', icon: 'book', path: '/lesson-prep' },
-  { id: '3', label: '作业生成', icon: 'file', path: '/assessment' },
-  { id: '4', label: '学习分析', icon: 'chart', path: '/analytics' },
-  { id: '5', label: '资源管理', icon: 'folder', path: '/resources' },
-  { id: '6', label: '个人中心', icon: 'user', path: '/profile' }
+  { id: '2', label: '课程准备', icon: 'book', path: '/syllabus' },
+  { id: '3', label: '作业生成', icon: 'file', path: '/question' },
+  { id: '4', label: '学习分析', icon: 'chart', path: '/overview' },
+  { id: '5', label: '资源管理', icon: 'folder', path: '/home' },
+  { id: '6', label: '个人中心', icon: 'user', path: '/home' }
 ]
 
 // 学生导航菜单
 export const studentMenuItems: MenuItem[] = [
   { id: '1', label: '主页', icon: 'home', path: '/home', isActive: true },
-  { id: '2', label: '在线学习', icon: 'video', path: '/learning' },
+  { id: '2', label: '我的作业', icon: 'video', path: '/assignments' },
   { id: '3', label: '练习评估', icon: 'file', path: '/practice' },
   { id: '4', label: '资源库', icon: 'bookmark', path: '/library' },
   { id: '5', label: '个人中心', icon: 'user', path: '/profile' }
 ]
 
-// 当前用户（默认为教师）
-export const currentUser = mockUsers[0] 
+// 管理员导航菜单
+export const adminMenuItems: MenuItem[] = [
+  { id: '1', label: '仪表盘', icon: 'dashboard', path: '/dashboard', isActive: true },
+  { id: '2', label: '用户管理', icon: 'users', path: '/admin/users' },
+  { id: '3', label: '资源管理', icon: 'folder', path: '/admin/resources' },
+]
+
+// 默认模拟用户
+export const mockUser = mockUsers[0] 
