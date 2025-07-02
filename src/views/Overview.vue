@@ -26,43 +26,16 @@
     <h2 class="text-[#0d131c] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Performance Charts</h2>
 
     <!-- Charts -->
-    <div class="flex flex-wrap gap-4 px-4 py-6">
+    <div class="flex flex-wrap gap-4 p-4">
       <!-- Knowledge Point Mastery -->
       <div class="flex min-w-72 flex-1 flex-col gap-2 rounded-lg border border-[#ced8e8] p-6">
-        <p class="text-[#0d131c] text-base font-medium leading-normal">Knowledge Point Mastery</p>
-        <div class="grid min-h-[180px] grid-flow-col gap-6 grid-rows-[1fr_auto] items-end justify-items-center px-3">
-          <div v-for="(mastery, concept) in stats.knowledgePointMastery" :key="concept" class="flex flex-col items-center w-full">
-            <div class="border-[#49699c] bg-[#e7ecf4] border-t-2 w-full" :style="{ height: mastery + '%' }"></div>
-            <p class="text-[#49699c] text-[13px] font-bold leading-normal tracking-[0.015em] mt-2">{{ concept }}</p>
-          </div>
-        </div>
+        <p class="text-[#0d131c] text-base font-medium leading-normal">知识点掌握度</p>
+        <v-chart class="h-[220px]" :option="masteryChartOption" autoresize />
       </div>
       <!-- Accuracy Trends Over Time -->
       <div class="flex min-w-72 flex-1 flex-col gap-2 rounded-lg border border-[#ced8e8] p-6">
-        <p class="text-[#0d131c] text-base font-medium leading-normal">Accuracy Trends Over Time</p>
-        <div class="flex min-h-[180px] flex-1 flex-col gap-8 py-4">
-          <svg width="100%" height="148" viewBox="-3 0 478 150" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="paint0_linear_1131_5935" x1="236" y1="1" x2="236" y2="149" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#e7ecf4"></stop>
-                <stop offset="1" stop-color="#e7ecf4" stop-opacity="0"></stop>
-              </linearGradient>
-            </defs>
-             <path
-              d="M0 109C18.1538 109 18.1538 21 36.3077 21C54.4615 21 54.4615 41 72.6154 41C90.7692 41 90.7692 93 108.923 93C127.077 93 127.077 33 145.231 33C163.385 33 163.385 101 181.538 101C199.692 101 199.692 61 217.846 61C236 61 236 45 254.154 45C272.308 45 272.308 121 290.462 121C308.615 121 308.615 149 326.769 149C344.923 149 344.923 1 363.077 1C381.231 1 381.231 81 399.385 81C417.538 81 417.538 129 435.692 129C453.846 129 453.846 25 472 25V149H326.769H0V109Z"
-              fill="url(#paint0_linear_1131_5935)"
-            ></path>
-            <path
-              d="M0 109C18.1538 109 18.1538 21 36.3077 21C54.4615 21 54.4615 41 72.6154 41C90.7692 41 90.7692 93 108.923 93C127.077 93 127.077 33 145.231 33C163.385 33 163.385 101 181.538 101C199.692 101 199.692 61 217.846 61C236 61 236 45 254.154 45C272.308 45 272.308 121 290.462 121C308.615 121 308.615 149 326.769 149C344.923 149 344.923 1 363.077 1C381.231 1 381.231 81 399.385 81C417.538 81 417.538 129 435.692 129C453.846 129 453.846 25 472 25"
-              stroke="#49699c"
-              stroke-width="3"
-              stroke-linecap="round"
-            ></path>
-          </svg>
-          <div class="flex justify-around">
-            <p v-for="trend in stats.accuracyTrends" :key="trend.week" class="text-[#49699c] text-[13px] font-bold leading-normal tracking-[0.015em]">{{ trend.week }}</p>
-          </div>
-        </div>
+        <p class="text-[#0d131c] text-base font-medium leading-normal">准确率趋势</p>
+        <v-chart class="h-[220px]" :option="trendsChartOption" autoresize />
       </div>
     </div>
 
@@ -95,10 +68,91 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import type { PerformanceStats, StudentAnalysis } from '@/types';
 import { mockPerformanceStats, mockStudentAnalysis } from '@/data/mockData';
+import { use } from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
+import { BarChart, LineChart } from 'echarts/charts';
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+} from 'echarts/components';
+import VChart from 'vue-echarts';
+
+use([
+  CanvasRenderer,
+  BarChart,
+  LineChart,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+]);
 
 const stats = ref<PerformanceStats>(mockPerformanceStats);
 const studentAnalysis = ref<StudentAnalysis[]>(mockStudentAnalysis);
+
+const masteryChartOption = computed(() => ({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'shadow'
+    }
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  xAxis: {
+    type: 'category',
+    data: Object.keys(stats.value.knowledgePointMastery),
+  },
+  yAxis: {
+    type: 'value',
+    axisLabel: {
+      formatter: '{value}%'
+    }
+  },
+  series: [{
+    name: '掌握度',
+    type: 'bar',
+    data: Object.values(stats.value.knowledgePointMastery),
+    barWidth: '40%',
+  }]
+}));
+
+const trendsChartOption = computed(() => ({
+  tooltip: {
+    trigger: 'axis'
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  xAxis: {
+    type: 'category',
+    boundaryGap: false,
+    data: stats.value.accuracyTrends.map(t => t.week),
+  },
+  yAxis: {
+    type: 'value',
+    axisLabel: {
+      formatter: '{value}%'
+    }
+  },
+  series: [{
+    name: '准确率',
+    type: 'line',
+    data: stats.value.accuracyTrends.map(t => t.accuracy),
+    smooth: true,
+    areaStyle: {}
+  }]
+}));
 </script> 
