@@ -5,12 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "dev:server": "node server/index.cjs",
+    "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
+    "cors": "^2.8.5",
     "echarts": "^5.6.0",
+    "express": "^5.1.0",
     "tailwindcss": "^4.1.11",
     "vue": "^3.5.17",
     "vue-echarts": "^7.0.3",
