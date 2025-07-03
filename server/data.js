@@ -231,7 +231,7 @@ const teacherMenuItems = [
   { id: '2', label: '课程准备', icon: 'book', path: '/syllabus' },
   { id: '3', label: '作业生成', icon: 'file', path: '/question' },
   { id: '4', label: '学习分析', icon: 'chart', path: '/overview' },
-  { id: '5', label: '资源管理', icon: 'folder', path: '/home' },
+  { id: '5', label: '资源管理', icon: 'folder', path: '/admin/resources' },
   { id: '6', label: '个人中心', icon: 'user', path: '/home' }
 ];
 
@@ -240,16 +240,16 @@ const studentMenuItems = [
   { id: '1', label: '主页', icon: 'home', path: '/home', isActive: true },
   { id: '2', label: '我的作业', icon: 'video', path: '/assignments' },
   { id: '3', label: '练习评估', icon: 'file', path: '/practice' },
-  { id: '4', label: '资源库', icon: 'bookmark', path: '/library' },
-  { id: '5', 'label': '个人中心', 'icon': 'user', 'path': '/profile' }
+  { id: '4', label: '资源库', icon: 'bookmark', path: '/admin/resources' },
+  { id: '5', label: '个人中心', icon: 'user', path: '/home' }
 ];
 
 // 管理员导航菜单
 const adminMenuItems = [
-  { id: '1', label: '主页', icon: 'home', path: '/admin/dashboard' },
+  { id: '1', label: '主页', icon: 'home', path: '/home' },
   { id: '2', label: '用户管理', icon: 'users', path: '/admin/users' },
   { id: '3', label: '资源管理', icon: 'folder', path: '/admin/resources' },
-  { id: '4.ts', label: '系统设置', icon: 'gear', path: '/admin/settings' }
+  { id: '4', label: '系统设置', icon: 'gear', path: '/home' }
 ];
 
 // 模拟资源数据

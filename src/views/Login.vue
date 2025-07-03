@@ -153,6 +153,9 @@ const handleLogin = () => {
   // 模拟登录逻辑
   console.log('Login attempt with:', loginForm.value)
 
+  // 清除之前的用户信息
+  localStorage.removeItem('currentUser')
+
   // 导航到角色选择页面
   router.push('/select-role')
 }
