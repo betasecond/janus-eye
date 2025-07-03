@@ -1,10 +1,10 @@
 <template>
-  <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7ecf4] px-10 py-3">
+  <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7ecf4] px-10 py-3 bg-white/95 backdrop-blur-md sticky top-0 z-50 transition-all duration-300 hover:shadow-lg">
     <!-- 左侧标题区域 -->
-    <div class="flex items-center gap-4 text-[#0d131c]">
-      <div class="size-4">
+    <div class="flex items-center gap-4 text-[#0d131c] animate-fade-in-left">
+      <div class="size-4 transition-transform duration-300 hover:scale-110 hover:rotate-12">
         <!-- 品牌图标 -->
-        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="transition-colors duration-300">
           <path
             d="M13.8261 17.4264C16.7203 18.1174 20.2244 18.5217 24 18.5217C27.7756 18.5217 31.2797 18.1174 34.1739 17.4264C36.9144 16.7722 39.9967 15.2331 41.3563 14.1648L24.8486 40.6391C24.4571 41.267 23.5429 41.267 23.1514 40.6391L6.64374 14.1648C8.00331 15.2331 11.0856 16.7722 13.8261 17.4264Z"
             fill="currentColor"
@@ -17,24 +17,26 @@
           />
         </svg>
       </div>
-      <h2 class="text-[#0d131c] text-lg font-bold leading-tight tracking-[-0.015em]">{{ title }}</h2>
+      <h2 class="text-[#0d131c] text-lg font-bold leading-tight tracking-[-0.015em] transition-colors duration-300 hover:text-blue-600">{{ title }}</h2>
     </div>
 
     <!-- 右侧功能区域 -->
-    <div class="flex flex-1 justify-end gap-8">
+    <div class="flex flex-1 justify-end gap-8 animate-fade-in-right">
       <!-- 搜索框 -->
-      <label v-if="showSearch" class="flex flex-col min-w-40 !h-10 max-w-64">
-        <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+      <label v-if="showSearch" class="flex flex-col min-w-40 !h-10 max-w-64 group">
+        <div class="flex w-full flex-1 items-stretch rounded-xl h-full transition-all duration-300 group-focus-within:ring-2 group-focus-within:ring-blue-200 group-focus-within:scale-105">
           <div
-            class="text-[#49699c] flex border-none bg-[#e7ecf4] items-center justify-center pl-4 rounded-l-lg border-r-0"
+            class="text-[#49699c] flex border-none bg-[#e7ecf4] items-center justify-center pl-4 rounded-l-xl border-r-0 transition-all duration-300 group-focus-within:bg-white group-focus-within:text-blue-500"
           >
-            <Icon name="search" size="24" color="#49699c" />
+            <Icon name="search" size="24" :color="searchFocused ? '#3b82f6' : '#49699c'" class="transition-colors duration-300" />
           </div>
           <input
             v-model="searchValue"
             placeholder="搜索"
-            class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d131c] focus:outline-0 focus:ring-0 border-none bg-[#e7ecf4] focus:border-none h-full placeholder:text-[#49699c] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
+            class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#0d131c] focus:outline-0 focus:ring-0 border-none bg-[#e7ecf4] focus:border-none h-full placeholder:text-[#49699c] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal transition-all duration-300 focus:bg-white focus:shadow-md"
             @input="handleSearch"
+            @focus="searchFocused = true"
+            @blur="searchFocused = false"
           />
         </div>
       </label>
@@ -42,24 +44,45 @@
       <!-- 通知按钮 -->
       <button
         v-if="showNotifications"
-        class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#e7ecf4] text-[#0d131c] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 relative"
+        class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 bg-[#e7ecf4] text-[#0d131c] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 relative transition-all duration-300 hover:bg-[#d4dae5] hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
         @click="toggleNotifications"
       >
-        <Icon name="bell" size="20" color="#0d131c" />
-        <span
+        <Icon name="bell" size="20" color="#0d131c" class="transition-transform duration-300 hover:animate-pulse" />
+        <div 
           v-if="unreadCount > 0"
-          class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+          class="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold animate-bounce shadow-lg"
         >
-          {{ unreadCount }}
-        </span>
+          {{ unreadCount > 99 ? '99+' : unreadCount }}
+        </div>
       </button>
 
       <!-- 用户头像 -->
-      <div
-        class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 cursor-pointer hover:ring-2 hover:ring-blue-300 transition-all"
-        :style="`background-image: url('${user.avatar}')`"
-        @click="handleUserClick"
-      />
+      <div class="relative group">
+        <div
+          class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 cursor-pointer ring-2 ring-transparent hover:ring-blue-300 transition-all duration-300 hover:scale-110 hover:shadow-lg"
+          :style="`background-image: url('${user.avatar}')`"
+          @click="handleUserClick"
+        />
+        
+        <!-- 用户状态指示器 -->
+        <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse shadow-md"></div>
+        
+        <!-- 用户菜单下拉框 (可选) -->
+        <div 
+          v-if="showUserMenu"
+          class="absolute right-0 top-12 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-50 opacity-0 scale-95 transition-all duration-200 group-hover:opacity-100 group-hover:scale-100 transform-gpu"
+        >
+          <div class="px-4 py-2 border-b border-gray-100">
+            <p class="text-sm font-medium text-gray-900">{{ user.name }}</p>
+            <p class="text-xs text-gray-500">{{ user.email }}</p>
+          </div>
+          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">个人资料</a>
+          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">设置</a>
+          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">帮助</a>
+          <hr class="my-1">
+          <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200">退出登录</a>
+        </div>
+      </div>
     </div>
   </header>
 </template>
@@ -74,6 +97,7 @@ interface Props {
   user: User
   showSearch?: boolean
   showNotifications?: boolean
+  showUserMenu?: boolean
   unreadCount?: number
 }
 
@@ -86,12 +110,14 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   showSearch: true,
   showNotifications: true,
+  showUserMenu: false,
   unreadCount: 0
 })
 
 const emit = defineEmits<Emits>()
 
 const searchValue = ref('')
+const searchFocused = ref(false)
 
 const handleSearch = () => {
   emit('search', searchValue.value)
@@ -104,4 +130,55 @@ const toggleNotifications = () => {
 const handleUserClick = () => {
   emit('user-click')
 }
-</script> 
+</script>
+
+<style scoped>
+@keyframes fade-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-left {
+  animation: fade-in-left 0.6s ease-out;
+}
+
+.animate-fade-in-right {
+  animation: fade-in-right 0.6s ease-out;
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%, 43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 2s infinite;
+}
+</style> 
