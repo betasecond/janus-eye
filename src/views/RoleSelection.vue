@@ -48,7 +48,7 @@ const selectRole = (role: 'teacher' | 'student' | 'admin') => {
 
   // 保存用户信息到localStorage和store
   localStorage.setItem('currentUser', JSON.stringify(user));
-  setCurrentUser(role);
+  setCurrentUser(user);
 
   // 根据角色跳转到不同页面
   switch (role) {
