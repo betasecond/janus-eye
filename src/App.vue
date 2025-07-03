@@ -84,6 +84,7 @@ import Header from './components/layout/Header.vue'
 import NotificationList from './components/base/NotificationList.vue'
 import ToastNotifications from './components/base/ToastNotifications.vue'
 import { currentUser, addNotification } from '@/store'
+import { LOCAL_STORAGE_USER_KEY } from '@/constants'
 import {
   teacherMenuItems,
   studentMenuItems,
@@ -100,7 +101,7 @@ const showNotificationPanel = ref(false)
 
 onMounted(() => {
   // 检查是否有已保存的用户信息
-  const savedUser = localStorage.getItem('currentUser')
+  const savedUser = localStorage.getItem(LOCAL_STORAGE_USER_KEY)
   if (savedUser) {
     try {
       currentUser.value = JSON.parse(savedUser)
@@ -108,12 +109,21 @@ onMounted(() => {
       
       // 只有在用户已登录且当前在登录页面时才跳转
       if ((route.path === '/login' || route.path === '/') && currentUser.value) {
-        router.push('/home')
+        switch (currentUser.value.role) {
+          case 'teacher':
+            router.push('/dashboard'); // Assuming teacher dashboard path
+            break;
+          case 'admin':
+            router.push('/admin/users'); // Assuming admin dashboard path
+            break;
+          default: // 'student' or any other role
+            router.push('/home');
+        }
       }
     } catch (error) {
       console.error('Failed to parse saved user:', error)
       // 如果解析失败，清除无效数据
-      localStorage.removeItem('currentUser')
+      localStorage.removeItem(LOCAL_STORAGE_USER_KEY)
     }
   }
 })
@@ -160,7 +170,7 @@ const handleUserClick = () => {
 
 const handleLogout = () => {
   // 清除用户信息
-  localStorage.removeItem('currentUser')
+  localStorage.removeItem(LOCAL_STORAGE_USER_KEY)
   currentUser.value = null
   notifications.value = []
   
