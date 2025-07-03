@@ -240,7 +240,7 @@ const studentMenuItems = [
   { id: '1', label: '主页', icon: 'home', path: '/home', isActive: true },
   { id: '2', label: '我的作业', icon: 'video', path: '/assignments' },
   { id: '3', label: '练习评估', icon: 'file', path: '/practice' },
-  { id: '4', label: '资源库', icon: 'bookmark', path: '/admin/resources' },
+  { id: '4', label: '资源库', icon: 'bookmark', path: '/library' },
   { id: '5', label: '个人中心', icon: 'user', path: '/home' }
 ];
 
