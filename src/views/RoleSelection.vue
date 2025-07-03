@@ -36,7 +36,7 @@ const selectRole = (role: 'teacher' | 'student' | 'admin') => {
   // 创建用户对象
   const user = {
     id: '1',
-    name: role === 'teacher' ? '张老师' : role === 'student' ? '李同学' : '王管理员',
+    name: role === 'teacher' ? '张老师' : role === 'student' ? '李小明' : '王管理员',
     email: `${role}@example.com`,
     avatar: role === 'teacher' 
       ? 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=face'
