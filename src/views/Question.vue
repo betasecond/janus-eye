@@ -1,58 +1,131 @@
 <template>
-  <div v-if="!loading" class="layout-content-container flex flex-col max-w-[960px] flex-1">
-    <div class="flex flex-wrap justify-between gap-3 p-4">
-      <p class="text-[#0d131c] tracking-light text-[32px] font-bold leading-tight min-w-72">Questions</p>
-      <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-[#e7ecf4] text-[#0d131c] text-sm font-medium leading-normal">
-        <span class="truncate">New Question</span>
+  <div class="p-4 md:p-6 lg:p-8 flex flex-col gap-6 animate-fade-in">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">题目管理</h1>
+        <p class="text-gray-500 mt-1">在这里创建、编辑和管理您的所有题目。</p>
+      </div>
+      <button @click="openNewQuestionModal" class="action-button">
+        <Icon name="magicWand" size="20" />
+        <span>新建题目</span>
       </button>
     </div>
 
-    <!-- Filters -->
-    <div class="flex gap-3 p-3 flex-wrap pr-4">
-      <!-- Filter Dropdowns would go here -->
-    </div>
-
-    <h2 class="text-[#0d131c] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Question List</h2>
-
-    <!-- Question List -->
-    <div v-for="question in filteredQuestions" :key="question.id" class="flex gap-4 bg-[#f8f9fc] px-4 py-3 justify-between border-b border-gray-200">
-      <div class="flex flex-1 flex-col justify-center">
-        <p class="text-[#0d131c] text-base font-medium leading-normal">{{ question.title }}</p>
-        <p v-if="question.options" class="text-[#49699c] text-sm font-normal leading-normal">
-          {{ question.options.map((o, i) => `${String.fromCharCode(65 + i)}. ${o}`).join(' ') }}
-        </p>
-        <p class="text-[#49699c] text-sm font-normal leading-normal">Type: {{ question.type }}, Difficulty: {{ question.difficulty }}</p>
-      </div>
-      <div class="shrink-0">
-        <div class="text-[#0d131c] flex size-7 items-center justify-center cursor-pointer" @click="toggleQuestion(question.id)">
-          <Icon name="caretDown" size="24" />
+    <!-- Filters & Search -->
+    <div class="p-4 bg-gray-50/80 rounded-2xl border border-gray-100">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- 课程选择 -->
+        <select class="filter-select">
+          <option>所有课程</option>
+          <option v-for="course in courses" :key="course.id">{{ course.name }}</option>
+        </select>
+        <!-- 题型选择 -->
+        <select class="filter-select">
+          <option>所有题型</option>
+          <option value="multiple-choice">选择题</option>
+          <option value="true-false">判断题</option>
+          <option value="short-answer">简答题</option>
+        </select>
+        <!-- 难度选择 -->
+        <select class="filter-select">
+          <option>所有难度</option>
+          <option value="easy">简单</option>
+          <option value="medium">中等</option>
+          <option value="hard">困难</option>
+        </select>
+        <!-- 搜索框 -->
+        <div class="relative">
+          <Icon name="search" size="20" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input type="text" placeholder="搜索题干..." class="pl-11 filter-select" />
         </div>
       </div>
     </div>
-    
-    <!-- Pagination -->
-    <div class="flex items-center justify-center p-4">
-       <!-- Pagination controls would go here -->
+
+    <!-- Question List -->
+    <div v-if="!loading" class="flex-1">
+      <div v-if="filteredQuestions.length > 0" class="space-y-4">
+        <div v-for="(question, index) in filteredQuestions" :key="question.id" 
+            class="question-card bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden animate-slide-in-up" 
+            :style="`animation-delay: ${index * 0.05}s`"
+        >
+          <div class="p-6">
+            <p class="text-gray-800 font-semibold leading-relaxed">{{ question.title }}</p>
+            <div v-if="question.options" class="mt-4 space-y-2">
+              <div v-for="(option, i) in question.options" :key="i" class="flex items-center gap-3">
+                <span class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-mono text-sm">{{ String.fromCharCode(65 + i) }}</span>
+                <span class="text-gray-700">{{ option }}</span>
+              </div>
+            </div>
+            <div class="mt-4 flex flex-wrap items-center gap-2">
+              <span class="tag bg-blue-100 text-blue-700">{{ question.type }}</span>
+              <span class="tag" :class="{
+                'bg-green-100 text-green-700': question.difficulty === 'easy',
+                'bg-yellow-100 text-yellow-700': question.difficulty === 'medium',
+                'bg-red-100 text-red-700': question.difficulty === 'hard',
+              }">
+                {{ question.difficulty }}
+              </span>
+            </div>
+          </div>
+          <div class="bg-gray-50/70 px-6 py-3 border-t border-gray-100 flex items-center justify-between">
+            <button @click="toggleQuestion(question.id)" class="text-sm font-medium text-blue-600 hover:underline">
+              {{ selectedQuestionId === question.id ? '收起解析' : '查看解析' }}
+            </button>
+            <div class="flex items-center gap-2">
+              <button class="p-2 rounded-full hover:bg-gray-200 transition-colors"><Icon name="file" size="16" /></button>
+              <button class="p-2 rounded-full hover:bg-gray-200 transition-colors"><Icon name="user" size="16" /></button>
+            </div>
+          </div>
+          <!-- Answer Section -->
+          <transition name="fade-expand">
+            <div v-if="selectedQuestionId === question.id" class="px-6 pb-6 bg-gray-50/70">
+              <p class="mt-4 font-semibold text-gray-700">正确答案: <span class="text-green-600">{{ question.correctAnswer }}</span></p>
+              <p v-if="question.explanation" class="mt-2 text-gray-600 prose prose-sm max-w-none">{{ question.explanation }}</p>
+            </div>
+          </transition>
+        </div>
+      </div>
+       <div v-else class="text-center py-16 text-gray-500">
+        <Icon name="search" size="48" class="mx-auto text-gray-300" />
+        <h3 class="mt-4 text-xl font-semibold">未找到题目</h3>
+        <p>尝试调整您的筛选条件或创建一个新题目。</p>
+      </div>
     </div>
-  </div>
-  <div v-else class="flex items-center justify-center flex-1">
-    <p>Loading questions...</p>
+    
+    <!-- Loading Skeleton -->
+    <div v-else class="space-y-4">
+      <div v-for="i in 3" :key="i" class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 animate-pulse">
+        <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+        <div class="space-y-2">
+          <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+          <div class="h-3 bg-gray-200 rounded w-1/3"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import type { Question } from '@/types';
-import { getQuestions } from '@/api';
+import type { Question, Course } from '@/types';
+import { getQuestions, getCourses } from '@/api';
 import Icon from '@/components/base/Icon.vue';
+import { addNotification } from '@/store';
 
 const loading = ref(true);
 const questions = ref<Question[]>([]);
-const selectedQuestion = ref<string | null>(null);
+const courses = ref<Course[]>([]);
+const selectedQuestionId = ref<string | null>(null);
 
 onMounted(async () => {
-  questions.value = await getQuestions();
-  loading.value = false;
+  try {
+    [questions.value, courses.value] = await Promise.all([getQuestions(), getCourses()]);
+  } catch (error) {
+    addNotification({ title: '加载失败', content: '无法加载题目数据', type: 'error' });
+  } finally {
+    loading.value = false;
+  }
 });
 
 // Basic filtering logic (can be expanded)
@@ -61,10 +134,92 @@ const filteredQuestions = computed(() => {
 });
 
 const toggleQuestion = (id: string) => {
-  if (selectedQuestion.value === id) {
-    selectedQuestion.value = null;
+  if (selectedQuestionId.value === id) {
+    selectedQuestionId.value = null;
   } else {
-    selectedQuestion.value = id;
+    selectedQuestionId.value = id;
   }
 };
-</script> 
+
+const openNewQuestionModal = () => {
+  addNotification({ title: '功能提示', content: '创建新题目的模态框功能待实现。', type: 'info' });
+};
+</script>
+
+<style scoped>
+.filter-select {
+  width: 100%;
+  height: calc(var(--spacing) * 12);
+  padding: 0 calc(var(--spacing) * 4);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-xl);
+  transition: all 200ms;
+  outline: none;
+}
+
+.filter-select:focus {
+  background-color: var(--color-white);
+  border-color: var(--color-blue-300);
+  box-shadow: 0 0 0 2px var(--color-blue-200);
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing) * 2);
+  height: calc(var(--spacing) * 10);
+  padding: 0 calc(var(--spacing) * 5);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-gray-800);
+  color: var(--color-white);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  box-shadow: var(--shadow-lg);
+  transition: all 200ms;
+  transform: scale(1);
+}
+
+.action-button:hover {
+  background-color: var(--color-gray-700);
+  transform: scale(1.05);
+}
+
+.action-button:active {
+  transform: scale(0.95);
+}
+
+.tag {
+  padding: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  border-radius: var(--radius-full);
+}
+
+.fade-expand-enter-active,
+.fade-expand-leave-active {
+  transition: all 0.4s ease-in-out;
+  overflow: hidden;
+}
+
+.fade-expand-enter-from,
+.fade-expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.fade-expand-enter-to,
+.fade-expand-leave-from {
+  opacity: 1;
+  max-height: 200px; /* Adjust as needed */
+}
+
+.animate-slide-in-up {
+  opacity: 0;
+  animation: slide-in-up 0.5s ease-out forwards;
+  animation-fill-mode: both;
+}
+</style> 

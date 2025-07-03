@@ -1,117 +1,75 @@
 <template>
-  <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
-    <!-- 欢迎标题 -->
-    <h2 class="text-[#0d131c] tracking-light text-[28px] font-bold leading-tight px-4 text-left pb-3 pt-5">
-      欢迎回来，{{ user.name }}
-    </h2>
+  <div class="p-4 md:p-6 lg:p-8 animate-fade-in space-y-8">
+    <!-- Welcome Header -->
+    <header>
+      <h1 class="text-4xl font-bold text-gray-800 tracking-tight">
+        Welcome back, {{ user.name }}
+      </h1>
+    </header>
 
-    <!-- 任务卡片列表 -->
-    <div class="flex flex-col gap-4">
-      <!-- 今日课程准备任务 -->
-      <div class="p-4">
-        <Card
-          title="3个课程计划已生成"
-          subtitle="今日课程准备任务"
-          description="查看和管理今天课程的教学计划。"
-          button-text="查看"
-          :image="'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=200&fit=crop'"
-          @button-click="handleLessonPrepClick"
-        />
-      </div>
-
-      <!-- 待批改作业 -->
-      <div class="p-4">
-        <Card
-          title="5名学生等待批改"
-          subtitle="待批改作业"
-          description="为你的课程审查和批改学生作业。"
-          button-text="批改"
-          :image="'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=200&fit=crop'"
-          @button-click="handleGradingClick"
-        />
-      </div>
-
-      <!-- 最新公告 -->
-      <div class="p-4">
-        <Card
-          title="期末考试安排已发布"
-          subtitle="最新公告"
-          description="查看学校最新发布的重要通知和公告。"
-          button-text="查看详情"
-          :image="'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=200&fit=crop'"
-          @button-click="handleAnnouncementClick"
-        />
-      </div>
-
-      <!-- 快速操作 -->
-      <div class="p-4">
-        <h3 class="text-[#0d131c] text-lg font-bold leading-tight mb-4">快速操作</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div
-            v-for="action in quickActions"
-            :key="action.id"
-            class="flex flex-col items-center p-4 bg-[#f8f9fc] rounded-lg border border-[#e7ecf4] hover:bg-[#e7ecf4] transition-colors cursor-pointer"
-            @click="handleQuickAction(action)"
-          >
-            <Icon :name="action.icon" size="32" color="#2071f3" />
-            <span class="mt-2 text-sm font-medium text-[#0d131c] text-center">{{ action.label }}</span>
-          </div>
+    <!-- Task List -->
+    <main class="space-y-6">
+      <!-- Lesson Prep Task -->
+      <div class="task-item grid grid-cols-1 md:grid-cols-3 gap-6 items-center animate-slide-in-up" style="animation-delay: 0.1s;">
+        <div class="md:col-span-2">
+          <p class="text-sm font-medium text-gray-500">Today's Lesson Prep Tasks</p>
+          <h2 class="mt-1 text-2xl font-bold text-gray-800">3 lesson plans generated</h2>
+          <p class="mt-2 text-gray-600">View and manage your generated lesson plans for today's classes.</p>
+          <button @click="handleLessonPrepClick" class="mt-4 action-button">
+            View
+          </button>
+        </div>
+        <div class="w-full h-48 rounded-2xl bg-cover bg-center overflow-hidden shadow-lg transform-gpu hover:scale-105 transition-transform duration-300" 
+             style="background-image: url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=200&fit=crop')">
         </div>
       </div>
-    </div>
+      <hr class="border-gray-200/80">
 
-    <!-- 通知列表 -->
-    <NotificationList
-      :notifications="notifications"
-      @notification-click="handleNotificationClick"
-    />
+      <!-- Grading Task -->
+      <div class="task-item grid grid-cols-1 md:grid-cols-3 gap-6 items-center animate-slide-in-up" style="animation-delay: 0.2s;">
+        <div class="md:col-span-2">
+          <p class="text-sm font-medium text-gray-500">Pending Assignments</p>
+          <h2 class="mt-1 text-2xl font-bold text-gray-800">5 students awaiting grading</h2>
+          <p class="mt-2 text-gray-600">Review and grade student submissions for your courses.</p>
+          <button @click="handleGradingClick" class="mt-4 action-button">
+            Grade
+          </button>
+        </div>
+        <div class="w-full h-48 rounded-2xl bg-cover bg-center overflow-hidden shadow-lg transform-gpu hover:scale-105 transition-transform duration-300" 
+             style="background-image: url('https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=200&fit=crop')">
+        </div>
+      </div>
+      <hr class="border-gray-200/80">
+
+      <!-- Announcements -->
+      <div class="task-item grid grid-cols-1 md:grid-cols-3 gap-6 items-center animate-slide-in-up" style="animation-delay: 0.3s;">
+        <div class="md:col-span-2">
+          <p class="text-sm font-medium text-gray-500">Latest Announcement</p>
+          <h2 class="mt-1 text-2xl font-bold text-gray-800">Final exam schedule released</h2>
+          <p class="mt-2 text-gray-600">Check the important notices and announcements from the school.</p>
+          <button @click="handleAnnouncementClick" class="mt-4 action-button">
+            View Details
+          </button>
+        </div>
+        <div class="w-full h-48 rounded-2xl bg-cover bg-center overflow-hidden shadow-lg transform-gpu hover:scale-105 transition-transform duration-300" 
+             style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=200&fit=crop')">
+        </div>
+      </div>
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import Card from '../components/base/Card.vue'
-import Icon from '../components/base/Icon.vue'
-import NotificationList from '../components/base/NotificationList.vue'
-import type { User, Notification } from '../types'
+import type { User } from '../types'
+import { addNotification } from '@/store'
 
 interface Props {
   user: User
-  notifications: Notification[]
 }
 
-interface QuickAction {
-  id: string
-  label: string
-  icon: string
-  action: string
-}
-
-const props = defineProps<Props>()
+defineProps<Props>()
 const router = useRouter()
-
-const emit = defineEmits<{
-  'notification-click': [notification: Notification]
-}>()
-
-const quickActions = computed<QuickAction[]>(() => {
-  if (props.user.role === 'teacher') {
-    return [
-      { id: '1', label: '课程准备', icon: 'book', action: '/syllabus' },
-      { id: '2', label: '题目管理', icon: 'magicWand', action: '/question' },
-      { id: '3', label: '学情分析', icon: 'chart', action: '/overview' },
-      { id: '4', label: '用户管理', icon: 'users', action: '/admin/users' }
-    ]
-  } else {
-    return [
-      { id: '1', label: '我的作业', icon: 'book', action: '/assignments' },
-      { id: '2', label: '练习中心', icon: 'file', action: '/practice' },
-      { id: '3', label: '学习进度', icon: 'chart', action: '/home' }, // Placeholder
-      { id: '4.ts', label: '资源库', icon: 'bookmark', action: '/home' } // Placeholder
-    ]
-  }
-})
 
 const handleLessonPrepClick = () => {
   router.push('/syllabus')
@@ -122,15 +80,55 @@ const handleGradingClick = () => {
 }
 
 const handleAnnouncementClick = () => {
-  // We can decide where this goes later
+  addNotification({ title: '提示', content: '公告详情页面暂未实现', type: 'info' })
   router.push('/home')
 }
+</script>
 
-const handleQuickAction = (action: QuickAction) => {
-  router.push(action.action)
+<style scoped>
+.action-button {
+  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 6);
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-700);
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all 200ms;
+  transform: scale(1);
 }
 
-const handleNotificationClick = (notification: Notification) => {
-  emit('notification-click', notification)
+.action-button:hover {
+  background-color: var(--color-gray-200);
+  transform: scale(1.05);
 }
-</script> 
+
+.action-button:active {
+  transform: scale(0.95);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+.animate-slide-in-up {
+  opacity: 0;
+  animation: slide-in-up 0.6s ease-out forwards;
+  animation-fill-mode: both;
+}
+</style> 

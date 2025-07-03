@@ -106,6 +106,7 @@ export interface MenuItem {
   icon: string
   path: string
   isActive?: boolean
+  badge?: number | string
 }
 
 export interface ToastNotification {

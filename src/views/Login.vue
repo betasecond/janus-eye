@@ -1,10 +1,10 @@
 <template>
-  <div class="relative flex size-full min-h-screen flex-col bg-[#f8f9fc] group/design-root overflow-x-hidden" style='font-family: Lexend, "Noto Sans", sans-serif;'>
+  <div class="relative flex size-full min-h-screen flex-col bg-gradient-to-br from-[#f8f9fc] to-[#e7ecf4] group/design-root overflow-x-hidden" style='font-family: Lexend, "Noto Sans", sans-serif;'>
     <div class="layout-container flex h-full grow flex-col">
       <!-- 顶部导航 -->
-      <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7ecf4] px-10 py-3">
+      <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7ecf4] px-10 py-3 backdrop-blur-sm bg-white/80 animate-fade-in-down">
         <div class="flex items-center gap-4 text-[#0d131c]">
-          <div class="size-4">
+          <div class="size-4 animate-pulse">
             <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g clip-path="url(#clip0_6_543)">
                 <path
@@ -23,16 +23,16 @@
               </defs>
             </svg>
           </div>
-          <h2 class="text-[#0d131c] text-lg font-bold leading-tight tracking-[-0.015em]">EduAssist</h2>
+          <h2 class="text-[#0d131c] text-lg font-bold leading-tight tracking-[-0.015em] animate-slide-in-left">EduAssist</h2>
         </div>
         <div class="flex flex-1 justify-end gap-8">
           <button
-            class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#e7ecf4] text-[#0d131c] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
+            class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#e7ecf4] text-[#0d131c] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-[#d4dae5] transition-all duration-200 hover:scale-105 active:scale-95 animate-fade-in-right"
           >
             <Icon name="question" size="20" />
           </button>
           <div
-            class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
+            class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 hover:ring-2 hover:ring-blue-300 transition-all duration-200 hover:scale-110 animate-fade-in-right"
             style='background-image: url("https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face");'
           ></div>
         </div>
@@ -42,71 +42,77 @@
       <div class="px-40 flex flex-1 justify-center py-5">
         <div class="layout-content-container flex flex-col w-[512px] max-w-[512px] py-5 max-w-[960px] flex-1">
           <!-- 背景图片 -->
-          <div class="@container">
+          <div class="@container animate-slide-in-up">
             <div class="@[480px]:px-4 @[480px]:py-3">
               <div
-                class="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-[#f8f9fc] @[480px]:rounded-lg min-h-80"
-                style='background-image: url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=400&fit=crop");'
-              ></div>
+                class="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-[#f8f9fc] @[480px]:rounded-xl min-h-80 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-[1.02] backdrop-blur-sm border border-white/20"
+                style='background-image: linear-gradient(135deg, rgba(32, 113, 243, 0.1) 0%, rgba(79, 172, 254, 0.1) 100%), url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=400&fit=crop");'
+              >
+                <div class="p-6 bg-gradient-to-t from-black/20 to-transparent">
+                  <h1 class="text-white text-2xl font-bold mb-2 animate-fade-in-up">欢迎使用EduAssist</h1>
+                  <p class="text-white/90 text-sm animate-fade-in-up" style="animation-delay: 0.2s;">智能教育助手，让学习更高效</p>
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- 登录表单 -->
-          <form @submit.prevent="handleLogin">
+          <form @submit.prevent="handleLogin" class="animate-slide-in-up" style="animation-delay: 0.3s;">
             <!-- 用户名输入 -->
-            <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-              <label class="flex flex-col min-w-40 flex-1">
-                <p class="text-[#0d131c] text-base font-medium leading-normal pb-2">用户名</p>
+            <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3 animate-fade-in-up" style="animation-delay: 0.4s;">
+              <label class="flex flex-col min-w-40 flex-1 group">
+                <p class="text-[#0d131c] text-base font-medium leading-normal pb-2 group-focus-within:text-[#2071f3] transition-colors duration-200">用户名</p>
                 <input
                   v-model="loginForm.username"
                   placeholder="请输入用户名"
-                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d131c] focus:outline-0 focus:ring-0 border-none bg-[#e7ecf4] focus:border-none h-14 placeholder:text-[#49699c] p-4 text-base font-normal leading-normal"
+                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#0d131c] focus:outline-0 focus:ring-0 border-none bg-[#e7ecf4] focus:border-none h-14 placeholder:text-[#49699c] p-4 text-base font-normal leading-normal transition-all duration-200 focus:bg-white focus:shadow-md hover:shadow-sm"
                   required
                 />
               </label>
             </div>
 
             <!-- 密码输入 -->
-            <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-              <label class="flex flex-col min-w-40 flex-1">
-                <p class="text-[#0d131c] text-base font-medium leading-normal pb-2">密码</p>
+            <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3 animate-fade-in-up" style="animation-delay: 0.5s;">
+              <label class="flex flex-col min-w-40 flex-1 group">
+                <p class="text-[#0d131c] text-base font-medium leading-normal pb-2 group-focus-within:text-[#2071f3] transition-colors duration-200">密码</p>
                 <input
                   v-model="loginForm.password"
                   type="password"
                   placeholder="请输入密码"
-                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d131c] focus:outline-0 focus:ring-0 border-none bg-[#e7ecf4] focus:border-none h-14 placeholder:text-[#49699c] p-4 text-base font-normal leading-normal"
+                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#0d131c] focus:outline-0 focus:ring-0 border-none bg-[#e7ecf4] focus:border-none h-14 placeholder:text-[#49699c] p-4 text-base font-normal leading-normal transition-all duration-200 focus:bg-white focus:shadow-md hover:shadow-sm"
                   required
                 />
               </label>
             </div>
 
             <!-- 记住密码 -->
-            <div class="flex items-center gap-4 bg-[#f8f9fc] px-4 min-h-14 justify-between">
+            <div class="flex items-center gap-4 bg-transparent px-4 min-h-14 justify-between animate-fade-in-up" style="animation-delay: 0.6s;">
               <p class="text-[#0d131c] text-base font-normal leading-normal flex-1 truncate">记住密码</p>
               <div class="shrink-0">
                 <label
-                  class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-[#e7ecf4] p-0.5 has-[:checked]:justify-end has-[:checked]:bg-[#2071f3]"
+                  class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-[#e7ecf4] p-0.5 has-[:checked]:justify-end has-[:checked]:bg-[#2071f3] transition-all duration-300 hover:scale-105 active:scale-95"
                 >
-                  <div class="h-full w-[27px] rounded-full bg-white" style="box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 8px, rgba(0, 0, 0, 0.06) 0px 3px 1px;"></div>
+                  <div class="h-full w-[27px] rounded-full bg-white transition-all duration-300 shadow-lg" style="box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 8px, rgba(0, 0, 0, 0.06) 0px 3px 1px;"></div>
                   <input v-model="loginForm.rememberPassword" type="checkbox" class="invisible absolute" />
                 </label>
               </div>
             </div>
 
             <!-- 忘记密码链接 -->
-            <p class="text-[#49699c] text-sm font-normal leading-normal pb-3 pt-1 px-4 underline cursor-pointer hover:text-[#2071f3]">
+            <p class="text-[#49699c] text-sm font-normal leading-normal pb-3 pt-1 px-4 underline cursor-pointer hover:text-[#2071f3] transition-colors duration-200 animate-fade-in-up" style="animation-delay: 0.7s;">
               忘记密码？
             </p>
 
             <!-- 登录按钮 -->
-            <div class="flex px-4 py-3">
+            <div class="flex px-4 py-3 animate-fade-in-up" style="animation-delay: 0.8s;">
               <button
                 type="submit"
-                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 flex-1 bg-[#2071f3] text-[#f8f9fc] text-base font-bold leading-normal tracking-[0.015em] hover:bg-[#1557b7] transition-colors"
+                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-5 flex-1 bg-gradient-to-r from-[#2071f3] to-[#4facfe] text-white text-base font-bold leading-normal tracking-[0.015em] hover:from-[#1557b7] hover:to-[#3b8bfe] transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl transform-gpu relative overflow-hidden"
                 :disabled="!isFormValid"
                 :class="{ 'opacity-50 cursor-not-allowed': !isFormValid }"
               >
-                <span class="truncate">登录</span>
+                <span class="truncate relative z-10">登录</span>
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
               </button>
             </div>
           </form>
@@ -150,4 +156,103 @@ const handleLogin = () => {
   // 导航到角色选择页面
   router.push('/select-role')
 }
-</script> 
+</script>
+
+<style scoped>
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-down {
+  animation: fade-in-down 0.6s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out;
+  animation-fill-mode: both;
+}
+
+.animate-fade-in-right {
+  animation: fade-in-right 0.6s ease-out;
+  animation-fill-mode: both;
+}
+
+.animate-fade-in-left {
+  animation: fade-in-left 0.6s ease-out;
+}
+
+.animate-slide-in-up {
+  animation: slide-in-up 0.8s ease-out;
+  animation-fill-mode: both;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.6s ease-out;
+}
+
+.group:hover .group-hover\:translate-x-full {
+  transform: translateX(100%);
+}
+</style> 
