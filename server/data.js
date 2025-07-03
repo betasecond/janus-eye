@@ -246,7 +246,7 @@ const studentMenuItems = [
 
 // 管理员导航菜单
 const adminMenuItems = [
-  { id: '1', label: '主页', icon: 'home', path: '/home' },
+  { id: '1', label: '主页', icon: 'home', path: '/admin/dashboard' },
   { id: '2', label: '用户管理', icon: 'users', path: '/admin/users' },
   { id: '3', label: '资源管理', icon: 'folder', path: '/admin/resources' },
   { id: '4', label: '系统设置', icon: 'gear', path: '/admin/settings' }
