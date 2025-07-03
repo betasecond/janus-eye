@@ -126,6 +126,8 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '../components/base/Icon.vue'
+import { currentUser } from '@/store'
+import { LOCAL_STORAGE_USER_KEY } from '@/constants'
 
 interface LoginForm {
   username: string
@@ -152,6 +154,10 @@ const handleLogin = () => {
 
   // 模拟登录逻辑
   console.log('Login attempt with:', loginForm.value)
+
+  // 清除之前的用户信息
+  localStorage.removeItem(LOCAL_STORAGE_USER_KEY)
+  setCurrentUser(null) // Reset reactive store value
 
   // 导航到角色选择页面
   router.push('/select-role')

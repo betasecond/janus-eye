@@ -28,19 +28,26 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { setCurrentUser } from '@/store';
+import { setCurrentUser, createUser } from '@/store';
+import { LOCAL_STORAGE_USER_KEY } from '@/constants';
 
 const router = useRouter();
 
 const selectRole = (role: 'teacher' | 'student' | 'admin') => {
-  setCurrentUser(role);
+  // 创建用户对象
+  const user = createUser(role);
 
+  // 保存用户信息到localStorage和store
+  localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(user));
+  setCurrentUser(user);
+
+  // 根据角色跳转到不同页面
   switch (role) {
     case 'teacher':
       router.push('/dashboard');
       break;
     case 'student':
-      router.push('/home'); // Assuming '/home' is the student dashboard
+      router.push('/home');
       break;
     case 'admin':
       router.push('/admin/users');

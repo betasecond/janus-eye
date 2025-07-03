@@ -84,6 +84,7 @@ import Header from './components/layout/Header.vue'
 import NotificationList from './components/base/NotificationList.vue'
 import ToastNotifications from './components/base/ToastNotifications.vue'
 import { currentUser, addNotification } from '@/store'
+import { LOCAL_STORAGE_USER_KEY } from '@/constants'
 import {
   teacherMenuItems,
   studentMenuItems,
@@ -99,21 +100,32 @@ const notifications = ref<Notification[]>([])
 const showNotificationPanel = ref(false)
 
 onMounted(() => {
-  setTimeout(() => {
-    const fetchedUser = {
-      id: '1',
-      name: '张老师',
-      email: 'zhang.teacher@example.com',
-      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=face',
-      role: 'teacher' as const,
-    };
-    currentUser.value = fetchedUser
-    notifications.value = mockNotifications
-    
-    if (route.path === '/login' || route.path === '/') {
-        router.push('/home')
+  // 检查是否有已保存的用户信息
+  const savedUser = localStorage.getItem(LOCAL_STORAGE_USER_KEY)
+  if (savedUser) {
+    try {
+      currentUser.value = JSON.parse(savedUser)
+      notifications.value = mockNotifications
+      
+      // 只有在用户已登录且当前在登录页面时才跳转
+      if ((route.path === '/login' || route.path === '/') && currentUser.value) {
+        switch (currentUser.value.role) {
+          case 'teacher':
+            router.push('/dashboard'); // Assuming teacher dashboard path
+            break;
+          case 'admin':
+            router.push('/admin/users'); // Assuming admin dashboard path
+            break;
+          default: // 'student' or any other role
+            router.push('/home');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to parse saved user:', error)
+      // 如果解析失败，清除无效数据
+      localStorage.removeItem(LOCAL_STORAGE_USER_KEY)
     }
-  }, 500)
+  }
 })
 
 const currentMenuItems = computed((): MenuItem[] => {
@@ -148,7 +160,24 @@ const closeNotificationPanel = () => {
 }
 
 const handleUserClick = () => {
-  addNotification({ title: '功能开发中', content: '个人中心页面正在加速开发中, 敬请期待！', type: 'info'})
+  // 提供登出选项
+  if (confirm('确定要退出登录吗？')) {
+    handleLogout()
+  } else {
+    addNotification({ title: '功能开发中', content: '个人中心页面正在加速开发中, 敬请期待！', type: 'info'})
+  }
+}
+
+const handleLogout = () => {
+  // 清除用户信息
+  localStorage.removeItem(LOCAL_STORAGE_USER_KEY)
+  currentUser.value = null
+  notifications.value = []
+  
+  // 跳转到登录页面
+  router.push('/login')
+  
+  addNotification({ title: '退出成功', content: '您已成功退出登录', type: 'success'})
 }
 
 const handleNavigate = (path: string) => {
