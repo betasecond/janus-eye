@@ -53,7 +53,7 @@ const selectRole = (role: 'teacher' | 'student' | 'admin') => {
   // 根据角色跳转到不同页面
   switch (role) {
     case 'teacher':
-      router.push('/home');
+      router.push('/dashboard');
       break;
     case 'student':
       router.push('/home');
