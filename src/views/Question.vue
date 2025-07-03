@@ -1,19 +1,19 @@
 <template>
-  <div class="p-4 flex flex-col gap-6 animate-fade-in">
+  <div class="p-4 md:p-6 lg:p-8 flex flex-col gap-6 animate-fade-in">
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
         <h1 class="text-3xl font-bold text-gray-800">题目管理</h1>
         <p class="text-gray-500 mt-1">在这里创建、编辑和管理您的所有题目。</p>
       </div>
-      <button @click="openNewQuestionModal" class="flex items-center justify-center gap-2 h-10 px-5 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95">
+      <button @click="openNewQuestionModal" class="action-button">
         <Icon name="magicWand" size="20" />
         <span>新建题目</span>
       </button>
     </div>
 
     <!-- Filters & Search -->
-    <Card title="筛选与搜索" class="!p-4">
+    <div class="p-4 bg-gray-50/80 rounded-2xl border border-gray-100">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- 课程选择 -->
         <select class="filter-select">
@@ -36,17 +36,17 @@
         </select>
         <!-- 搜索框 -->
         <div class="relative">
-          <Icon name="search" size="20" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input type="text" placeholder="搜索题干..." class="pl-10 filter-select" />
+          <Icon name="search" size="20" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input type="text" placeholder="搜索题干..." class="pl-11 filter-select" />
         </div>
       </div>
-    </Card>
+    </div>
 
     <!-- Question List -->
-    <div v-if="!loading">
+    <div v-if="!loading" class="flex-1">
       <div v-if="filteredQuestions.length > 0" class="space-y-4">
-        <Card v-for="(question, index) in filteredQuestions" :key="question.id" :title="`问题 ${index + 1}`" 
-            class="question-card overflow-hidden !p-0 animate-slide-in-up" 
+        <div v-for="(question, index) in filteredQuestions" :key="question.id" 
+            class="question-card bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden animate-slide-in-up" 
             :style="`animation-delay: ${index * 0.05}s`"
         >
           <div class="p-6">
@@ -68,7 +68,7 @@
               </span>
             </div>
           </div>
-          <div class="bg-gray-50 px-6 py-3 border-t border-gray-100 flex items-center justify-between">
+          <div class="bg-gray-50/70 px-6 py-3 border-t border-gray-100 flex items-center justify-between">
             <button @click="toggleQuestion(question.id)" class="text-sm font-medium text-blue-600 hover:underline">
               {{ selectedQuestionId === question.id ? '收起解析' : '查看解析' }}
             </button>
@@ -79,12 +79,12 @@
           </div>
           <!-- Answer Section -->
           <transition name="fade-expand">
-            <div v-if="selectedQuestionId === question.id" class="px-6 pb-6 border-t border-gray-100 bg-gray-50/50">
+            <div v-if="selectedQuestionId === question.id" class="px-6 pb-6 bg-gray-50/70">
               <p class="mt-4 font-semibold text-gray-700">正确答案: <span class="text-green-600">{{ question.correctAnswer }}</span></p>
               <p v-if="question.explanation" class="mt-2 text-gray-600 prose prose-sm max-w-none">{{ question.explanation }}</p>
             </div>
           </transition>
-        </Card>
+        </div>
       </div>
        <div v-else class="text-center py-16 text-gray-500">
         <Icon name="search" size="48" class="mx-auto text-gray-300" />
@@ -111,7 +111,6 @@ import { ref, computed, onMounted } from 'vue';
 import type { Question, Course } from '@/types';
 import { getQuestions, getCourses } from '@/api';
 import Icon from '@/components/base/Icon.vue';
-import Card from '@/components/base/Card.vue';
 import { addNotification } from '@/store';
 
 const loading = ref(true);
@@ -149,15 +148,15 @@ const openNewQuestionModal = () => {
 
 <style scoped>
 .filter-select {
-  @apply w-full h-12 px-4 bg-gray-50 border border-gray-200 rounded-xl transition-all duration-200 focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-200 outline-none;
+  @apply w-full h-12 px-4 bg-white border border-gray-200 rounded-xl transition-all duration-200 focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-200 outline-none;
+}
+
+.action-button {
+  @apply flex items-center justify-center gap-2 h-10 px-5 rounded-xl bg-gray-800 text-white font-bold text-sm shadow-lg hover:bg-gray-700 transition-all duration-200 hover:scale-105 active:scale-95;
 }
 
 .tag {
   @apply px-3 py-1 text-xs font-medium rounded-full;
-}
-
-.question-card {
-  transition: all 0.3s ease;
 }
 
 .fade-expand-enter-active,
@@ -170,31 +169,18 @@ const openNewQuestionModal = () => {
 .fade-expand-leave-to {
   max-height: 0;
   opacity: 0;
-  transform: translateY(-10px);
   padding-top: 0;
   padding-bottom: 0;
-  margin-top: 0;
 }
 
 .fade-expand-enter-to,
 .fade-expand-leave-from {
   opacity: 1;
   max-height: 200px; /* Adjust as needed */
-  transform: translateY(0);
-}
-
-@keyframes slide-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .animate-slide-in-up {
+  opacity: 0;
   animation: slide-in-up 0.5s ease-out forwards;
   animation-fill-mode: both;
 }

@@ -1,18 +1,18 @@
 <template>
-  <div v-if="syllabus" class="flex-1 flex gap-6 p-4 animate-fade-in">
+  <div v-if="syllabus" class="flex-1 flex gap-6 p-4 md:p-6 lg:p-8 animate-fade-in">
     <!-- Left Panel: Syllabus Chapters -->
-    <div class="w-96 flex-shrink-0 flex flex-col gap-4 animate-slide-in-left">
-      <div class="flex justify-between items-center p-2">
-        <h2 class="text-2xl font-bold text-gray-800">课程大纲</h2>
-        <button @click="handleGenerateSyllabus" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+    <div class="w-96 flex-shrink-0 flex flex-col gap-4">
+      <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-gray-800">课程大纲</h1>
+        <button @click="handleGenerateSyllabus" class="p-2 rounded-full hover:bg-gray-200 transition-colors" title="AI一键生成大纲">
           <Icon name="magicWand" size="20" class="text-blue-500" />
         </button>
       </div>
 
-      <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-lg flex-1">
+      <div class="bg-gray-50/80 rounded-2xl p-4 border border-gray-100 flex-1">
         <!-- Course Selector -->
         <div class="mb-4">
-          <select class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-gray-800 focus:outline-0 focus:ring-2 focus:ring-blue-300 border border-gray-200 bg-gray-50 h-12 p-3 text-base font-medium leading-normal transition-all duration-200">
+          <select class="w-full h-12 px-4 bg-white border border-gray-200 rounded-xl transition-all duration-200 focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-200 outline-none text-gray-800 font-medium">
             <option v-for="course in courses" :key="course.id">{{ course.name }}</option>
           </select>
         </div>
@@ -22,17 +22,17 @@
           <div 
             v-for="chapter in syllabus.chapters" :key="chapter.id" 
             @click="selectChapter(chapter)"
-            class="flex items-center gap-4 p-3 rounded-xl cursor-pointer transition-all duration-200 border-2"
+            class="flex items-center gap-4 p-3 rounded-xl cursor-pointer transition-all duration-200"
             :class="{ 
-              'bg-blue-500 text-white shadow-lg border-blue-500 scale-105': selectedChapter && selectedChapter.id === chapter.id,
-              'bg-gray-50 hover:bg-white hover:border-blue-300 hover:shadow-md border-transparent': !(selectedChapter && selectedChapter.id === chapter.id)
+              'bg-gray-800 text-white shadow-lg scale-105': selectedChapter && selectedChapter.id === chapter.id,
+              'bg-white hover:bg-white hover:shadow-md': !(selectedChapter && selectedChapter.id === chapter.id)
             }"
           >
             <div 
               class="flex items-center justify-center rounded-lg shrink-0 size-12 transition-all duration-200"
               :class="{
-                'bg-white/20': selectedChapter && selectedChapter.id === chapter.id,
-                'bg-gray-200': !(selectedChapter && selectedChapter.id === chapter.id)
+                'bg-white/10': selectedChapter && selectedChapter.id === chapter.id,
+                'bg-gray-100': !(selectedChapter && selectedChapter.id === chapter.id)
               }"
             >
               <Icon name="book" size="24" :class="selectedChapter && selectedChapter.id === chapter.id ? 'text-white' : 'text-gray-600'" />
@@ -41,30 +41,30 @@
               <p class="font-bold leading-normal truncate">{{ chapter.title }}</p>
               <p 
                 class="text-sm font-normal leading-normal"
-                :class="selectedChapter && selectedChapter.id === chapter.id ? 'text-blue-100' : 'text-gray-500'"
+                :class="selectedChapter && selectedChapter.id === chapter.id ? 'text-gray-300' : 'text-gray-500'"
               >
                 Chapter {{ chapter.order }}
               </p>
             </div>
-             <div v-if="chapter.isCompleted" class="w-5 h-5 bg-green-500 text-white rounded-full flex items-center justify-center text-xs">✓</div>
+             <div v-if="chapter.isCompleted" class="w-5 h-5 bg-green-500 text-white rounded-full flex items-center justify-center text-xs ring-2 ring-white/50">✓</div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Right Panel: Chapter Details -->
-    <div class="flex-1 flex flex-col animate-slide-in-up">
-       <Card title="Chapter Details" class="flex-1 flex flex-col !p-0">
+    <div class="flex-1 flex flex-col">
+       <div class="flex-1 flex flex-col bg-gray-50/80 rounded-2xl border border-gray-100 p-6">
         <template v-if="selectedChapter">
-          <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+          <div class="border-b border-gray-200 pb-4 flex justify-between items-center">
             <h3 class="text-xl font-bold text-gray-800">{{ selectedChapter.title }}</h3>
-            <button @click="handleGenerateContent" class="flex items-center justify-center gap-2 h-10 px-4 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95">
-              <Icon name="magicWand" size="20" color="white" />
-              <span class="truncate">AI 生成讲解与练习</span>
+            <button @click="handleGenerateContent" class="action-button">
+              <Icon name="magicWand" size="20" />
+              <span>AI 生成内容</span>
             </button>
           </div>
 
-          <div class="flex-1 p-6 overflow-y-auto">
+          <div class="flex-1 pt-6 overflow-y-auto">
             <div v-if="isGenerating" class="flex flex-col gap-4 items-center justify-center h-full text-center">
               <div class="relative w-24 h-24">
                 <div class="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
@@ -78,9 +78,9 @@
             <template v-else>
               <section class="mb-8">
                 <h4 class="text-lg font-semibold text-gray-700 mb-3">知识点讲解</h4>
-                <div class="prose max-w-none p-4 rounded-xl bg-gray-50 border border-gray-200">
+                <div class="prose max-w-none p-4 rounded-xl bg-white border border-gray-200">
                   <textarea 
-                    class="form-input flex w-full min-w-0 flex-1 resize-y overflow-hidden rounded-lg text-gray-800 focus:outline-0 focus:ring-0 border-none bg-transparent min-h-48 p-2 text-base"
+                    class="form-input w-full min-w-0 flex-1 resize-y overflow-hidden rounded-lg text-gray-800 focus:outline-0 focus:ring-0 border-none bg-transparent min-h-48 p-2 text-base"
                     v-model="selectedChapter.content"
                   ></textarea>
                 </div>
@@ -89,12 +89,12 @@
               <section>
                 <h4 class="text-lg font-semibold text-gray-700 mb-3">随堂练习</h4>
                 <div class="space-y-3">
-                  <div v-for="exercise in selectedChapter.exercises" :key="exercise.id" class="flex items-center gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-white transition-all duration-200">
-                    <div class="text-blue-500 flex items-center justify-center rounded-lg bg-blue-100 shrink-0 size-10">
+                  <div v-for="exercise in selectedChapter.exercises" :key="exercise.id" class="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200">
+                    <div class="text-blue-500 flex items-center justify-center rounded-lg bg-blue-50 shrink-0 size-10">
                       <Icon name="listBullets" size="20" />
                     </div>
                     <p class="text-gray-800 font-medium leading-normal flex-1 truncate">{{ exercise.title }}</p>
-                    <button class="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                    <button class="p-2 rounded-full hover:bg-gray-100 transition-colors">
                       <Icon name="caretDown" size="16" />
                     </button>
                   </div>
@@ -110,11 +110,10 @@
             <p>从左侧选择一个章节以查看详细内容或生成AI辅助教学材料。</p>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   </div>
   <div v-else class="flex-1 flex items-center justify-center">
-    <!-- Loading Skeleton or Spinner -->
     <div class="flex flex-col items-center gap-4">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       <p class="text-gray-500">正在加载课程大纲...</p>
@@ -127,7 +126,6 @@ import { ref, onMounted } from 'vue'
 import type { Syllabus, Chapter, Course } from '@/types'
 import { getSyllabus, getCourses } from '@/api'
 import Icon from '@/components/base/Icon.vue'
-import Card from '@/components/base/Card.vue'
 import { addNotification } from '@/store'
 
 const loading = ref(true)
@@ -141,10 +139,6 @@ onMounted(async () => {
   try {
     syllabus.value = await getSyllabus()
     courses.value = await getCourses()
-    if (syllabus.value && syllabus.value.chapters.length > 0) {
-      // Don't auto-select a chapter, let user choose.
-      // selectedChapter.value = syllabus.value.chapters[0];
-    }
   } catch (error) {
     console.error("Failed to load syllabus data:", error)
     addNotification({
@@ -220,35 +214,7 @@ const handleGenerateContent = () => {
   line-height: 1.7;
 }
 
-@keyframes slide-in-left {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slide-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-slide-in-left {
-  animation: slide-in-left 0.6s ease-out forwards;
-}
-
-.animate-slide-in-up {
-  animation: slide-in-up 0.6s 0.2s ease-out forwards;
-  opacity: 0; /* start hidden */
-  animation-fill-mode: both;
+.action-button {
+  @apply flex items-center justify-center gap-2 h-10 px-4 rounded-xl bg-gray-800 text-white font-bold text-sm shadow-lg hover:bg-gray-700 transition-all duration-200 hover:scale-105 active:scale-95;
 }
 </style>
