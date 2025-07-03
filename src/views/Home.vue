@@ -87,7 +87,23 @@ const handleAnnouncementClick = () => {
 
 <style scoped>
 .action-button {
-  @apply px-6 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-200 transition-all duration-200 hover:scale-105 active:scale-95;
+  padding: calc(var(--spacing) * 2) calc(var(--spacing) * 6);
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-700);
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all 200ms;
+  transform: scale(1);
+}
+
+.action-button:hover {
+  background-color: var(--color-gray-200);
+  transform: scale(1.05);
+}
+
+.action-button:active {
+  transform: scale(0.95);
 }
 
 @keyframes fade-in {

@@ -215,6 +215,28 @@ const handleGenerateContent = () => {
 }
 
 .action-button {
-  @apply flex items-center justify-center gap-2 h-10 px-4 rounded-xl bg-gray-800 text-white font-bold text-sm shadow-lg hover:bg-gray-700 transition-all duration-200 hover:scale-105 active:scale-95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing) * 2);
+  height: calc(var(--spacing) * 10);
+  padding: 0 calc(var(--spacing) * 4);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-gray-800);
+  color: var(--color-white);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  box-shadow: var(--shadow-lg);
+  transition: all 200ms;
+  transform: scale(1);
+}
+
+.action-button:hover {
+  background-color: var(--color-gray-700);
+  transform: scale(1.05);
+}
+
+.action-button:active {
+  transform: scale(0.95);
 }
 </style>

@@ -148,15 +148,53 @@ const openNewQuestionModal = () => {
 
 <style scoped>
 .filter-select {
-  @apply w-full h-12 px-4 bg-white border border-gray-200 rounded-xl transition-all duration-200 focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-200 outline-none;
+  width: 100%;
+  height: calc(var(--spacing) * 12);
+  padding: 0 calc(var(--spacing) * 4);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-xl);
+  transition: all 200ms;
+  outline: none;
+}
+
+.filter-select:focus {
+  background-color: var(--color-white);
+  border-color: var(--color-blue-300);
+  box-shadow: 0 0 0 2px var(--color-blue-200);
 }
 
 .action-button {
-  @apply flex items-center justify-center gap-2 h-10 px-5 rounded-xl bg-gray-800 text-white font-bold text-sm shadow-lg hover:bg-gray-700 transition-all duration-200 hover:scale-105 active:scale-95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing) * 2);
+  height: calc(var(--spacing) * 10);
+  padding: 0 calc(var(--spacing) * 5);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-gray-800);
+  color: var(--color-white);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  box-shadow: var(--shadow-lg);
+  transition: all 200ms;
+  transform: scale(1);
+}
+
+.action-button:hover {
+  background-color: var(--color-gray-700);
+  transform: scale(1.05);
+}
+
+.action-button:active {
+  transform: scale(0.95);
 }
 
 .tag {
-  @apply px-3 py-1 text-xs font-medium rounded-full;
+  padding: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  border-radius: var(--radius-full);
 }
 
 .fade-expand-enter-active,
