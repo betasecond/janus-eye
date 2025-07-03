@@ -66,6 +66,7 @@ const routes = [
     name: 'MyAssignments',
     component: MyAssignments,
   },
+  
   {
     path: '/practice',
     name: 'PracticeCenter',

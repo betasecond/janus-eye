@@ -33,14 +33,30 @@ import { setCurrentUser } from '@/store';
 const router = useRouter();
 
 const selectRole = (role: 'teacher' | 'student' | 'admin') => {
-  setCurrentUser(role);
+  // 创建用户对象
+  const user = {
+    id: '1',
+    name: role === 'teacher' ? '张老师' : role === 'student' ? '李小明' : '王管理员',
+    email: `${role}@example.com`,
+    avatar: role === 'teacher' 
+      ? 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=face'
+      : role === 'student'
+      ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face'
+      : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
+    role: role
+  };
 
+  // 保存用户信息到localStorage和store
+  localStorage.setItem('currentUser', JSON.stringify(user));
+  setCurrentUser(user);
+
+  // 根据角色跳转到不同页面
   switch (role) {
     case 'teacher':
       router.push('/dashboard');
       break;
     case 'student':
-      router.push('/home'); // Assuming '/home' is the student dashboard
+      router.push('/home');
       break;
     case 'admin':
       router.push('/admin/users');
