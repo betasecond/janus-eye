@@ -157,7 +157,7 @@ const handleLogin = () => {
 
   // 清除之前的用户信息
   localStorage.removeItem(LOCAL_STORAGE_USER_KEY)
-  currentUser.value = null // Reset reactive store value
+  setCurrentUser(null) // Reset reactive store value
 
   // 导航到角色选择页面
   router.push('/select-role')
