@@ -126,7 +126,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '../components/base/Icon.vue'
-import { currentUser } from '@/store'
+import { currentUser, setCurrentUser } from '@/store'
 import { LOCAL_STORAGE_USER_KEY } from '@/constants'
 
 interface LoginForm {
