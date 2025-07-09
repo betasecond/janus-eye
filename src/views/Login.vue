@@ -135,7 +135,7 @@ const selectRole = (role: Role) => {
   };
 
   localStorage.setItem('currentUser', JSON.stringify(user));
-  setCurrentUser(user.role);
+  setCurrentUser(user);  // 修改：传入完整的 user 对象
   
   addNotification({
       title: `以 ${user.name} 身份登录`,

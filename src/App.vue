@@ -104,7 +104,8 @@ onMounted(() => {
   const savedUser = localStorage.getItem(LOCAL_STORAGE_USER_KEY)
   if (savedUser) {
     try {
-      currentUser.value = JSON.parse(savedUser)
+      const parsedUser = JSON.parse(savedUser)
+      currentUser.value = parsedUser
       notifications.value = mockNotifications
       
       // 只有在用户已登录且当前在登录页面时才跳转
@@ -124,6 +125,7 @@ onMounted(() => {
       console.error('Failed to parse saved user:', error)
       // 如果解析失败，清除无效数据
       localStorage.removeItem(LOCAL_STORAGE_USER_KEY)
+      currentUser.value = null
     }
   }
 })
