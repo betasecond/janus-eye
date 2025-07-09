@@ -229,12 +229,12 @@ export const mockSyllabus: Syllabus = {
 
 // 教师导航菜单
 export const teacherMenuItems: MenuItem[] = [
-  { id: '1', label: '主页', icon: 'home', path: '/home', isActive: true },
+  { id: '1', label: '主页', icon: 'home', path: '/home' },
   { id: '2', label: '课程准备', icon: 'book', path: '/syllabus' },
   { id: '3', label: '作业生成', icon: 'file', path: '/question' },
   { id: '4', label: '学习分析', icon: 'chart', path: '/overview' },
-  { id: '5', label: '资源管理', icon: 'folder', path: '/home' },
-  { id: '6', label: '个人中心', icon: 'user', path: '/home' }
+  { id: '5', label: '资源管理', icon: 'folder', path: '/admin/resources' },
+  { id: '6', label: '个人中心', icon: 'user', path: '/profile' }
 ]
 
 // 学生导航菜单

@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from '@/views/Login.vue';
-import RoleSelection from '@/views/RoleSelection.vue';
 import Dashboard from '@/views/Dashboard.vue';
 import Syllabus from '@/views/Syllabus.vue';
 import Overview from '@/views/Overview.vue';
@@ -10,6 +9,7 @@ import UserManagement from '@/views/UserManagement.vue';
 import ResourceManagement from '@/views/ResourceManagement.vue';
 import MyAssignments from '@/views/MyAssignments.vue';
 import PracticeCenter from '@/views/PracticeCenter.vue';
+import Profile from '@/views/Profile.vue';
 
 const routes = [
   {
@@ -20,11 +20,6 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login,
-  },
-  {
-    path: '/select-role',
-    name: 'RoleSelection',
-    component: RoleSelection,
   },
   {
     path: '/dashboard',
@@ -71,6 +66,11 @@ const routes = [
     path: '/practice',
     name: 'PracticeCenter',
     component: PracticeCenter,
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: Profile,
   },
 ];
 

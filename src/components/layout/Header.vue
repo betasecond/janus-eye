@@ -2,12 +2,35 @@
   <header class="flex items-center justify-between whitespace-nowrap px-4 py-3 bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-gray-100 sticky top-4 z-50">
     <!-- 左侧区域 -->
     <div class="flex items-center gap-4">
-      <img
-        :src="user.avatar"
-        alt="User Avatar"
-        class="w-10 h-10 rounded-full object-cover ring-2 ring-white/80 shadow-md cursor-pointer hover:scale-110 transition-transform duration-300"
-        @click="handleUserClick"
-      />
+      <div class="relative" @click.stop>
+        <img
+          :src="user.avatar"
+          alt="User Avatar"
+          class="w-10 h-10 rounded-full object-cover ring-2 ring-white/80 shadow-md cursor-pointer hover:scale-110 transition-transform duration-300"
+          @click.stop="toggleUserMenu"
+        />
+        <!-- 用户菜单 -->
+        <div
+          v-show="showUserMenu"
+          class="absolute top-full left-0 mt-2 w-48 rounded-xl bg-white shadow-lg border border-gray-100 py-1 animate-fade-in-up z-50"
+          @click.stop
+        >
+          <div
+            class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+            @click="handleUserProfile"
+          >
+            <Icon name="user" size="16" class="text-gray-500" />
+            <span>个人中心</span>
+          </div>
+          <div
+            class="px-4 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer flex items-center gap-2 border-t border-gray-100"
+            @click="handleLogout"
+          >
+            <Icon name="logout" size="16" class="text-red-500" />
+            <span>退出登录</span>
+          </div>
+        </div>
+      </div>
       <div class="font-semibold text-gray-800">{{ currentCourse }}</div>
     </div>
 
@@ -49,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import Icon from '../base/Icon.vue'
 import type { User } from '../../types'
 
@@ -63,9 +86,10 @@ interface Emits {
   (e: 'search', value: string): void
   (e: 'toggle-notifications'): void
   (e: 'user-click'): void
+  (e: 'logout'): void
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   unreadCount: 0,
   currentCourse: "Ms. Zhang - Computer Science"
 })
@@ -73,6 +97,7 @@ withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 const searchValue = ref('')
+const showUserMenu = ref(false)
 
 const handleSearch = () => {
   emit('search', searchValue.value)
@@ -82,9 +107,35 @@ const toggleNotifications = () => {
   emit('toggle-notifications')
 }
 
-const handleUserClick = () => {
-  emit('user-click')
+const toggleUserMenu = () => {
+  showUserMenu.value = !showUserMenu.value
 }
+
+const handleUserProfile = () => {
+  emit('user-click')
+  showUserMenu.value = false
+}
+
+const handleLogout = () => {
+  emit('logout')
+  showUserMenu.value = false
+}
+
+// 点击外部关闭用户菜单
+const closeUserMenu = (e: MouseEvent) => {
+  const target = e.target as HTMLElement
+  if (!target.closest('.relative')) {
+    showUserMenu.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', closeUserMenu)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', closeUserMenu)
+})
 </script>
 
 <style scoped>
@@ -135,5 +186,21 @@ const handleUserClick = () => {
 
 .animate-bounce {
   animation: bounce 2s infinite;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.2s ease-out forwards;
+  transform-origin: top;
 }
 </style> 
