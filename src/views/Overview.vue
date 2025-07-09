@@ -1,10 +1,17 @@
 <template>
   <div class="layout-content-container flex flex-col max-w-[960px] flex-1 animate-fade-in">
-    <div v-if="!loading && stats">
+    <div v-if="loading || !stats" class="flex items-center justify-center flex-1 animate-pulse">
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+        <p class="text-gray-500 text-lg">加载数据中...</p>
+      </div>
+    </div>
+    
+    <div v-else>
       <div class="flex flex-wrap justify-between gap-3 p-4 animate-slide-in-up">
         <div class="flex min-w-72 flex-col gap-3">
-          <p class="text-[#0d131c] tracking-light text-[32px] font-bold leading-tight animate-fade-in-up">Class Performance Overview</p>
-          <p class="text-[#49699c] text-sm font-normal leading-normal animate-fade-in-up" style="animation-delay: 0.1s;">Analyze student performance across different subjects and time periods.</p>
+          <p class="text-[#0d131c] tracking-light text-[32px] font-bold leading-tight animate-fade-in-up">学习表现概览</p>
+          <p class="text-[#49699c] text-sm font-normal leading-normal animate-fade-in-up" style="animation-delay: 0.1s;">分析不同科目和时期的学习表现</p>
         </div>
       </div>
       
@@ -13,7 +20,7 @@
         <div class="stat-card flex min-w-[158px] flex-1 flex-col gap-3 rounded-xl p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
           <div class="flex items-center gap-2">
             <div class="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-            <p class="text-[#0d131c] text-base font-medium leading-normal">Average Accuracy</p>
+            <p class="text-[#0d131c] text-base font-medium leading-normal">平均准确率</p>
           </div>
           <div class="flex items-center gap-2">
             <p class="text-[#0d131c] tracking-light text-3xl font-bold leading-tight counter-animation">{{ stats.averageAccuracy }}%</p>
@@ -25,20 +32,20 @@
             </div>
           </div>
         </div>
-        <div class="stat-card flex min-w-[158px] flex-1 flex-col gap-3 rounded-xl p-6 bg-gradient-to-br from-orange-50 to-red-50 border border-orange-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group" style="animation-delay: 0.1s;">
+        <div class="stat-card flex min-w-[158px] flex-1 flex-col gap-3 rounded-xl p-6 bg-gradient-to-br from-orange-50 to-red-50 border border-orange-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
           <div class="flex items-center gap-2">
             <div class="w-3 h-3 bg-orange-500 rounded-full animate-pulse"></div>
-            <p class="text-[#0d131c] text-base font-medium leading-normal">Most Challenging</p>
+            <p class="text-[#0d131c] text-base font-medium leading-normal">最具挑战知识点</p>
           </div>
           <p class="text-[#0d131c] tracking-light text-xl font-bold leading-tight">{{ stats.frequentlyMissedConcepts[0] }}</p>
           <div class="flex gap-1">
             <span class="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">需要关注</span>
           </div>
         </div>
-        <div class="stat-card flex min-w-[158px] flex-1 flex-col gap-3 rounded-xl p-6 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group" style="animation-delay: 0.2s;">
+        <div class="stat-card flex min-w-[158px] flex-1 flex-col gap-3 rounded-xl p-6 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
           <div class="flex items-center gap-2">
             <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-            <p class="text-[#0d131c] text-base font-medium leading-normal">Class Ranking</p>
+            <p class="text-[#0d131c] text-base font-medium leading-normal">班级排名</p>
           </div>
           <div class="flex items-center gap-2">
             <p class="text-[#0d131c] tracking-light text-3xl font-bold leading-tight">{{ stats.classRanking }}</p>
@@ -49,7 +56,7 @@
         </div>
       </div>
       
-      <h2 class="text-[#0d131c] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5 animate-fade-in-up" style="animation-delay: 0.3s;">Performance Charts</h2>
+      <h2 class="text-[#0d131c] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5 animate-fade-in-up" style="animation-delay: 0.3s;">学习表现图表</h2>
       
       <!-- Charts -->
       <div class="flex flex-wrap gap-4 p-4 animate-slide-in-up" style="animation-delay: 0.4s;">
@@ -59,11 +66,11 @@
             <div class="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
             <p class="text-[#0d131c] text-lg font-semibold leading-normal">知识点掌握度</p>
           </div>
-          <div class="chart-wrapper relative">
-            <v-chart class="h-[280px]" :option="masteryChartOption" autoresize />
+          <div class="chart-wrapper relative h-[280px]">
             <div v-if="chartLoading" class="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center">
               <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
             </div>
+            <v-chart v-else class="h-full w-full" :option="masteryChartOption" autoresize />
           </div>
         </div>
         <!-- Accuracy Trends Over Time -->
@@ -72,27 +79,26 @@
             <div class="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
             <p class="text-[#0d131c] text-lg font-semibold leading-normal">准确率趋势</p>
           </div>
-          <div class="chart-wrapper relative">
-            <v-chart class="h-[280px]" :option="trendsChartOption" autoresize />
+          <div class="chart-wrapper relative h-[280px]">
             <div v-if="chartLoading" class="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center">
               <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             </div>
+            <v-chart v-else class="h-full w-full" :option="trendsChartOption" autoresize />
           </div>
         </div>
       </div>
       
-      <h2 class="text-[#0d131c] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5 animate-fade-in-up" style="animation-delay: 0.5s;">Detailed Student Analysis</h2>
-      
       <!-- Student Analysis Table -->
+      <h2 class="text-[#0d131c] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5 animate-fade-in-up" style="animation-delay: 0.5s;">详细学生分析</h2>
       <div class="px-4 py-3 animate-slide-in-up" style="animation-delay: 0.6s;">
         <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
           <table class="min-w-full">
             <thead>
               <tr class="bg-gradient-to-r from-gray-50 to-gray-100">
-                <th class="px-6 py-4 text-left text-[#0d131c] text-sm font-semibold leading-normal">Student</th>
-                <th class="px-6 py-4 text-left text-[#0d131c] text-sm font-semibold leading-normal">Incorrect Questions</th>
-                <th class="px-6 py-4 text-left text-[#0d131c] text-sm font-semibold leading-normal">Error Location</th>
-                <th class="px-6 py-4 text-left text-[#0d131c] text-sm font-semibold leading-normal">Suggested Correction</th>
+                <th class="px-6 py-4 text-left text-[#0d131c] text-sm font-semibold leading-normal">学生</th>
+                <th class="px-6 py-4 text-left text-[#0d131c] text-sm font-semibold leading-normal">错误题目</th>
+                <th class="px-6 py-4 text-left text-[#0d131c] text-sm font-semibold leading-normal">错误位置</th>
+                <th class="px-6 py-4 text-left text-[#0d131c] text-sm font-semibold leading-normal">建议修正</th>
               </tr>
             </thead>
             <tbody>
@@ -110,12 +116,6 @@
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
-    <div v-else class="flex items-center justify-center flex-1 animate-pulse">
-      <div class="text-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-        <p class="text-gray-500 text-lg">Loading performance data...</p>
       </div>
     </div>
   </div>
@@ -147,21 +147,28 @@ use([
 ]);
 
 const loading = ref(true);
-const chartLoading = ref(false);
+const chartLoading = ref(true);
 const stats = ref<PerformanceStats | null>(null);
 const studentAnalysis = ref<StudentAnalysis[]>([]);
 
 onMounted(async () => {
-  chartLoading.value = true;
-  stats.value = await getPerformanceStats();
-  studentAnalysis.value = await getStudentAnalysis();
-  
-  // 模拟图表加载延迟
-  setTimeout(() => {
+  try {
+    const [statsData, analysisData] = await Promise.all([
+      getPerformanceStats(),
+      getStudentAnalysis()
+    ]);
+    
+    stats.value = statsData;
+    studentAnalysis.value = analysisData;
+    console.log('Stats loaded:', stats.value);
+    console.log('Analysis loaded:', studentAnalysis.value);
+    
+  } catch (error) {
+    console.error("Failed to load overview data:", error);
+  } finally {
+    loading.value = false;
     chartLoading.value = false;
-  }, 1000);
-  
-  loading.value = false;
+  }
 });
 
 const masteryChartOption = computed(() => {
@@ -179,6 +186,7 @@ const masteryChartOption = computed(() => {
       }
     },
     grid: {
+      top: '3%',
       left: '3%',
       right: '4%',
       bottom: '3%',
@@ -188,11 +196,14 @@ const masteryChartOption = computed(() => {
       type: 'category',
       data: Object.keys(stats.value.knowledgePointMastery),
       axisLabel: {
-        color: '#666'
+        color: '#666',
+        interval: 0,
+        rotate: 30
       }
     },
     yAxis: {
       type: 'value',
+      max: 100,
       axisLabel: {
         formatter: '{value}%',
         color: '#666'
@@ -218,9 +229,13 @@ const masteryChartOption = computed(() => {
         },
         borderRadius: [4, 4, 0, 0]
       },
-      animationDelay: (idx: number) => idx * 100,
+      label: {
+        show: true,
+        position: 'top',
+        formatter: '{c}%'
+      }
     }]
-  }
+  };
 });
 
 const trendsChartOption = computed(() => {
@@ -235,6 +250,7 @@ const trendsChartOption = computed(() => {
       }
     },
     grid: {
+      top: '3%',
       left: '3%',
       right: '4%',
       bottom: '3%',
@@ -250,6 +266,8 @@ const trendsChartOption = computed(() => {
     },
     yAxis: {
       type: 'value',
+      min: 0,
+      max: 100,
       axisLabel: {
         formatter: '{value}%',
         color: '#666'
@@ -260,6 +278,7 @@ const trendsChartOption = computed(() => {
       type: 'line',
       data: stats.value.accuracyTrends.map(t => t.accuracy),
       smooth: true,
+      symbolSize: 8,
       areaStyle: {
         color: {
           type: 'linear',
@@ -279,11 +298,17 @@ const trendsChartOption = computed(() => {
         width: 3
       },
       itemStyle: {
-        color: '#3b82f6'
+        color: '#3b82f6',
+        borderWidth: 2,
+        borderColor: '#fff'
       },
-      animationDelay: 0,
+      label: {
+        show: true,
+        position: 'top',
+        formatter: '{c}%'
+      }
     }]
-  }
+  };
 });
 </script>
 

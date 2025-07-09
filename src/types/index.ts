@@ -101,8 +101,7 @@ export interface StudentAnalysis {
 
 // 导航菜单项类型
 export interface MenuItem {
-  id: string
-  label: string
+  title: string
   icon: string
   path: string
   isActive?: boolean

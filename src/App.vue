@@ -7,7 +7,7 @@
     <template v-if="currentUser">
       <div class="flex h-full grow">
         <!-- 侧边栏 -->
-        <aside class="layout-sidebar w-72 flex-shrink-0 p-4 animate-slide-in-left">
+        <aside class="layout-sidebar w-72 flex-shrink-0 p-4 animate-slide-in-left z-20">
           <Sidebar
             :menu-items="currentMenuItems"
             app-name="EduAssist"
@@ -16,7 +16,7 @@
         </aside>
 
         <!-- 主内容区域 -->
-        <div class="flex-1 flex flex-col min-w-0 pr-4 pb-4 pt-4">
+        <div class="flex-1 flex flex-col min-w-0 pr-4 pb-4 pt-4 relative">
            <main class="flex-1 flex flex-col bg-white rounded-2xl shadow-lg border border-gray-100">
              <!-- 顶部导航 -->
               <Header
@@ -25,6 +25,7 @@
                 @search="handleSearch"
                 @toggle-notifications="toggleNotifications"
                 @user-click="handleUserClick"
+                @logout="handleLogout"
                 class="flex-shrink-0"
               />
 
@@ -43,30 +44,29 @@
                 </router-view>
               </div>
           </main>
+           <!-- 通知面板 -->
+          <transition name="slide-fade">
+            <div
+              v-if="showNotificationPanel"
+              class="fixed inset-0 bg-black bg-opacity-50 z-10"
+              @click="closeNotificationPanel"
+            >
+              <div
+                class="absolute top-0 right-0 w-96 h-full bg-white shadow-2xl overflow-y-auto border-l border-gray-200"
+                @click.stop
+              >
+                <h3 class="p-4 text-lg font-bold border-b border-gray-100 sticky top-0 bg-white/80 backdrop-blur-sm z-10">
+                  通知中心
+                </h3>
+                <NotificationList
+                  :notifications="notifications"
+                  @notification-click="handleNotificationClick"
+                />
+              </div>
+            </div>
+          </transition>
         </div>
       </div>
-      
-      <!-- 通知面板 -->
-      <transition name="slide-fade">
-        <div
-          v-if="showNotificationPanel"
-          class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end"
-          @click="closeNotificationPanel"
-        >
-          <div
-            class="w-96 h-full bg-white shadow-2xl overflow-y-auto border-l border-gray-200"
-            @click.stop
-          >
-            <h3 class="p-4 text-lg font-bold border-b border-gray-100 sticky top-0 bg-white/80 backdrop-blur-sm z-10">
-              通知中心
-            </h3>
-            <NotificationList
-              :notifications="notifications"
-              @notification-click="handleNotificationClick"
-            />
-          </div>
-        </div>
-      </transition>
     </template>
     
     <!-- 加载状态或登录页面 -->
@@ -104,7 +104,8 @@ onMounted(() => {
   const savedUser = localStorage.getItem(LOCAL_STORAGE_USER_KEY)
   if (savedUser) {
     try {
-      currentUser.value = JSON.parse(savedUser)
+      const parsedUser = JSON.parse(savedUser)
+      currentUser.value = parsedUser
       notifications.value = mockNotifications
       
       // 只有在用户已登录且当前在登录页面时才跳转
@@ -124,6 +125,7 @@ onMounted(() => {
       console.error('Failed to parse saved user:', error)
       // 如果解析失败，清除无效数据
       localStorage.removeItem(LOCAL_STORAGE_USER_KEY)
+      currentUser.value = null
     }
   }
 })
@@ -160,12 +162,8 @@ const closeNotificationPanel = () => {
 }
 
 const handleUserClick = () => {
-  // 提供登出选项
-  if (confirm('确定要退出登录吗？')) {
-    handleLogout()
-  } else {
-    addNotification({ title: '功能开发中', content: '个人中心页面正在加速开发中, 敬请期待！', type: 'info'})
-  }
+  // 个人中心导航
+  router.push('/profile');
 }
 
 const handleLogout = () => {

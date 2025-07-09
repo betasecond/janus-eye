@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 md:p-6 lg:p-8 animate-fade-in space-y-8">
+  <div v-if="user" class="p-4 md:p-6 lg:p-8 animate-fade-in space-y-8">
     <!-- Welcome Header -->
     <header>
       <h1 class="text-4xl font-bold text-gray-800 tracking-tight">
@@ -56,6 +56,14 @@
         </div>
       </div>
     </main>
+  </div>
+  <div v-else class="flex items-center justify-center h-full">
+    <div class="text-center">
+      <h2 class="text-2xl font-bold text-gray-800 mb-4">请先登录</h2>
+      <button @click="router.push('/login')" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+        去登录
+      </button>
+    </div>
   </div>
 </template>
 
