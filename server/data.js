@@ -240,16 +240,16 @@ const studentMenuItems = [
   { id: '1', label: '主页', icon: 'home', path: '/home', isActive: true },
   { id: '2', label: '我的作业', icon: 'video', path: '/assignments' },
   { id: '3', label: '练习评估', icon: 'file', path: '/practice' },
-  { id: '4', label: '资源库', icon: 'bookmark', path: '/admin/resources' },
+  { id: '4', label: '资源库', icon: 'bookmark', path: '/library' },
   { id: '5', label: '个人中心', icon: 'user', path: '/home' }
 ];
 
 // 管理员导航菜单
 const adminMenuItems = [
-  { id: '1', label: '主页', icon: 'home', path: '/home' },
+  { id: '1', label: '主页', icon: 'home', path: '/admin/dashboard' },
   { id: '2', label: '用户管理', icon: 'users', path: '/admin/users' },
   { id: '3', label: '资源管理', icon: 'folder', path: '/admin/resources' },
-  { id: '4', label: '系统设置', icon: 'gear', path: '/home' }
+  { id: '4', label: '系统设置', icon: 'gear', path: '/admin/settings' }
 ];
 
 // 模拟资源数据
