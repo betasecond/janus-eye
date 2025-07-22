@@ -6,6 +6,7 @@ import type {
   NotificationStatsVO,
   MessageVO
 } from '@/types'
+import { LOCAL_STORAGE_USER_KEY } from '@/constants'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
@@ -174,12 +175,42 @@ export const getNotificationStats = async (): Promise<NotificationStatsVO> => {
   return response.json()
 }
 
-// 兼容性方法 - 保持原有签名
+// 兼容性方法 - 自动获取当前用户ID
 export const getNotifications = async (): Promise<Notification[]> => {
-  // 注意：这个兼容性方法需要当前用户ID，但原API没有提供获取当前用户的方法
-  // 建议调用方迁移到 getUserNotifications(userId) 或提供获取当前用户ID的方法
-  throw new Error(
-    'getNotifications() 方法已被弃用。请使用 getUserNotifications(userId) 方法，其中 userId 是必需的参数。' +
-    '如果您需要获取当前用户的通知，请先获取当前用户ID，然后调用 getUserNotifications(currentUserId)。'
-  )
+  try {
+    // 尝试从localStorage获取当前用户信息
+    const savedUser = localStorage.getItem(LOCAL_STORAGE_USER_KEY)
+    if (savedUser) {
+      const user = JSON.parse(savedUser)
+      if (user && user.id) {
+        // 调用新的API并转换返回类型
+        const notifications = await getUserNotifications(user.id)
+        // 将 NotificationVO[] 转换为 Notification[]
+        return notifications.map(notification => ({
+          id: notification.id,
+          title: notification.title,
+          content: notification.content,
+          type: notification.type,
+          sender: notification.sender,
+          recipient: notification.recipient,
+          isRead: notification.isRead,
+          readAt: notification.readAt || undefined,
+          createdAt: notification.createdAt || undefined,
+          avatar: notification.sender?.avatarUrl
+        }))
+      }
+    }
+    
+    // 如果没有找到用户信息，抛出错误
+    throw new Error(
+      '无法获取当前用户信息。请确保用户已登录，或直接使用 getUserNotifications(userId) 方法。'
+    )
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error
+    }
+    throw new Error(
+      'getNotifications() 方法已被弃用。请使用 getUserNotifications(userId) 方法，其中 userId 是必需的参数。'
+    )
+  }
 } 
