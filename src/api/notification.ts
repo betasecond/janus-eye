@@ -1,4 +1,5 @@
 import type { 
+  Notification,
   NotificationVO, 
   CreateNotificationDto, 
   NotificationSummaryVO,
@@ -173,5 +174,12 @@ export const getNotificationStats = async (): Promise<NotificationStatsVO> => {
   return response.json()
 }
 
-// 兼容性方法
-export const getNotifications = getUserNotifications 
+// 兼容性方法 - 保持原有签名
+export const getNotifications = async (): Promise<Notification[]> => {
+  // 注意：这个兼容性方法需要当前用户ID，但原API没有提供获取当前用户的方法
+  // 建议调用方迁移到 getUserNotifications(userId) 或提供获取当前用户ID的方法
+  throw new Error(
+    'getNotifications() 方法已被弃用。请使用 getUserNotifications(userId) 方法，其中 userId 是必需的参数。' +
+    '如果您需要获取当前用户的通知，请先获取当前用户ID，然后调用 getUserNotifications(currentUserId)。'
+  )
+} 
