@@ -103,25 +103,25 @@ export const markAllNotificationsAsRead = async (userId: string): Promise<Messag
   return response.json()
 }
 
-/**
- * 批量标记为已读
- */
-export const markNotificationsAsRead = async (data: {
-  notificationIds: string[]
-  userId: string
-}): Promise<MessageVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/notifications/mark-read`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  })
-  if (!response.ok) {
-    throw new Error('Failed to mark notifications as read')
-  }
-  return response.json()
-}
+// /**
+//  * 批量标记为已读
+//  */
+// export const markNotificationsAsRead = async (data: {
+//   notificationIds: string[]
+//   userId: string
+// }): Promise<MessageVO> => {
+//   const response = await fetch(`${API_BASE_URL}/api/notifications/mark-read`, {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify(data),
+//   })
+//   if (!response.ok) {
+//     throw new Error('Failed to mark notifications as read')
+//   }
+//   return response.json()
+// }
 
 /**
  * 删除通知
