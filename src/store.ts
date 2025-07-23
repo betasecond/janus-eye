@@ -1,6 +1,5 @@
 import { ref, readonly } from 'vue';
 import type { User, ToastNotification } from './types';
-import { mockUser } from './data/mockData';
 
 // This is a simple global state management for the demo.
 // In a real application, you would use a more robust solution like Pinia or Vuex.
@@ -8,28 +7,27 @@ import { mockUser } from './data/mockData';
 // --- User Management ---
 export const currentUser = ref<User | null>(null);
 
-export const createUser = (role: 'teacher' | 'student' | 'admin'): User => {
+export const createUser = (role: 'TEACHER' | 'STUDENT' | 'ADMIN'): User => {
   // Eventually, generate unique IDs or fetch from backend
   const userId = '1'; // Keeping '1' for now as per existing logic
   let name = '';
   switch (role) {
-    case 'teacher':
+    case 'TEACHER':
       name = '张老师';
       break;
-    case 'student':
+    case 'STUDENT':
       name = '李小明';
       break;
-    case 'admin':
+    case 'ADMIN':
       name = '王管理员';
       break;
   }
   return {
     id: userId,
-    name: name,
-    email: `${role}@example.com`,
-    avatar: role === 'teacher'
+    displayName: name,
+    avatarUrl: role === 'TEACHER'
       ? 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=face'
-      : role === 'student'
+      : role === 'STUDENT'
       ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face'
       : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
     role: role,

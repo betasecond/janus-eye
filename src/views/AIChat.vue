@@ -13,7 +13,8 @@
           
           <!-- 消息气泡 -->
           <div :class="message.isUser ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'" class="rounded-xl p-4 max-w-lg">
-            <p>{{ message.text }}</p>
+            <p v-if="message.isUser">{{ message.text }}</p>
+            <p v-else v-html="message.text"></p>
           </div>
 
            <!-- 用户头像 -->
@@ -21,8 +22,24 @@
             我
           </div>
         </div>
+         <!-- 流式输出光标 -->
+        <div v-if="isStreaming" class="flex items-start gap-4 justify-start">
+          <div class="flex items-center justify-center shrink-0 size-10 rounded-full bg-blue-500 text-white font-bold">
+            AI
+          </div>
+          <div class="bg-gray-100 rounded-xl p-4 max-w-lg relative">
+            <p class="text-gray-800">{{ currentStreamingText }}<span class="typing-cursor">|</span></p>
+            <button 
+              @click="stopStreaming" 
+              class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+              title="停止生成"
+            >
+              ×
+            </button>
+          </div>
+        </div>
          <!-- 加载提示 -->
-        <div v-if="isLoading" class="flex items-start gap-4 justify-start">
+        <div v-if="isLoading && !isStreaming" class="flex items-start gap-4 justify-start">
           <div class="flex items-center justify-center shrink-0 size-10 rounded-full bg-blue-500 text-white font-bold">
             AI
           </div>
@@ -45,9 +62,9 @@
             placeholder="在这里输入你的问题..."
             class="flex-1 resize-none border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all"
             rows="1"
-            :disabled="isLoading"
+            :disabled="isLoading || isStreaming"
           ></textarea>
-          <button @click="handleSendMessage" :disabled="isLoading || !userInput.trim()" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed">
+          <button @click="handleSendMessage" :disabled="isLoading || isStreaming || !userInput.trim()" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed">
             发送
           </button>
         </div>
@@ -67,10 +84,13 @@ interface Message {
 
 const userInput = ref('');
 const messages = ref<Message[]>([
-  { text: '你好！我是你的 AI 助教。关于课程的任何问题，随时都可以问我。比如：“请解释一下什么是Vue的响应式系统？”', isUser: false }
+  { text: '你好！我是你的 AI 助教。关于课程的任何问题，随时都可以问我。比如："请解释一下什么是Vue的响应式系统？"', isUser: false }
 ]);
 const isLoading = ref(false);
+const isStreaming = ref(false);
+const currentStreamingText = ref('');
 const messageContainer = ref<HTMLElement | null>(null);
+const streamController = ref<AbortController | null>(null);
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -80,9 +100,69 @@ const scrollToBottom = () => {
   });
 };
 
+// 模拟流式输出
+const streamText = async (fullText: string) => {
+  currentStreamingText.value = '';
+  
+  // 创建新的 AbortController 用于中断流式输出
+  streamController.value = new AbortController();
+  
+  try {
+    // 按字符输出，提供更自然的打字效果
+    for (let i = 0; i < fullText.length; i++) {
+      // 检查是否被中断
+      if (streamController.value.signal.aborted) {
+        break;
+      }
+      
+      currentStreamingText.value += fullText[i];
+      scrollToBottom();
+      
+      // 根据字符类型调整延迟
+      let delay = 30; // 基础延迟
+      
+      // 标点符号稍作停顿
+      if (['。', '！', '？', '.', '!', '?', '，', ',', '；', ';'].includes(fullText[i])) {
+        delay = 200;
+      }
+      // 换行符稍作停顿
+      else if (fullText[i] === '\n') {
+        delay = 300;
+      }
+      // 添加一些随机性，让打字更自然
+      else {
+        delay += Math.random() * 20;
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+    
+    // 流式输出完成
+    isStreaming.value = false;
+    messages.value.push({ text: currentStreamingText.value, isUser: false });
+    scrollToBottom();
+  } catch (error: any) {
+    if (error.name === 'AbortError') {
+      // 流式输出被中断
+      isStreaming.value = false;
+      messages.value.push({ text: currentStreamingText.value + '...', isUser: false });
+      scrollToBottom();
+    }
+  } finally {
+    streamController.value = null;
+  }
+};
+
+// 中断流式输出
+const stopStreaming = () => {
+  if (streamController.value) {
+    streamController.value.abort();
+  }
+};
+
 const handleSendMessage = async () => {
   const text = userInput.value.trim();
-  if (!text || isLoading.value) return;
+  if (!text || isLoading.value || isStreaming.value) return;
 
   // 1. 将用户消息添加到对话列表
   messages.value.push({ text, isUser: true });
@@ -93,14 +173,16 @@ const handleSendMessage = async () => {
   isLoading.value = true;
   try {
     const aiResponse = await getAIChatResponse(text);
-    // 3. 将AI回复添加到对话列表
-    messages.value.push({ text: aiResponse, isUser: false });
+    
+    // 3. 开始流式输出
+    isLoading.value = false;
+    isStreaming.value = true;
+    await streamText(aiResponse);
+    
   } catch (error) {
     console.error("AI chat error:", error);
-    messages.value.push({ text: '抱歉，AI开小差了，请稍后再试。', isUser: false });
-  } finally {
-    // 4. 结束加载状态
     isLoading.value = false;
+    messages.value.push({ text: '抱歉，AI开小差了，请稍后再试。', isUser: false });
     scrollToBottom();
   }
 };
@@ -134,6 +216,22 @@ textarea {
   }
   40% {
     transform: scale(1.0);
+  }
+}
+
+/* 打字光标动画 */
+.typing-cursor {
+  animation: blink 1s infinite;
+  color: #3B82F6; /* blue-500 */
+  font-weight: bold;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
   }
 }
 </style> 
