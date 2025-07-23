@@ -73,7 +73,7 @@ export interface QuestionVO {
 export interface KnowledgePoint {
   id: string
   name: string
-  description?: string
+  description: string
   subject: string
 }
 
@@ -197,7 +197,8 @@ export interface StudentAnalysis {
 
 // 导航菜单项类型
 export interface MenuItem {
-  title: string
+  id: string
+  label: string
   icon: string
   path: string
   isActive?: boolean

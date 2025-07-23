@@ -123,14 +123,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { Syllabus, Chapter, Course } from '@/types'
+import type { Syllabus, Chapter, CourseVO } from '@/types'
 import { getSyllabus, getCourses } from '@/api'
 import Icon from '@/components/base/Icon.vue'
 import { addNotification } from '@/store'
 
 const loading = ref(true)
 const syllabus = ref<Syllabus | null>(null)
-const courses = ref<Course[]>([])
+const courses = ref<CourseVO[]>([])
 const selectedChapter = ref<Chapter | null>(null)
 const isGenerating = ref(false)
 const progress = ref(0)
