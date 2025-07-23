@@ -2,7 +2,7 @@
 export const AI_CONFIG = {
   // 通义千问API配置
   DASHSCOPE: {
-    API_KEY: import.meta.env.VITE_DASHSCOPE_API_KEY || 'sk-7dadf5c894664d9abd339cc95dd84697',
+    API_KEY: import.meta.env.VITE_DASHSCOPE_API_KEY ,
     BASE_URL: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
     MODEL: 'qwen-turbo-latest',
     TEMPERATURE: 0.7,
