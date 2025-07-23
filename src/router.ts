@@ -57,6 +57,11 @@ const routes = [
     component: ResourceManagement,
   },
   {
+    path: '/library',
+    name: 'Library',
+    component: ResourceManagement,
+  },
+  {
     path: '/assignments',
     name: 'MyAssignments',
     component: MyAssignments,

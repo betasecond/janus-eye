@@ -23,7 +23,7 @@
             <p class="text-[#0d131c] text-base font-medium leading-normal">平均准确率</p>
           </div>
           <div class="flex items-center gap-2">
-            <p class="text-[#0d131c] tracking-light text-3xl font-bold leading-tight counter-animation">{{ stats.averageAccuracy }}%</p>
+            <p class="text-[#0d131c] tracking-light text-3xl font-bold leading-tight counter-animation">{{ stats.averageAccuracy || 0 }}%</p>
             <div class="text-green-500 text-sm font-medium flex items-center gap-1">
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -37,7 +37,7 @@
             <div class="w-3 h-3 bg-orange-500 rounded-full animate-pulse"></div>
             <p class="text-[#0d131c] text-base font-medium leading-normal">最具挑战知识点</p>
           </div>
-          <p class="text-[#0d131c] tracking-light text-xl font-bold leading-tight">{{ stats.frequentlyMissedConcepts[0] }}</p>
+          <p class="text-[#0d131c] tracking-light text-xl font-bold leading-tight">{{ stats.frequentlyMissedConcepts && stats.frequentlyMissedConcepts.length > 0 ? stats.frequentlyMissedConcepts[0] : '暂无数据' }}</p>
           <div class="flex gap-1">
             <span class="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">需要关注</span>
           </div>
@@ -48,7 +48,7 @@
             <p class="text-[#0d131c] text-base font-medium leading-normal">班级排名</p>
           </div>
           <div class="flex items-center gap-2">
-            <p class="text-[#0d131c] tracking-light text-3xl font-bold leading-tight">{{ stats.classRanking }}</p>
+            <p class="text-[#0d131c] tracking-light text-3xl font-bold leading-tight">{{ stats.classRanking || 'N/A' }}</p>
             <div class="text-green-500 text-sm font-medium">
               🏆
             </div>
@@ -102,7 +102,11 @@
               </tr>
             </thead>
             <tbody>
+              <tr v-if="!studentAnalysis || studentAnalysis.length === 0">
+                <td colspan="4" class="px-6 py-4 text-center text-gray-500">暂无分析数据</td>
+              </tr>
               <tr 
+                v-else
                 v-for="(item, index) in studentAnalysis" 
                 :key="item.id" 
                 class="border-t border-gray-100 hover:bg-gray-50 transition-colors duration-200 animate-fade-in-up"
@@ -194,7 +198,7 @@ const masteryChartOption = computed(() => {
     },
     xAxis: {
       type: 'category',
-      data: Object.keys(stats.value.knowledgePointMastery),
+      data: Object.keys(stats.value?.knowledgePointMastery),
       axisLabel: {
         color: '#666',
         interval: 0,
@@ -401,4 +405,5 @@ const trendsChartOption = computed(() => {
   border-radius: 8px;
   overflow: hidden;
 }
-</style> 
+</style>
+
