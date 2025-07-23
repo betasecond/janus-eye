@@ -74,9 +74,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, onMounted } from 'vue';
 import { getAIChatResponseStream, getAIChatResponse } from '@/api/ai';
 import { parseMarkdownSync } from '@/utils/markdown';
+import { enhancedAI } from '@/services/enhancedAI';
 
 interface Message {
   text: string;
@@ -92,13 +93,31 @@ const messages = ref<Message[]>([
     html: '你好！我是你的 AI 助教。关于课程的任何问题，随时都可以问我。比如："请解释一下冯·诺依曼体系结构的基本组成部分？"'
   }
 ]);
-
 const isLoading = ref(false);
 const isStreaming = ref(false);
 const currentStreamingText = ref('');
 const currentStreamingHtml = ref('');
 const messageContainer = ref<HTMLElement | null>(null);
 const streamController = ref<AbortController | null>(null);
+const mcpStatus = ref<{ available: boolean; tools: any[]; error?: string }>({ available: false, tools: [], error: '' });
+
+onMounted(() => {
+  // 检查MCP状态
+  const status = enhancedAI.getMCPStatus();
+  mcpStatus.value = status;
+  
+  if (status.available) {
+    console.log('MCP工具可用:', status.tools);
+    // 添加MCP状态消息
+    messages.value.unshift({
+      text: `🔧 MCP工具已启用！"`,
+      isUser: false,
+      html: `🔧 <strong>MCP工具已启用！"`
+    });
+  } else {
+    console.log('MCP工具不可用:', status.error);
+  }
+});
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -108,7 +127,59 @@ const scrollToBottom = () => {
   });
 };
 
-// 使用真实AI流式输出
+// 使用增强AI服务（支持MCP工具）
+const streamFromEnhancedAI = async (message: string) => {
+  currentStreamingText.value = '';
+  currentStreamingHtml.value = '';
+  isStreaming.value = true;
+  
+  try {
+    await enhancedAI.getEnhancedResponse(
+      message,
+      // onChunk: 处理每个流式数据块
+      (chunk: string) => {
+        currentStreamingText.value += chunk;
+        // 实时解析Markdown
+        currentStreamingHtml.value = parseMarkdownSync(currentStreamingText.value);
+        scrollToBottom();
+      },
+      // onComplete: 流式输出完成
+      (fullResponse: string) => {
+        isStreaming.value = false;
+        const html = parseMarkdownSync(fullResponse);
+        messages.value.push({ 
+          text: fullResponse, 
+          isUser: false,
+          html: html
+        });
+        scrollToBottom();
+      },
+      // onError: 错误处理
+      (error: string) => {
+        isStreaming.value = false;
+        const errorMessage = `抱歉，AI服务出现错误：${error}`;
+        messages.value.push({ 
+          text: errorMessage, 
+          isUser: false,
+          html: errorMessage
+        });
+        scrollToBottom();
+      }
+    );
+  } catch (error) {
+    console.error('Enhanced AI stream error:', error);
+    isStreaming.value = false;
+    const errorMessage = '抱歉，AI服务暂时不可用，请稍后重试。';
+    messages.value.push({ 
+      text: errorMessage, 
+      isUser: false,
+      html: errorMessage
+    });
+    scrollToBottom();
+  }
+};
+
+// 使用真实AI流式输出（备用方案）
 const streamFromAI = async (message: string) => {
   currentStreamingText.value = '';
   currentStreamingHtml.value = '';
@@ -248,14 +319,20 @@ const handleSendMessage = async () => {
   isLoading.value = true;
   
   try {
-    // 3. 尝试使用真实AI流式输出
-    isLoading.value = false;
-    await streamFromAI(text);
+    // 3. 优先使用增强AI服务（支持MCP工具）
+    if (mcpStatus.value.available) {
+      isLoading.value = false;
+      await streamFromEnhancedAI(text);
+    } else {
+      // 4. 回退到普通AI服务
+      isLoading.value = false;
+      await streamFromAI(text);
+    }
   } catch (error) {
     console.error("AI chat error:", error);
     isLoading.value = false;
     
-    // 如果真实AI不可用，回退到模拟流式输出
+    // 如果增强AI不可用，回退到模拟流式输出
     try {
       const fallbackResponse = await getAIChatResponse(text);
       isStreaming.value = true;

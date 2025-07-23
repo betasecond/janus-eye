@@ -1,10 +1,12 @@
 import type { StatusVO } from '@/types'
+import { AI_CONFIG } from '@/config/ai'
 
+// 如果需要embedding功能，可以在这里添加
+// 目前主要关注聊天功能，所以暂时注释掉embedding相关代码
+
+/*
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
-/**
- * 文本向量化并存储
- */
 export const storeEmbedding = async (message: string): Promise<StatusVO> => {
   const response = await fetch(`${API_BASE_URL}/ai/embedding/store`, {
     method: 'POST',
@@ -19,9 +21,6 @@ export const storeEmbedding = async (message: string): Promise<StatusVO> => {
   return response.json()
 }
 
-/**
- * 文本向量化
- */
 export const createEmbedding = async (message: string): Promise<any> => {
   const response = await fetch(`${API_BASE_URL}/ai/embedding`, {
     method: 'POST',
@@ -35,6 +34,7 @@ export const createEmbedding = async (message: string): Promise<any> => {
   }
   return response.json()
 }
+*/
 
 // 流式AI聊天响应类型
 export interface StreamChatResponse {
@@ -43,7 +43,7 @@ export interface StreamChatResponse {
 }
 
 /**
- * 获取AI聊天回复（流式输出）
+ * 直接调用通义千问API（流式输出）
  */
 export const getAIChatResponseStream = async (
   message: string, 
@@ -54,21 +54,33 @@ export const getAIChatResponseStream = async (
   try {
     console.log('Sending message to AI:', message);
     
-    const response = await fetch(`${API_BASE_URL}/ai/chat/stream`, {
+    const response = await fetch(AI_CONFIG.DASHSCOPE.BASE_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${AI_CONFIG.DASHSCOPE.API_KEY}`,
       },
       body: JSON.stringify({
-        message,
-        model: 'qwen-turbo-latest', // 使用您配置的模型
-        temperature: 0.7,
-        maxTokens: 2000
+        model: AI_CONFIG.DASHSCOPE.MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: AI_CONFIG.SYSTEM_PROMPT
+          },
+          {
+            role: 'user',
+            content: message
+          }
+        ],
+        stream: true,
+        temperature: AI_CONFIG.DASHSCOPE.TEMPERATURE,
+        max_tokens: AI_CONFIG.DASHSCOPE.MAX_TOKENS
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`${AI_CONFIG.ERROR_MESSAGES.API_FAILED}: ${response.status} - ${errorText}`);
     }
 
     if (!response.body) {
@@ -119,32 +131,43 @@ export const getAIChatResponseStream = async (
     onComplete(fullResponse);
   } catch (error) {
     console.error('AI chat stream error:', error);
-    onError(error instanceof Error ? error.message : '未知错误');
+    onError(error instanceof Error ? error.message : AI_CONFIG.ERROR_MESSAGES.UNKNOWN_ERROR);
   }
 };
 
 /**
- * 获取AI聊天回复（非流式，兼容旧版本）
+ * 直接调用通义千问API（非流式）
  */
 export const getAIChatResponse = async (message: string): Promise<string> => {
   try {
     console.log('Sending message to AI:', message);
     
-    const response = await fetch(`${API_BASE_URL}/ai/chat`, {
+    const response = await fetch(AI_CONFIG.DASHSCOPE.BASE_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${AI_CONFIG.DASHSCOPE.API_KEY}`,
       },
       body: JSON.stringify({
-        message,
-        model: 'qwen-turbo-latest',
-        temperature: 0.7,
-        maxTokens: 2000
+        model: AI_CONFIG.DASHSCOPE.MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: AI_CONFIG.SYSTEM_PROMPT
+          },
+          {
+            role: 'user',
+            content: message
+          }
+        ],
+        temperature: AI_CONFIG.DASHSCOPE.TEMPERATURE,
+        max_tokens: AI_CONFIG.DASHSCOPE.MAX_TOKENS
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`${AI_CONFIG.ERROR_MESSAGES.API_FAILED}: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
@@ -154,6 +177,6 @@ export const getAIChatResponse = async (message: string): Promise<string> => {
     return aiResponse;
   } catch (error) {
     console.error('AI chat error:', error);
-    throw new Error(error instanceof Error ? error.message : 'AI服务暂时不可用');
+    throw new Error(error instanceof Error ? error.message : AI_CONFIG.ERROR_MESSAGES.UNKNOWN_ERROR);
   }
 };
