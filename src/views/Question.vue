@@ -112,6 +112,7 @@ import type { Question, Course } from '@/types';
 import { getQuestions, getCourses } from '@/api';
 import Icon from '@/components/base/Icon.vue';
 import { addNotification } from '@/store';
+import {transformCoursesData, transformQuestionsData} from '@/utils/questionTransformer';
 
 const loading = ref(true);
 const questions = ref<Question[]>([]);
@@ -119,12 +120,55 @@ const courses = ref<Course[]>([]);
 const selectedQuestionId = ref<string | null>(null);
 
 onMounted(async () => {
+  loading.value = true; // 开始时设置为 true
+
   try {
-    [questions.value, courses.value] = await Promise.all([getQuestions(), getCourses()]);
+    // 使用 Promise.allSettled 来处理多个请求，一个失败不会影响另一个
+    const [questionsResult, coursesResult] = await Promise.allSettled([
+      getQuestions(),
+      getCourses()
+    ]);
+
+    // 1. 处理题目数据
+    if (questionsResult.status === 'fulfilled') {
+      const questionsResponse = questionsResult.value;
+      console.log('成功获取题目数据:', questionsResponse);
+
+      if (questionsResponse && Array.isArray(questionsResponse.content)) {
+        questions.value = transformQuestionsData(questionsResponse.content);
+      } else {
+        console.error('题目数据格式不正确:', questionsResponse);
+        questions.value = [];
+      }
+    } else {
+      console.error('获取题目失败:', questionsResult.reason);
+      addNotification({ title: '加载失败', content: '无法加载题目数据。', type: 'error' });
+    }
+
+    if (coursesResult.status === 'fulfilled') {
+      const coursesResponse = coursesResult.value;
+      console.log('成功获取课程数据(原始):', coursesResponse);
+
+      // 注意：和题目接口一样，课程接口也可能把数组包在 .content 里
+      // 我们需要先拿到真正的课程数组
+      const rawCoursesArray = Array.isArray(coursesResponse)
+          ? coursesResponse
+          : coursesResponse.content;
+
+      // 使用转换函数！
+      courses.value = transformCoursesData(rawCoursesArray);
+
+      console.log('成功获取并转换课程数据(最终):', courses.value);
+
+    } else {
+      console.error('获取课程失败:', coursesResult.reason);
+    }
   } catch (error) {
-    addNotification({ title: '加载失败', content: '无法加载题目数据', type: 'error' });
+    // 这个 catch 现在主要捕获 Promise.allSettled 本身之外的、意料之外的错误
+    console.error('加载数据时发生未知错误:', error);
+    addNotification({ title: '加载失败', content: '发生未知错误，请检查控制台。', type: 'error' });
   } finally {
-    loading.value = false;
+    loading.value = false; // 所有操作结束后，取消加载状态
   }
 });
 
@@ -222,4 +266,14 @@ const openNewQuestionModal = () => {
   animation: slide-in-up 0.5s ease-out forwards;
   animation-fill-mode: both;
 }
-</style> 
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px); /* 从下方20px处开始 */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0); /* 移动到原始位置 */
+  }
+}
+</style>

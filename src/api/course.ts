@@ -9,7 +9,7 @@ export const getCourses = async (params?: {
   teacherId?: string
   studentId?: string
   keyword?: string
-}): Promise<CourseVO[]> => {
+}): Promise<CourseVO[] > => {
   const url = new URL(`${API_BASE_URL}/api/courses`)
   if (params?.teacherId) url.searchParams.append('teacherId', params.teacherId)
   if (params?.studentId) url.searchParams.append('studentId', params.studentId)

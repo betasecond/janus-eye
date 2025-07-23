@@ -20,7 +20,7 @@ export const getQuestions = async (params?: {
   subject?: string
   page?: number
   size?: number
-}): Promise<PageVO<QuestionVO>> => {
+}): Promise<PageVO<QuestionVO>| QuestionVO[]> => {
   const url = new URL(`${API_BASE_URL}/api/questions`)
   if (params?.type) url.searchParams.append('type', params.type)
   if (params?.difficulty) url.searchParams.append('difficulty', params.difficulty)

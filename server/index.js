@@ -1,9 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const fileSystemAPI = require('./api/fileSystem');
+const questionAPI = require('./api/question');
+const { mockCourses } = require('./data');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // 中间件
 app.use(cors());
@@ -14,6 +16,23 @@ app.get('/api/file', fileSystemAPI.readFile);
 app.get('/api/directory', fileSystemAPI.listDirectory);
 app.get('/api/search', fileSystemAPI.searchFiles);
 app.get('/api/file-info', fileSystemAPI.getFileInfo);
+
+// 题目API路由
+app.get('/api/questions', questionAPI.getQuestions);
+app.get('/api/questions/:id', questionAPI.getQuestionById);
+app.get('/api/questions/stats', questionAPI.getQuestionStats);
+app.get('/api/questions/types', questionAPI.getQuestionTypes);
+app.get('/api/questions/difficulties', questionAPI.getQuestionDifficulties);
+
+// 课程API路由 (简单实现)
+app.get('/api/courses', (req, res) => {
+  try {
+    res.json(mockCourses);
+  } catch (error) {
+    console.error('获取课程列表失败:', error);
+    res.status(500).json({ error: '服务器内部错误' });
+  }
+});
 
 // 健康检查
 app.get('/health', (req, res) => {
@@ -33,12 +52,18 @@ app.use((req, res) => {
 
 // 启动服务器
 app.listen(PORT, () => {
-  console.log(`文件系统API服务器运行在 http://localhost:${PORT}`);
+  console.log(`API服务器运行在 http://localhost:${PORT}`);
   console.log('可用的API端点:');
   console.log('  GET /api/file?path=<文件路径>');
   console.log('  GET /api/directory?path=<目录路径>');
   console.log('  GET /api/search?query=<搜索查询>&path=<搜索路径>');
   console.log('  GET /api/file-info?path=<文件路径>');
+  console.log('  GET /api/questions');
+  console.log('  GET /api/questions/:id');
+  console.log('  GET /api/questions/stats');
+  console.log('  GET /api/questions/types');
+  console.log('  GET /api/questions/difficulties');
+  console.log('  GET /api/courses');
 });
 
 module.exports = app; 
