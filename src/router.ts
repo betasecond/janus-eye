@@ -10,6 +10,7 @@ import ResourceManagement from '@/views/ResourceManagement.vue';
 import MyAssignments from '@/views/MyAssignments.vue';
 import PracticeCenter from '@/views/PracticeCenter.vue';
 import Profile from '@/views/Profile.vue';
+import AIChat from '@/views/AIChat.vue';
 
 const routes = [
   {
@@ -76,6 +77,11 @@ const routes = [
     path: '/profile',
     name: 'Profile',
     component: Profile,
+  },
+  {
+    path: '/ai-chat',
+    name: 'AIChat',
+    component: AIChat,
   },
 ];
 
