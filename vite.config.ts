@@ -11,4 +11,8 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  define: {
+    // 定义环境变量
+    'import.meta.env.VITE_DASHSCOPE_API_KEY': JSON.stringify(process.env.VITE_DASHSCOPE_API_KEY || 'sk-7dadf5c894664d9abd339cc95dd84697'),
+  },
 })

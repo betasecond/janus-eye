@@ -75,7 +75,7 @@
 
 <script setup lang="ts">
 import { ref, nextTick } from 'vue';
-import { getAIChatResponse } from '@/api/ai';
+import { getAIChatResponseStream, getAIChatResponse } from '@/api/ai';
 
 interface Message {
   text: string;
@@ -84,8 +84,9 @@ interface Message {
 
 const userInput = ref('');
 const messages = ref<Message[]>([
-  { text: '你好！我是你的 AI 助教。关于课程的任何问题，随时都可以问我。比如："请解释一下什么是Vue的响应式系统？"', isUser: false }
+  { text: '你好！我是你的 AI 助教。关于课程的任何问题，随时都可以问我。比如："请解释一下计算机的冯·诺依曼体系结构是什么？"', isUser: false }
 ]);
+
 const isLoading = ref(false);
 const isStreaming = ref(false);
 const currentStreamingText = ref('');
@@ -100,7 +101,41 @@ const scrollToBottom = () => {
   });
 };
 
-// 模拟流式输出
+// 使用真实AI流式输出
+const streamFromAI = async (message: string) => {
+  currentStreamingText.value = '';
+  isStreaming.value = true;
+  
+  try {
+    await getAIChatResponseStream(
+      message,
+      // onChunk: 处理每个流式数据块
+      (chunk: string) => {
+        currentStreamingText.value += chunk;
+        scrollToBottom();
+      },
+      // onComplete: 流式输出完成
+      (fullResponse: string) => {
+        isStreaming.value = false;
+        messages.value.push({ text: fullResponse, isUser: false });
+        scrollToBottom();
+      },
+      // onError: 错误处理
+      (error: string) => {
+        isStreaming.value = false;
+        messages.value.push({ text: `抱歉，AI服务出现错误：${error}`, isUser: false });
+        scrollToBottom();
+      }
+    );
+  } catch (error) {
+    console.error('Stream error:', error);
+    isStreaming.value = false;
+    messages.value.push({ text: '抱歉，AI服务暂时不可用，请稍后重试。', isUser: false });
+    scrollToBottom();
+  }
+};
+
+// 模拟流式输出（备用方案）
 const streamText = async (fullText: string) => {
   currentStreamingText.value = '';
   
@@ -158,6 +193,8 @@ const stopStreaming = () => {
   if (streamController.value) {
     streamController.value.abort();
   }
+  // 对于真实AI流式输出，我们无法直接中断，但可以标记状态
+  isStreaming.value = false;
 };
 
 const handleSendMessage = async () => {
@@ -169,21 +206,26 @@ const handleSendMessage = async () => {
   userInput.value = '';
   scrollToBottom();
 
-  // 2. 显示加载状态并调用API
+  // 2. 显示加载状态
   isLoading.value = true;
+  
   try {
-    const aiResponse = await getAIChatResponse(text);
-    
-    // 3. 开始流式输出
+    // 3. 尝试使用真实AI流式输出
     isLoading.value = false;
-    isStreaming.value = true;
-    await streamText(aiResponse);
-    
+    await streamFromAI(text);
   } catch (error) {
     console.error("AI chat error:", error);
     isLoading.value = false;
-    messages.value.push({ text: '抱歉，AI开小差了，请稍后再试。', isUser: false });
-    scrollToBottom();
+    
+    // 如果真实AI不可用，回退到模拟流式输出
+    try {
+      const fallbackResponse = await getAIChatResponse(text);
+      isStreaming.value = true;
+      await streamText(fallbackResponse);
+    } catch (fallbackError) {
+      messages.value.push({ text: '抱歉，AI服务暂时不可用，请稍后重试。', isUser: false });
+      scrollToBottom();
+    }
   }
 };
 </script>
