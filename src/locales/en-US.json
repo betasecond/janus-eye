@@ -1,0 +1,58 @@
+{
+  "common": {
+    "welcome": "Welcome back",
+    "dashboard": "Dashboard",
+    "helpAndDocs": "Help and Docs",
+    "searchPlaceholder": "Search for students, assignments, etc...",
+    "notifications": "Notifications",
+    "userCenter": "User Center",
+    "logout": "Logout",
+    "logoutSuccess": "You have successfully logged out",
+    "period": "Period",
+    "last7Days": "Last 7 days",
+    "dueTomorrow": "Due Tomorrow",
+    "todaysProgress": "Today's Progress",
+    "recommended": "Recommended",
+    "myCourses": "My Courses",
+    "markAsRead": "marked as read"
+  },
+  "menu": {
+    "dashboard": "Dashboard",
+    "home": "Home",
+    "syllabus": "Syllabus",
+    "question": "Questions",
+    "assignments": "Assignments",
+    "resources": "Resources",
+    "practice": "Practice",
+    "profile": "Profile",
+    "users": "User Management",
+    "overview": "Overview"
+  },
+  "home": {
+    "welcomeBack": "Welcome back",
+    "lessonPrepTasks": "Today's Lesson Prep Tasks",
+    "lessonPlansGenerated": "lesson plans generated",
+    "view": "View",
+    "pendingAssignments": "Pending Assignments",
+    "studentsAwaitingGrading": "students awaiting grading",
+    "grade": "Grade",
+    "latestAnnouncement": "Latest Announcement",
+    "finalExamSchedule": "Final exam schedule released",
+    "viewDetails": "View Details"
+  },
+  "dashboard": {
+    "welcomeBack": "Welcome back",
+    "completeAssignment": "Complete the assignment on algebraic equations.",
+    "dailyPracticeGoals": "Daily Practice Goals",
+    "completedDailyGoals": "You've completed 75% of your daily practice goals.",
+    "learningResources": "Learning Resources",
+    "exploreResources": "Explore resources tailored to your learning needs."
+  },
+  "login": {
+    "pleaseLogin": "Please login first",
+    "goToLogin": "Go to Login"
+  },
+  "announcement": {
+    "detailsNotImplemented": "Announcement details page not implemented yet"
+  }
+}

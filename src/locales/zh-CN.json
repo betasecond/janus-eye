@@ -1,0 +1,58 @@
+{
+  "common": {
+    "welcome": "欢迎回来",
+    "dashboard": "仪表板",
+    "helpAndDocs": "帮助和文档",
+    "searchPlaceholder": "搜索学生、作业等...",
+    "notifications": "通知",
+    "userCenter": "个人中心",
+    "logout": "退出登录",
+    "logoutSuccess": "您已成功退出登录",
+    "period": "周期",
+    "last7Days": "最近7天",
+    "dueTomorrow": "明天到期",
+    "todaysProgress": "今日进度",
+    "recommended": "推荐",
+    "myCourses": "我的课程",
+    "markAsRead": "已标记为已读"
+  },
+  "menu": {
+    "dashboard": "仪表板",
+    "home": "主页",
+    "syllabus": "教学大纲",
+    "question": "问题",
+    "assignments": "作业",
+    "resources": "资源",
+    "practice": "练习",
+    "profile": "个人资料",
+    "users": "用户管理",
+    "overview": "总览"
+  },
+  "home": {
+    "welcomeBack": "欢迎回来",
+    "lessonPrepTasks": "今日备课任务",
+    "lessonPlansGenerated": "个教案已生成",
+    "view": "查看",
+    "pendingAssignments": "待批改作业",
+    "studentsAwaitingGrading": "名学生等待批改",
+    "grade": "批改",
+    "latestAnnouncement": "最新公告",
+    "finalExamSchedule": "期末考试时间表已发布",
+    "viewDetails": "查看详情"
+  },
+  "dashboard": {
+    "welcomeBack": "欢迎回来",
+    "completeAssignment": "完成代数方程作业。",
+    "dailyPracticeGoals": "每日练习目标",
+    "completedDailyGoals": "您已完成每日练习目标的75%。",
+    "learningResources": "学习资源",
+    "exploreResources": "探索适合您学习需求的资源。"
+  },
+  "login": {
+    "pleaseLogin": "请先登录",
+    "goToLogin": "去登录"
+  },
+  "announcement": {
+    "detailsNotImplemented": "公告详情页面暂未实现"
+  }
+}

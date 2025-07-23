@@ -3,7 +3,7 @@
     <!-- Welcome Header -->
     <header>
       <h1 class="text-4xl font-bold text-gray-800 tracking-tight">
-        Welcome back, {{ user.name }}
+        {{ t('common.welcome') }}, {{ user.name }}
       </h1>
     </header>
 
@@ -12,11 +12,11 @@
       <!-- Lesson Prep Task -->
       <div class="task-item grid grid-cols-1 md:grid-cols-3 gap-6 items-center animate-slide-in-up" style="animation-delay: 0.1s;">
         <div class="md:col-span-2">
-          <p class="text-sm font-medium text-gray-500">Today's Lesson Prep Tasks</p>
-          <h2 class="mt-1 text-2xl font-bold text-gray-800">3 lesson plans generated</h2>
-          <p class="mt-2 text-gray-600">View and manage your generated lesson plans for today's classes.</p>
+          <p class="text-sm font-medium text-gray-500">{{ t('home.lessonPrepTasks') }}</p>
+          <h2 class="mt-1 text-2xl font-bold text-gray-800">3 {{ t('home.lessonPlansGenerated') }}</h2>
+          <p class="mt-2 text-gray-600">{{ t('dashboard.completeAssignment') }}</p>
           <button @click="handleLessonPrepClick" class="mt-4 action-button">
-            View
+            {{ t('home.view') }}
           </button>
         </div>
         <div class="w-full h-48 rounded-2xl bg-cover bg-center overflow-hidden shadow-lg transform-gpu hover:scale-105 transition-transform duration-300" 
@@ -28,11 +28,11 @@
       <!-- Grading Task -->
       <div class="task-item grid grid-cols-1 md:grid-cols-3 gap-6 items-center animate-slide-in-up" style="animation-delay: 0.2s;">
         <div class="md:col-span-2">
-          <p class="text-sm font-medium text-gray-500">Pending Assignments</p>
-          <h2 class="mt-1 text-2xl font-bold text-gray-800">5 students awaiting grading</h2>
-          <p class="mt-2 text-gray-600">Review and grade student submissions for your courses.</p>
+          <p class="text-sm font-medium text-gray-500">{{ t('home.pendingAssignments') }}</p>
+          <h2 class="mt-1 text-2xl font-bold text-gray-800">5 {{ t('home.studentsAwaitingGrading') }}</h2>
+          <p class="mt-2 text-gray-600">{{ t('dashboard.completedDailyGoals') }}</p>
           <button @click="handleGradingClick" class="mt-4 action-button">
-            Grade
+            {{ t('home.grade') }}
           </button>
         </div>
         <div class="w-full h-48 rounded-2xl bg-cover bg-center overflow-hidden shadow-lg transform-gpu hover:scale-105 transition-transform duration-300" 
@@ -44,11 +44,11 @@
       <!-- Announcements -->
       <div class="task-item grid grid-cols-1 md:grid-cols-3 gap-6 items-center animate-slide-in-up" style="animation-delay: 0.3s;">
         <div class="md:col-span-2">
-          <p class="text-sm font-medium text-gray-500">Latest Announcement</p>
-          <h2 class="mt-1 text-2xl font-bold text-gray-800">Final exam schedule released</h2>
-          <p class="mt-2 text-gray-600">Check the important notices and announcements from the school.</p>
+          <p class="text-sm font-medium text-gray-500">{{ t('home.latestAnnouncement') }}</p>
+          <h2 class="mt-1 text-2xl font-bold text-gray-800">{{ t('home.finalExamSchedule') }}</h2>
+          <p class="mt-2 text-gray-600">{{ t('dashboard.exploreResources') }}</p>
           <button @click="handleAnnouncementClick" class="mt-4 action-button">
-            View Details
+            {{ t('home.viewDetails') }}
           </button>
         </div>
         <div class="w-full h-48 rounded-2xl bg-cover bg-center overflow-hidden shadow-lg transform-gpu hover:scale-105 transition-transform duration-300" 
@@ -59,9 +59,9 @@
   </div>
   <div v-else class="flex items-center justify-center h-full">
     <div class="text-center">
-      <h2 class="text-2xl font-bold text-gray-800 mb-4">请先登录</h2>
+      <h2 class="text-2xl font-bold text-gray-800 mb-4">{{ t('login.pleaseLogin') }}</h2>
       <button @click="router.push('/login')" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-        去登录
+        {{ t('login.goToLogin') }}
       </button>
     </div>
   </div>
@@ -69,6 +69,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import type { User } from '../types'
 import { addNotification } from '@/store'
 
@@ -78,6 +79,7 @@ interface Props {
 
 defineProps<Props>()
 const router = useRouter()
+const { t } = useI18n()
 
 const handleLessonPrepClick = () => {
   router.push('/syllabus')
@@ -88,7 +90,7 @@ const handleGradingClick = () => {
 }
 
 const handleAnnouncementClick = () => {
-  addNotification({ title: '提示', content: '公告详情页面暂未实现', type: 'info' })
+  addNotification({ title: t('common.notifications'), content: t('announcement.detailsNotImplemented'), type: 'info' })
   router.push('/home')
 }
 </script>

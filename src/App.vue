@@ -22,6 +22,7 @@
               <Header
                 :user="currentUser"
                 :unread-count="unreadNotificationCount"
+                :current-course="t('common.welcome') + ', ' + currentUser.name"
                 @search="handleSearch"
                 @toggle-notifications="toggleNotifications"
                 @user-click="handleUserClick"
@@ -56,7 +57,7 @@
                 @click.stop
               >
                 <h3 class="p-4 text-lg font-bold border-b border-gray-100 sticky top-0 bg-white/80 backdrop-blur-sm z-10">
-                  通知中心
+                  {{ t('common.notifications') }}
                 </h3>
                 <NotificationList
                   :notifications="notifications"
@@ -79,6 +80,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import Sidebar from './components/layout/Sidebar.vue'
 import Header from './components/layout/Header.vue'
 import NotificationList from './components/base/NotificationList.vue'
@@ -95,6 +97,7 @@ import type { Notification, MenuItem } from './types'
 
 const route = useRoute()
 const router = useRouter()
+const { t, locale } = useI18n()
 
 const notifications = ref<Notification[]>([])
 const showNotificationPanel = ref(false)
@@ -128,17 +131,32 @@ onMounted(() => {
       currentUser.value = null
     }
   }
+  
+  // 从localStorage获取语言设置
+  const savedLocale = localStorage.getItem('locale')
+  if (savedLocale && ['zh-CN', 'en-US'].includes(savedLocale)) {
+    locale.value = savedLocale
+  }
 })
 
 const currentMenuItems = computed((): MenuItem[] => {
   if (!currentUser.value) return []
   switch (currentUser.value.role) {
     case 'teacher':
-      return teacherMenuItems
+      return teacherMenuItems.map(item => ({
+        ...item,
+        label: t(`menu.${item.id}`) || item.label
+      }))
     case 'student':
-      return studentMenuItems
+      return studentMenuItems.map(item => ({
+        ...item,
+        label: t(`menu.${item.id}`) || item.label
+      }))
     case 'admin':
-      return adminMenuItems
+      return adminMenuItems.map(item => ({
+        ...item,
+        label: t(`menu.${item.id}`) || item.label
+      }))
     default:
       return []
   }
@@ -150,7 +168,7 @@ const unreadNotificationCount = computed(() => {
 
 const handleSearch = (searchValue: string) => {
   console.log('搜索:', searchValue)
-  addNotification({ title: '搜索提示', content: `正在搜索: ${searchValue}`, type: 'info'})
+  addNotification({ title: t('common.notifications'), content: `${t('common.searchPlaceholder')}: ${searchValue}`, type: 'info'})
 }
 
 const toggleNotifications = () => {
@@ -175,7 +193,7 @@ const handleLogout = () => {
   // 跳转到登录页面
   router.push('/login')
   
-  addNotification({ title: '退出成功', content: '您已成功退出登录', type: 'success'})
+  addNotification({ title: t('common.logout'), content: t('common.logoutSuccess'), type: 'success'})
 }
 
 const handleNavigate = (path: string) => {
@@ -186,7 +204,7 @@ const handleNotificationClick = (notification: Notification) => {
   const index = notifications.value.findIndex(n => n.id === notification.id)
   if (index !== -1 && !notifications.value[index].isRead) {
     notifications.value[index].isRead = true
-    addNotification({ title: '通知已读', content: `"${notification.title}" 已标记为已读`, type: 'success'})
+    addNotification({ title: t('common.notifications'), content: `"${notification.title}" ${t('common.markAsRead')}`, type: 'success'})
   }
   showNotificationPanel.value = false
   console.log('通知点击:', notification)

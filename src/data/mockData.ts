@@ -227,16 +227,16 @@ export const mockStudentAnalysis: StudentAnalysis[] = [
 ];
 
 export const teacherMenuItems: MenuItem[] = [
-  { id: '1', label: '仪表盘', icon: 'dashboard', path: '/dashboard' },
-  { id: '2', label: '课程大纲', icon: 'book', path: '/syllabus' },
-  { id: '3', label: '智能出题', icon: 'magicWand', path: '/question' },
-  { id: '4', label: '教学总览', icon: 'chart', path: '/overview' },
-  { id: '5', label: '个人中心', icon: 'user', path: '/profile' }
+  { id: 'dashboard', label: '仪表盘', icon: 'dashboard', path: '/dashboard' },
+  { id: 'syllabus', label: '课程大纲', icon: 'book', path: '/syllabus' },
+  { id: 'question', label: '智能出题', icon: 'magicWand', path: '/question' },
+  { id: 'overview', label: '教学总览', icon: 'chart', path: '/overview' },
+  { id: 'profile', label: '个人中心', icon: 'user', path: '/profile' }
 ];
 
 export const studentMenuItems: MenuItem[] = [
-    { id: '1', label: '主页', icon: 'home', path: '/home' },
-    { id: '2', label: '我的作业', icon: 'video', path: '/assignments' },
+    { id: 'home', label: '主页', icon: 'home', path: '/home' },
+    { id: 'assignments', label: '我的作业', icon: 'video', path: '/assignments' },
     {
       id: 'ai-tutor',
       label: 'AI 助教',
@@ -244,13 +244,13 @@ export const studentMenuItems: MenuItem[] = [
       path: '/ai-chat',
     },
     { id: 'practice', label: '练习中心', icon: 'file', path: '/practice' },
-    { id: '4', label: '资源库', icon: 'bookmark', path: '/library' },
-    { id: '5', label: '个人中心', icon: 'user', path: '/profile' }
+    { id: 'resources', label: '资源库', icon: 'bookmark', path: '/library' },
+    { id: 'profile', label: '个人中心', icon: 'user', path: '/profile' }
 ];
 
 export const adminMenuItems: MenuItem[] = [
-  { id: '1', label: '用户管理', icon: 'users', path: '/admin/users' },
-  { id: '2', label: '资源管理', icon: 'folder', path: '/admin/resources' }
+  { id: 'users', label: '用户管理', icon: 'users', path: '/admin/users' },
+  { id: 'resources', label: '资源管理', icon: 'folder', path: '/admin/resources' }
 ];
 
 export const mockResources: Resource[] = [

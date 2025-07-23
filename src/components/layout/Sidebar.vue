@@ -44,13 +44,14 @@
     <div class="flex flex-col gap-2">
       <div class="flex items-center gap-4 px-4 py-3 cursor-pointer text-gray-500 hover:bg-gray-100 hover:text-gray-800 rounded-xl transition-colors">
         <Icon name="question" size="20" />
-        <p class="font-semibold leading-normal">Help and Docs</p>
+        <p class="font-semibold leading-normal">{{ t('common.helpAndDocs') }}</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import Icon from '../base/Icon.vue'
 import type { MenuItem } from '../../types'
 
@@ -62,4 +63,6 @@ interface Props {
 withDefaults(defineProps<Props>(), {
   appName: 'EduAssist'
 })
+
+const { t } = useI18n()
 </script> 
