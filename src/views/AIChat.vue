@@ -14,7 +14,7 @@
           <!-- 消息气泡 -->
           <div :class="message.isUser ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'" class="rounded-xl p-4 max-w-lg">
             <p v-if="message.isUser">{{ message.text }}</p>
-            <p v-else v-html="message.text"></p>
+            <div v-else v-html="message.html" class="markdown-content"></div>
           </div>
 
            <!-- 用户头像 -->
@@ -28,7 +28,7 @@
             AI
           </div>
           <div class="bg-gray-100 rounded-xl p-4 max-w-lg relative">
-            <p class="text-gray-800">{{ currentStreamingText }}<span class="typing-cursor">|</span></p>
+            <div class="text-gray-800 markdown-content" v-html="currentStreamingHtml + '<span class=\'typing-cursor\'>|</span>'"></div>
             <button 
               @click="stopStreaming" 
               class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
@@ -76,20 +76,27 @@
 <script setup lang="ts">
 import { ref, nextTick } from 'vue';
 import { getAIChatResponseStream, getAIChatResponse } from '@/api/ai';
+import { parseMarkdownSync } from '@/utils/markdown';
 
 interface Message {
   text: string;
   isUser: boolean;
+  html?: string; // 添加HTML字段用于存储解析后的Markdown
 }
 
 const userInput = ref('');
 const messages = ref<Message[]>([
-  { text: '你好！我是你的 AI 助教。关于课程的任何问题，随时都可以问我。比如："请解释一下计算机的冯·诺依曼体系结构是什么？"', isUser: false }
+  { 
+    text: '你好！我是你的 AI 助教。关于课程的任何问题，随时都可以问我。比如："请解释一下冯·诺依曼体系结构的基本组成部分？"', 
+    isUser: false,
+    html: '你好！我是你的 AI 助教。关于课程的任何问题，随时都可以问我。比如："请解释一下冯·诺依曼体系结构的基本组成部分？"'
+  }
 ]);
 
 const isLoading = ref(false);
 const isStreaming = ref(false);
 const currentStreamingText = ref('');
+const currentStreamingHtml = ref('');
 const messageContainer = ref<HTMLElement | null>(null);
 const streamController = ref<AbortController | null>(null);
 
@@ -104,6 +111,7 @@ const scrollToBottom = () => {
 // 使用真实AI流式输出
 const streamFromAI = async (message: string) => {
   currentStreamingText.value = '';
+  currentStreamingHtml.value = '';
   isStreaming.value = true;
   
   try {
@@ -112,25 +120,42 @@ const streamFromAI = async (message: string) => {
       // onChunk: 处理每个流式数据块
       (chunk: string) => {
         currentStreamingText.value += chunk;
+        // 实时解析Markdown
+        currentStreamingHtml.value = parseMarkdownSync(currentStreamingText.value);
         scrollToBottom();
       },
       // onComplete: 流式输出完成
       (fullResponse: string) => {
         isStreaming.value = false;
-        messages.value.push({ text: fullResponse, isUser: false });
+        const html = parseMarkdownSync(fullResponse);
+        messages.value.push({ 
+          text: fullResponse, 
+          isUser: false,
+          html: html
+        });
         scrollToBottom();
       },
       // onError: 错误处理
       (error: string) => {
         isStreaming.value = false;
-        messages.value.push({ text: `抱歉，AI服务出现错误：${error}`, isUser: false });
+        const errorMessage = `抱歉，AI服务出现错误：${error}`;
+        messages.value.push({ 
+          text: errorMessage, 
+          isUser: false,
+          html: errorMessage
+        });
         scrollToBottom();
       }
     );
   } catch (error) {
     console.error('Stream error:', error);
     isStreaming.value = false;
-    messages.value.push({ text: '抱歉，AI服务暂时不可用，请稍后重试。', isUser: false });
+    const errorMessage = '抱歉，AI服务暂时不可用，请稍后重试。';
+    messages.value.push({ 
+      text: errorMessage, 
+      isUser: false,
+      html: errorMessage
+    });
     scrollToBottom();
   }
 };
@@ -138,6 +163,7 @@ const streamFromAI = async (message: string) => {
 // 模拟流式输出（备用方案）
 const streamText = async (fullText: string) => {
   currentStreamingText.value = '';
+  currentStreamingHtml.value = '';
   
   // 创建新的 AbortController 用于中断流式输出
   streamController.value = new AbortController();
@@ -151,6 +177,8 @@ const streamText = async (fullText: string) => {
       }
       
       currentStreamingText.value += fullText[i];
+      // 实时解析Markdown
+      currentStreamingHtml.value = parseMarkdownSync(currentStreamingText.value);
       scrollToBottom();
       
       // 根据字符类型调整延迟
@@ -174,13 +202,23 @@ const streamText = async (fullText: string) => {
     
     // 流式输出完成
     isStreaming.value = false;
-    messages.value.push({ text: currentStreamingText.value, isUser: false });
+    const html = parseMarkdownSync(currentStreamingText.value);
+    messages.value.push({ 
+      text: currentStreamingText.value, 
+      isUser: false,
+      html: html
+    });
     scrollToBottom();
   } catch (error: any) {
     if (error.name === 'AbortError') {
       // 流式输出被中断
       isStreaming.value = false;
-      messages.value.push({ text: currentStreamingText.value + '...', isUser: false });
+      const html = parseMarkdownSync(currentStreamingText.value + '...');
+      messages.value.push({ 
+        text: currentStreamingText.value + '...', 
+        isUser: false,
+        html: html
+      });
       scrollToBottom();
     }
   } finally {
@@ -202,7 +240,7 @@ const handleSendMessage = async () => {
   if (!text || isLoading.value || isStreaming.value) return;
 
   // 1. 将用户消息添加到对话列表
-  messages.value.push({ text, isUser: true });
+  messages.value.push({ text, isUser: true, html: text });
   userInput.value = '';
   scrollToBottom();
 
@@ -223,7 +261,12 @@ const handleSendMessage = async () => {
       isStreaming.value = true;
       await streamText(fallbackResponse);
     } catch (fallbackError) {
-      messages.value.push({ text: '抱歉，AI服务暂时不可用，请稍后重试。', isUser: false });
+      const errorMessage = '抱歉，AI服务暂时不可用，请稍后重试。';
+      messages.value.push({ 
+        text: errorMessage, 
+        isUser: false,
+        html: errorMessage
+      });
       scrollToBottom();
     }
   }
@@ -275,5 +318,79 @@ textarea {
   51%, 100% {
     opacity: 0;
   }
+}
+
+/* Markdown 样式优化 */
+.markdown-content {
+  line-height: 1.6;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.markdown-content p {
+  margin-bottom: 0.75rem;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-left: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.markdown-content li {
+  margin-bottom: 0.25rem;
+}
+
+.markdown-content code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-family: 'Courier New', monospace;
+}
+
+.markdown-content pre {
+  background-color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+.markdown-content pre code {
+  background: none;
+  padding: 0;
+}
+
+.markdown-content blockquote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+  margin: 0.75rem 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.markdown-content a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.markdown-content a:hover {
+  color: #1d4ed8;
+}
+
+.markdown-content hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 1rem 0;
 }
 </style> 
