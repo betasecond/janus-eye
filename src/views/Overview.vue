@@ -150,33 +150,61 @@ use([
   GridComponent,
 ]);
 
-const loading = ref(true);
-const chartLoading = ref(true);
-const stats = ref<PerformanceStats | null>(null);
-const studentAnalysis = ref<StudentAnalysis[]>([]);
+const loading = ref(false); // 改为false，直接显示数据
+const chartLoading = ref(false); // 改为false，直接显示数据
+
+// 模拟的 PerformanceStats 数据
+const mockStats: PerformanceStats = {
+  averageAccuracy: 85,
+  frequentlyMissedConcepts: ['指令集', 'CPU设计', '数据通路'],
+  classRanking: '前15%',
+  knowledgePointMastery: {
+    '指令集': 90,
+    'CPU设计': 85,
+    '数据通路': 78,
+    '控制器': 88,
+    '存储系统': 82,
+  },
+  accuracyTrends: [
+    { week: '第一周', accuracy: 78 },
+    { week: '第二周', accuracy: 82 },
+    { week: '第三周', accuracy: 81 },
+    { week: '第四周', accuracy: 85 },
+  ],
+};
+
+// 模拟的 StudentAnalysis 数据
+const mockStudentAnalysis: StudentAnalysis[] = [
+  { id: '1', studentName: '张三', incorrectQuestions: '指令集练习题3', errorLocation: 'MIPS指令格式混淆', suggestedCorrection: '复习R-型和I-型指令的区别' },
+  { id: '2', studentName: '李四', incorrectQuestions: 'CPU设计大题1', errorLocation: '单周期CPU数据通路理解错误', suggestedCorrection: '重新学习数据通路中各个组件的功能' },
+  { id: '3', studentName: '王五', incorrectQuestions: '存储系统选择题5', errorLocation: 'Cache映射方式计算错误', suggestedCorrection: '应使用直接映射地址计算公式' },
+];
+
+const stats = ref<PerformanceStats | null>(mockStats);
+const studentAnalysis = ref<StudentAnalysis[]>(mockStudentAnalysis);
 
 onMounted(async () => {
-  try {
-    const [statsData, analysisData] = await Promise.all([
-      getPerformanceStats(),
-      getStudentAnalysis()
-    ]);
+  // try {
+  //   const [statsData, analysisData] = await Promise.all([
+  //     getPerformanceStats(),
+  //     getStudentAnalysis()
+  //   ]);
     
-    stats.value = statsData;
-    studentAnalysis.value = analysisData;
-    console.log('Stats loaded:', stats.value);
-    console.log('Analysis loaded:', studentAnalysis.value);
+  //   stats.value = statsData;
+  //   studentAnalysis.value = analysisData;
+  //   console.log('Stats loaded:', stats.value);
+  //   console.log('Analysis loaded:', studentAnalysis.value);
     
-  } catch (error) {
-    console.error("Failed to load overview data:", error);
-  } finally {
-    loading.value = false;
-    chartLoading.value = false;
-  }
+  // } catch (error) {
+  //   console.error("Failed to load overview data:", error);
+  // } finally {
+  //   loading.value = false;
+  //   chartLoading.value = false;
+  // }
 });
 
 const masteryChartOption = computed(() => {
-  if (!stats.value) return {};
+  if (!stats.value?.knowledgePointMastery) return {};
   return {
     tooltip: {
       trigger: 'axis',
@@ -198,7 +226,7 @@ const masteryChartOption = computed(() => {
     },
     xAxis: {
       type: 'category',
-      data: Object.keys(stats.value?.knowledgePointMastery),
+      data: Object.keys(stats.value.knowledgePointMastery),
       axisLabel: {
         color: '#666',
         interval: 0,
@@ -243,7 +271,7 @@ const masteryChartOption = computed(() => {
 });
 
 const trendsChartOption = computed(() => {
-  if (!stats.value) return {};
+  if (!stats.value?.accuracyTrends) return {};
   return {
     tooltip: {
       trigger: 'axis',
