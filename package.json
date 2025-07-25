@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "dev:server": "node server/index.cjs",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "build": "run-p type-check build-only",
+    "build-only": "vite build",
+    "type-check": "vue-tsc --noEmit",
     "preview": "vite preview"
   },
   "dependencies": {
