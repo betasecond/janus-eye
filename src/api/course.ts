@@ -1,6 +1,5 @@
 import type { CourseVO, CreateCourseDto, UpdateCourseDto, UserVO, CourseStatsVO } from '@/types'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+import { apiGet, apiPost, apiPut, apiDelete } from '@/config/api'
 
 /**
  * 获取所有课程
@@ -10,12 +9,7 @@ export const getCourses = async (params?: {
   studentId?: string
   keyword?: string
 }): Promise<CourseVO[] > => {
-  const url = new URL(`${API_BASE_URL}/api/courses`)
-  if (params?.teacherId) url.searchParams.append('teacherId', params.teacherId)
-  if (params?.studentId) url.searchParams.append('studentId', params.studentId)
-  if (params?.keyword) url.searchParams.append('keyword', params.keyword)
-  
-  const response = await fetch(url.toString())
+  const response = await apiGet('/api/courses', params)
   if (!response.ok) {
     throw new Error('Failed to fetch courses')
   }
@@ -26,7 +20,7 @@ export const getCourses = async (params?: {
  * 获取课程详情
  */
 export const getCourseById = async (id: string): Promise<CourseVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/courses/${id}`)
+  const response = await apiGet(`/api/courses/${id}`)
   if (!response.ok) {
     throw new Error('Failed to fetch course')
   }
@@ -37,13 +31,7 @@ export const getCourseById = async (id: string): Promise<CourseVO> => {
  * 创建课程
  */
 export const createCourse = async (data: CreateCourseDto): Promise<CourseVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/courses`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  })
+  const response = await apiPost('/api/courses', data)
   if (!response.ok) {
     throw new Error('Failed to create course')
   }

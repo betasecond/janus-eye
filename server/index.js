@@ -7,6 +7,13 @@ const { mockCourses } = require('./data');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// 设置服务器超时时间为3000秒
+app.use((req, res, next) => {
+  req.setTimeout(3000000); // 3000秒 = 3000000毫秒
+  res.setTimeout(3000000);
+  next();
+});
+
 // 中间件
 app.use(cors());
 app.use(express.json());
@@ -51,7 +58,7 @@ app.use((req, res) => {
 });
 
 // 启动服务器
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`API服务器运行在 http://localhost:${PORT}`);
   console.log('可用的API端点:');
   console.log('  GET /api/file?path=<文件路径>');
@@ -64,6 +71,12 @@ app.listen(PORT, () => {
   console.log('  GET /api/questions/types');
   console.log('  GET /api/questions/difficulties');
   console.log('  GET /api/courses');
+  console.log(`⏱️  Server timeout set to 3000 seconds`);
 });
+
+// 设置服务器超时时间
+server.timeout = 3000000; // 3000秒
+server.keepAliveTimeout = 3000000;
+server.headersTimeout = 3000000;
 
 module.exports = app; 

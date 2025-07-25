@@ -21,6 +21,13 @@ const newData = require('./newData.cjs');
 const app = express();
 const port = 3001;
 
+// 设置服务器超时时间为3000秒
+app.use((req, res, next) => {
+  req.setTimeout(3000000); // 3000秒 = 3000000毫秒
+  res.setTimeout(3000000);
+  next();
+});
+
 app.use(cors());
 app.use(express.json());
 
@@ -377,8 +384,14 @@ app.get('/api/menu/admin', (req, res) => {
   res.json(adminMenuItems);
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`🚀 Mock API server is running at http://localhost:${port}`);
   console.log(`📚 New API endpoints available at /api/*`);
   console.log(`🔗 Old API endpoints still available for compatibility`);
-}); 
+  console.log(`⏱️  Server timeout set to 3000 seconds`);
+});
+
+// 设置服务器超时时间
+server.timeout = 3000000; // 3000秒
+server.keepAliveTimeout = 3000000;
+server.headersTimeout = 3000000; 

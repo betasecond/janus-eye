@@ -12,25 +12,31 @@ export default defineConfig({
     }
   },
   server: {
+    // 设置开发服务器超时时间为3000秒
+    timeout: 3000000, // 3000秒 = 3000000毫秒
     proxy: {
       '/api/file': {
         target: 'http://localhost:3000',
         changeOrigin: true,
+        timeout: 3000000, // 代理超时时间
         rewrite: (path) => path.replace(/^\/api\/file/, '/api/file')
       },
       '/api/directory': {
         target: 'http://localhost:3000',
         changeOrigin: true,
+        timeout: 3000000,
         rewrite: (path) => path.replace(/^\/api\/directory/, '/api/directory')
       },
       '/api/search': {
         target: 'http://localhost:3000',
         changeOrigin: true,
+        timeout: 3000000,
         rewrite: (path) => path.replace(/^\/api\/search/, '/api/search')
       },
       '/api/file-info': {
         target: 'http://localhost:3000',
         changeOrigin: true,
+        timeout: 3000000,
         rewrite: (path) => path.replace(/^\/api\/file-info/, '/api/file-info')
       }
     }
