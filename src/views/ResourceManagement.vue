@@ -33,16 +33,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import Icon from '../components/base/Icon.vue';
 import { getResources } from '@/api';
 import type { Resource } from '@/types';
+import { currentUser } from '@/store';
 
 const resources = ref<Resource[]>([]);
 const loading = ref(true);
 
-onMounted(async () => {
-  resources.value = await getResources();
-  loading.value = false;
+const fetchResources = async (userId: string) => {
+  try {
+    loading.value = true;
+    resources.value = await getResources(userId);
+  } catch (error) {
+    console.error("Failed to fetch resources:", error);
+    // 在这里可以添加用户友好的错误通知
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 监听currentUser的变化
+watch(currentUser, (newUser) => {
+  if (newUser) {
+    fetchResources(newUser.id);
+  }
+}, { immediate: true }); // immediate: true 确保在组件挂载后立即执行一次
+
+onMounted(() => {
+  // 如果组件挂载时currentUser还未加载，watch的immediate: true会处理初始加载
+  // 如果currentUser已经存在，watch也会立即触发
+  // 因此这里的逻辑可以保持简单，或者用于处理currentUser初始为null的情况
+  if (!currentUser.value) {
+    loading.value = true; // 显示加载状态直到用户信息绪
+  }
 });
 </script> 

@@ -3,7 +3,6 @@
  * 包含超时设置和通用请求配置
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
 
 // 超时时间设置为3000秒（3000000毫秒）
 const TIMEOUT = 3000000
@@ -38,7 +37,7 @@ export const fetchWithTimeout = async (
  * 通用API请求配置
  */
 export const apiConfig = {
-  baseURL: API_BASE_URL,
+  baseURL: "localhost",
   timeout: TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
@@ -49,7 +48,7 @@ export const apiConfig = {
  * GET请求
  */
 export const apiGet = async (endpoint: string, params?: Record<string, string>): Promise<Response> => {
-  const url = new URL(`${apiConfig.baseURL}${endpoint}`)
+  const url = `${apiConfig.baseURL}${endpoint}`
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       if (value) url.searchParams.append(key, value)
@@ -94,4 +93,4 @@ export const apiDelete = async (endpoint: string): Promise<Response> => {
   })
 }
 
-export { API_BASE_URL, TIMEOUT }
+export { TIMEOUT }

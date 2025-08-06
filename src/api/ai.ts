@@ -5,7 +5,7 @@ import { AI_CONFIG } from '@/config/ai'
 // 目前主要关注聊天功能，所以暂时注释掉embedding相关代码
 
 /*
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+
 
 export const storeEmbedding = async (message: string): Promise<StatusVO> => {
   const response = await fetch(`${API_BASE_URL}/ai/embedding/store`, {

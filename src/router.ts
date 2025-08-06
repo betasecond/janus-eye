@@ -1,16 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Login from '@/views/Login.vue';
-import Dashboard from '@/views/Dashboard.vue';
-import Syllabus from '@/views/Syllabus.vue';
-import Overview from '@/views/Overview.vue';
-import Question from '@/views/Question.vue';
-import Home from '@/views/Home.vue';
-import UserManagement from '@/views/UserManagement.vue';
-import ResourceManagement from '@/views/ResourceManagement.vue';
-import MyAssignments from '@/views/MyAssignments.vue';
-import PracticeCenter from '@/views/PracticeCenter.vue';
-import Profile from '@/views/Profile.vue';
-import AIChat from '@/views/AIChat.vue';
+
 
 const routes = [
   {
@@ -20,70 +9,71 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: Login,
+    // 动态导入：只有访问 /login 时，才会加载 Login.vue 对应的 JS 文件
+    component: () => import('@/views/Login.vue'),
   },
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: Dashboard,
+    component: () => import('@/views/Dashboard.vue'),
   },
   {
     path: '/syllabus',
     name: 'Syllabus',
-    component: Syllabus,
+    component: () => import('@/views/Syllabus.vue'),
   },
   {
     path: '/overview',
     name: 'Overview',
-    component: Overview,
+    component: () => import('@/views/Overview.vue'),
   },
   {
     path: '/question',
     name: 'Question',
-    component: Question,
+    component: () => import('@/views/Question.vue'),
   },
   {
     path: '/home',
     name: 'Home',
-    component: Home,
+    component: () => import('@/views/Home.vue'),
   },
   {
     path: '/admin/users',
     name: 'UserManagement',
-    component: UserManagement,
+    component: () => import('@/views/UserManagement.vue'),
   },
   {
     path: '/admin/resources',
     name: 'ResourceManagement',
-    component: ResourceManagement,
+    component: () => import('@/views/ResourceManagement.vue'),
   },
   {
     path: '/library',
     name: 'Library',
-    component: ResourceManagement,
+    component: () => import('@/views/ResourceManagement.vue'), // 注意：这里和上面共用了一个组件
   },
   {
     path: '/assignments',
     name: 'MyAssignments',
-    component: MyAssignments,
+    component: () => import('@/views/MyAssignments.vue'),
   },
-  
   {
     path: '/practice',
     name: 'PracticeCenter',
-    component: PracticeCenter,
+    component: () => import('@/views/PracticeCenter.vue'),
   },
   {
     path: '/profile',
     name: 'Profile',
-    component: Profile,
+    component: () => import('@/views/Profile.vue'),
   },
   {
     path: '/ai-chat',
     name: 'AIChat',
-    component: AIChat,
+    component: () => import('@/views/AIChat.vue'),
   },
 ];
+
 
 const router = createRouter({
   history: createWebHistory(),

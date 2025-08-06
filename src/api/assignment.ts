@@ -6,7 +6,7 @@ import type {
   AssignmentStatsVO
 } from '@/types'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+
 
 /**
  * 获取作业列表
@@ -16,23 +16,46 @@ export const getAssignments = async (params?: {
   creatorId?: string
   studentId?: string
 }): Promise<AssignmentVO[]> => {
-  const url = new URL(`${API_BASE_URL}/api/assignments`)
-  if (params?.courseId) url.searchParams.append('courseId', params.courseId)
-  if (params?.creatorId) url.searchParams.append('creatorId', params.creatorId)
-  if (params?.studentId) url.searchParams.append('studentId', params.studentId)
-  
-  const response = await fetch(url.toString())
-  if (!response.ok) {
-    throw new Error('Failed to fetch assignments')
+  // 1. 基础路径
+  let requestUrl = '/api/assignments';
+
+  // 2. 如果有参数，则构建查询字符串
+  if (params) {
+    const queryParams = new URLSearchParams();
+
+    if (params.courseId) {
+      queryParams.append('courseId', params.courseId);
+    }
+    if (params.creatorId) {
+      queryParams.append('creatorId', params.creatorId);
+    }
+    if (params.studentId) {
+      queryParams.append('studentId', params.studentId);
+    }
+
+    const queryString = queryParams.toString();
+
+    // 3. 如果查询字符串不为空，则拼接到 URL 后面
+    if (queryString) {
+      requestUrl += `?${queryString}`;
+    }
   }
-  return response.json()
+
+  const response = await fetch(requestUrl);
+  if (!response.ok) {
+    throw new Error('Failed to fetch assignments');
+  }
+  // 假设后端对空数组的响应也是 application/json
+  const responseData = await response.json();
+  // 从你的后端代码看，返回的数据应该在 data 字段里
+  return responseData.data || [];
 }
 
 /**
  * 获取作业详情
  */
 export const getAssignmentById = async (id: string): Promise<AssignmentVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/assignments/${id}`)
+  const response = await fetch(`/api/assignments/${id}`)
   if (!response.ok) {
     throw new Error('Failed to fetch assignment')
   }
@@ -43,7 +66,7 @@ export const getAssignmentById = async (id: string): Promise<AssignmentVO> => {
  * 创建作业
  */
 export const createAssignment = async (data: CreateAssignmentDto): Promise<AssignmentVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/assignments`, {
+  const response = await fetch(`/api/assignments`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -60,7 +83,7 @@ export const createAssignment = async (data: CreateAssignmentDto): Promise<Assig
  * 更新作业
  */
 export const updateAssignment = async (id: string, data: UpdateAssignmentDto): Promise<AssignmentVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/assignments/${id}`, {
+  const response = await fetch(`/api/assignments/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -77,7 +100,7 @@ export const updateAssignment = async (id: string, data: UpdateAssignmentDto): P
  * 删除作业
  */
 export const deleteAssignment = async (id: string): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/api/assignments/${id}`, {
+  const response = await fetch(`/api/assignments/${id}`, {
     method: 'DELETE',
   })
   if (!response.ok) {
@@ -93,7 +116,7 @@ export const submitAssignment = async (data: {
   studentId: string
   answers: Record<string, string>
 }): Promise<AssignmentSubmissionVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/assignments/submit`, {
+  const response = await fetch(`/api/assignments/submit`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -110,7 +133,7 @@ export const submitAssignment = async (data: {
  * 获取作业提交列表
  */
 export const getAssignmentSubmissions = async (assignmentId: string): Promise<AssignmentSubmissionVO[]> => {
-  const response = await fetch(`${API_BASE_URL}/api/assignments/${assignmentId}/submissions`)
+  const response = await fetch(`/api/assignments/${assignmentId}/submissions`)
   if (!response.ok) {
     throw new Error('Failed to fetch assignment submissions')
   }
@@ -121,7 +144,7 @@ export const getAssignmentSubmissions = async (assignmentId: string): Promise<As
  * 获取单个提交详情
  */
 export const getSubmissionById = async (submissionId: string): Promise<AssignmentSubmissionVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/assignments/submissions/${submissionId}`)
+  const response = await fetch(`/api/assignments/submissions/${submissionId}`)
   if (!response.ok) {
     throw new Error('Failed to fetch submission')
   }
@@ -132,7 +155,7 @@ export const getSubmissionById = async (submissionId: string): Promise<Assignmen
  * 批改作业
  */
 export const gradeSubmission = async (submissionId: string, scores: Record<string, boolean>): Promise<AssignmentSubmissionVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/assignments/submissions/${submissionId}/grade`, {
+  const response = await fetch(`/api/assignments/submissions/${submissionId}/grade`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -149,7 +172,7 @@ export const gradeSubmission = async (submissionId: string, scores: Record<strin
  * 获取学生的提交列表
  */
 export const getStudentSubmissions = async (studentId: string): Promise<AssignmentSubmissionVO[]> => {
-  const response = await fetch(`${API_BASE_URL}/api/assignments/student/${studentId}`)
+  const response = await fetch(`/api/assignments/student/${studentId}`)
   if (!response.ok) {
     throw new Error('Failed to fetch student submissions')
   }
@@ -160,7 +183,7 @@ export const getStudentSubmissions = async (studentId: string): Promise<Assignme
  * 获取作业统计
  */
 export const getAssignmentStats = async (assignmentId: string): Promise<AssignmentStatsVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/assignments/${assignmentId}/stats`)
+  const response = await fetch(`/api/assignments/${assignmentId}/stats`)
   if (!response.ok) {
     throw new Error('Failed to fetch assignment stats')
   }

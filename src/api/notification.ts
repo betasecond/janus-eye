@@ -6,13 +6,13 @@ import type {
   MessageVO
 } from '@/types'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+
 
 /**
  * 发送通知
  */
 export const createNotification = async (data: CreateNotificationDto): Promise<NotificationVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/notifications`, {
+  const response = await fetch(`/api/notifications`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ export const broadcastNotification = async (data: {
   type: 'SYSTEM' | 'ASSIGNMENT' | 'GRADE' | 'MESSAGE'
   senderId?: string
 }): Promise<NotificationVO[]> => {
-  const response = await fetch(`${API_BASE_URL}/api/notifications/broadcast`, {
+  const response = await fetch(`/api/notifications/broadcast`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ export const getUserNotifications = async (userId: string, params?: {
   unreadOnly?: boolean
   type?: 'SYSTEM' | 'ASSIGNMENT' | 'GRADE' | 'MESSAGE'
 }): Promise<NotificationVO[]> => {
-  const url = new URL(`${API_BASE_URL}/api/notifications/user/${userId}`)
+  const url = `/api/notifications/user/${userId}`
   if (params?.unreadOnly) url.searchParams.append('unreadOnly', params.unreadOnly.toString())
   if (params?.type) url.searchParams.append('type', params.type)
   
@@ -70,7 +70,7 @@ export const getUserNotifications = async (userId: string, params?: {
  * 获取用户通知摘要
  */
 export const getUserNotificationSummary = async (userId: string): Promise<NotificationSummaryVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/notifications/user/${userId}/summary`)
+  const response = await fetch(`/api/notifications/user/${userId}/summary`)
   if (!response.ok) {
     throw new Error('Failed to fetch notification summary')
   }
@@ -81,7 +81,7 @@ export const getUserNotificationSummary = async (userId: string): Promise<Notifi
  * 标记为已读
  */
 export const markNotificationAsRead = async (notificationId: string, userId: string): Promise<NotificationVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/notifications/${notificationId}/read?userId=${userId}`, {
+  const response = await fetch(`/api/notifications/${notificationId}/read?userId=${userId}`, {
     method: 'PUT',
   })
   if (!response.ok) {
@@ -94,7 +94,7 @@ export const markNotificationAsRead = async (notificationId: string, userId: str
  * 全部标记为已读
  */
 export const markAllNotificationsAsRead = async (userId: string): Promise<MessageVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/notifications/user/${userId}/read-all`, {
+  const response = await fetch(`/api/notifications/user/${userId}/read-all`, {
     method: 'PUT',
   })
   if (!response.ok) {
@@ -110,7 +110,7 @@ export const markAllNotificationsAsRead = async (userId: string): Promise<Messag
 //   notificationIds: string[]
 //   userId: string
 // }): Promise<MessageVO> => {
-//   const response = await fetch(`${API_BASE_URL}/api/notifications/mark-read`, {
+//   const response = await fetch(`/api/notifications/mark-read`, {
 //     method: 'POST',
 //     headers: {
 //       'Content-Type': 'application/json',
@@ -127,7 +127,7 @@ export const markAllNotificationsAsRead = async (userId: string): Promise<Messag
  * 删除通知
  */
 export const deleteNotification = async (notificationId: string, userId: string): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/api/notifications/${notificationId}?userId=${userId}`, {
+  const response = await fetch(`/api/notifications/${notificationId}?userId=${userId}`, {
     method: 'DELETE',
   })
   if (!response.ok) {
@@ -139,7 +139,7 @@ export const deleteNotification = async (notificationId: string, userId: string)
  * 获取通知类型
  */
 export const getNotificationTypes = async (): Promise<string[]> => {
-  const response = await fetch(`${API_BASE_URL}/api/notifications/types`)
+  const response = await fetch(`/api/notifications/types`)
   if (!response.ok) {
     throw new Error('Failed to fetch notification types')
   }
@@ -150,7 +150,7 @@ export const getNotificationTypes = async (): Promise<string[]> => {
  * 清理旧通知
  */
 export const cleanupOldNotifications = async (daysOld?: number): Promise<MessageVO> => {
-  const url = new URL(`${API_BASE_URL}/api/notifications/cleanup`)
+  const url = `/api/notifications/cleanup`
   if (daysOld) url.searchParams.append('daysOld', daysOld.toString())
   
   const response = await fetch(url.toString(), {
@@ -166,7 +166,7 @@ export const cleanupOldNotifications = async (daysOld?: number): Promise<Message
  * 获取通知统计
  */
 export const getNotificationStats = async (): Promise<NotificationStatsVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/notifications/stats`)
+  const response = await fetch(`/api/notifications/stats`)
   if (!response.ok) {
     throw new Error('Failed to fetch notification stats')
   }
