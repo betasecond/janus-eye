@@ -145,11 +145,18 @@ const selectedQuestionId = ref<string | null>(null);
 const fetchQuestions = async (page = 0) => {
   loading.value = true;
   try {
+    console.log('正在获取题目数据...');
     const response = await getQuestions({ page, size: 10 });
+    console.log('获取到的原始响应:', response);
+    
     const parsedData = parsePaginatedQuestions(response);
+    console.log('解析后的数据:', parsedData);
+    
     questions.value = parsedData.questions;
     totalPages.value = parsedData.totalPages;
     currentPage.value = parsedData.currentPage;
+    
+    console.log('设置后的题目数组:', questions.value);
   } catch (error) {
     console.error('获取题目失败:', error);
     addNotification({ title: '加载失败', content: '无法加载题目数据。', type: 'error' });

@@ -22,12 +22,17 @@ export interface AnalyticsEvent {
     timestamp: string;
     url: string;
     page?: string;
+    pageName?: string; // 中文页面名称
     path?: string;
     buttonText?: string;
     buttonId?: string;
     userId: string;
     component?: string;
     target?: string;
+    sessionId?: string; // 会话ID
+    userAgent?: string; // 用户代理
+    referrer?: string; // 来源页面
+    [key: string]: any; // 允许其他属性
   };
 }
 

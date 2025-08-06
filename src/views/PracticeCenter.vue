@@ -90,22 +90,28 @@ const loadQuestions = async () => {
     error.value = null;
     selectedOption.value = null;
     
+    console.log('PracticeCenter: 开始加载题目...');
+    
     // Get questions from API
     const response = await getQuestions();
+    console.log('PracticeCenter: 获取到的原始响应:', response);
     
     // Use the new parsing function to handle the complex data structure
     questions.value = parseComplexQuestionData(response);
+    console.log('PracticeCenter: 解析后的题目数组:', questions.value);
     
     // Set the first question as current if available
     if (questions.value.length > 0) {
       currentIndex.value = 0;
       currentQuestion.value = questions.value[0];
+      console.log('PracticeCenter: 设置当前题目:', currentQuestion.value);
     } else {
       currentQuestion.value = null;
       error.value = '没有找到题目';
+      console.warn('PracticeCenter: 没有找到任何题目');
     }
   } catch (e) {
-    console.error('Error fetching questions:', e);
+    console.error('PracticeCenter: 加载题目时出错:', e);
     error.value = '加载题目失败，请重试';
   } finally {
     loading.value = false;
