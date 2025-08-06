@@ -13,23 +13,24 @@ import type {
   Chapter,
   QuestionVO
 } from '../types'
+import { generateUUID } from '../utils/uuid'
 
 const mockTeacher: UserVO = {
-  id: crypto.randomUUID(),
+  id: generateUUID(),
   displayName: '王老师',
   avatarUrl: 'https://i.pravatar.cc/150?u=teacher1',
   role: 'TEACHER',
 }
 
 const mockStudent: UserVO = {
-  id: crypto.randomUUID(),
+  id: generateUUID(),
   displayName: '小明',
   avatarUrl: 'https://i.pravatar.cc/150?u=student1',
   role: 'STUDENT',
 }
 
 const mockAdmin: UserVO = {
-  id: crypto.randomUUID(),
+  id: generateUUID(),
   displayName: '管理员',
   avatarUrl: 'https://i.pravatar.cc/150?u=admin1',
   role: 'ADMIN',
@@ -40,13 +41,13 @@ export const mockUsers: UserVO[] = [
   mockStudent,
   mockAdmin,
   {
-    id: crypto.randomUUID(),
+    id: generateUUID(),
     displayName: '小红',
     avatarUrl: 'https://i.pravatar.cc/150?u=student2',
     role: 'STUDENT',
   },
   {
-    id: crypto.randomUUID(),
+    id: generateUUID(),
     displayName: '李老师',
     avatarUrl: 'https://i.pravatar.cc/150?u=teacher2',
     role: 'TEACHER',
