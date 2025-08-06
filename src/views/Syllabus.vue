@@ -130,7 +130,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { Syllabus, Chapter, CourseVO } from '@/types'
+import type { Syllabus, Chapter, CourseVO, PageVO } from '@/types'
 import { getSyllabus, getCourses } from '@/api'
 import Icon from '@/components/base/Icon.vue'
 import { addNotification } from '@/store'
@@ -147,11 +147,21 @@ const renderedContent = ref('')
 
 onMounted(async () => {
   try {
-    syllabus.value = await getSyllabus()
+    const syllabusResponse = await getSyllabus();
+    if (syllabusResponse && Array.isArray(syllabusResponse.chapters) && syllabusResponse.chapters.length > 1 && typeof syllabusResponse.chapters[0] === 'string') {
+        syllabusResponse.chapters = syllabusResponse.chapters[1];
+    }
+    syllabus.value = syllabusResponse;
+
     if (syllabus.value?.chapters?.length) {
       selectChapter(syllabus.value.chapters[0])
     }
-    courses.value = await getCourses()
+    
+    const coursesResponse = await getCourses() as PageVO<CourseVO>;
+    if (coursesResponse && coursesResponse.content) {
+      courses.value = coursesResponse.content;
+    }
+
   } catch (error) {
     console.error("Failed to load syllabus data:", error)
     // addNotification({
