@@ -72,9 +72,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import type { Question, PageVO } from '@/types';
+import type { Question } from '@/types';
 import { getQuestions } from '@/api';
-import { transformQuestionsData, parseComplexQuestionData } from '@/utils/questionTransformer';
+import { parseComplexQuestionData } from '@/utils/questionTransformer';
 
 const questions = ref<Question[]>([]);
 const currentQuestion = ref<Question | null>(null);
@@ -92,58 +92,14 @@ const loadQuestions = async () => {
     
     // Get questions from API
     const response = await getQuestions();
-    console.log('Raw API response:', response);
     
-    let questionData;
-    
-    // 检查响应格式
-    if (response && typeof response === 'object') {
-      // 如果是包含success和data字段的响应
-      if ('success' in response && 'data' in response) {
-        console.log('Found success/data structure');
-        const data = response.data;
-        
-        // 检查data是否是数组格式（包含类型信息）
-        if (Array.isArray(data) && data.length > 1) {
-          // 跳过第一个元素（类型信息），获取PageVO数据
-          const pageVOData = data[1];
-          console.log('PageVO data:', pageVOData);
-          
-          if (pageVOData && typeof pageVOData === 'object' && 'content' in pageVOData) {
-            questionData = pageVOData;
-          } else {
-            questionData = pageVOData;
-          }
-        } else {
-          questionData = data;
-        }
-      } else if ('content' in response) {
-        // 直接是PageVO格式
-        questionData = response;
-      } else {
-        // 其他格式，直接使用
-        questionData = response;
-      }
-    } else {
-      questionData = response;
-    }
-    
-    console.log('Processed question data:', questionData);
-    
-    // 使用新的解析函数处理复杂数据结构
-    questions.value = parseComplexQuestionData(questionData);
-    
-    // 如果没有解析到题目，尝试使用旧的转换函数作为后备
-    if (questions.value.length === 0) {
-      console.log('No questions parsed, trying fallback transformation');
-      questions.value = transformQuestionsData(questionData);
-    }
+    // Use the new parsing function to handle the complex data structure
+    questions.value = parseComplexQuestionData(response);
     
     // Set the first question as current if available
     if (questions.value.length > 0) {
       currentIndex.value = 0;
       currentQuestion.value = questions.value[0];
-      console.log('Current question set:', currentQuestion.value);
     } else {
       currentQuestion.value = null;
       error.value = '没有找到题目';
@@ -188,4 +144,4 @@ onMounted(() => {
   loadQuestions();
 });
 
-</script> 
+</script>

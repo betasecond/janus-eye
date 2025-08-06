@@ -91,118 +91,109 @@ export function transformQuestionsData(questionsData: QuestionVO[] | any[] | str
 }
 
 /**
- * 解析复杂的后端数据结构
- * 处理包含JSON字符串的content字段和LinkedHashMap格式的options字段
- */
-export function parseComplexQuestionData(rawData: any): Question[] {
-  console.log('Parsing complex question data:', rawData);
-  
-  // 检查是否是PageVO格式
-  if (rawData && typeof rawData === 'object' && 'content' in rawData) {
-    const pageData = rawData.content;
-    
-    // 如果content是数组，且包含类型信息
-    if (Array.isArray(pageData) && pageData.length > 0) {
-      // 提取实际的题目数据（跳过类型信息）
-      const questions = pageData.filter((item, index) => {
-        // 跳过类型信息（通常是字符串）
-        return typeof item !== 'string' && item && typeof item === 'object';
-      });
-      
-      return questions.map(question => parseSingleQuestion(question));
-    }
-  }
-  
-  // 如果不是PageVO格式，尝试直接解析
-  if (Array.isArray(rawData)) {
-    return rawData.map(question => parseSingleQuestion(question));
-  }
-  
-  console.error('Unsupported data format:', rawData);
-  return [];
-}
-
-/**
  * 解析单个题目数据
  */
 function parseSingleQuestion(questionData: any): Question {
-  console.log('Parsing single question:', questionData);
+    console.log('Parsing single question:', questionData);
   
-  // 解析content字段（可能是JSON字符串）
-  let title = '未提供题干内容';
-  let options: string[] = [];
+    // The actual question object is the second element in the array
+    const question = Array.isArray(questionData) ? questionData[1] : questionData;
+
+    // 解析content字段（可能是JSON字符串）
+    let title = '未提供题干内容';
+    let options: string[] = [];
   
-  if (questionData.content) {
-    try {
-      // 尝试解析content为JSON
-      const contentObj = typeof questionData.content === 'string' 
-        ? JSON.parse(questionData.content) 
-        : questionData.content;
-      
-      if (contentObj.title) {
-        title = contentObj.title;
-      }
-      
-      if (contentObj.options && Array.isArray(contentObj.options)) {
-        options = contentObj.options;
-      }
-    } catch (e) {
-      console.warn('Failed to parse content JSON:', e);
-      // 如果解析失败，直接使用content作为title
-      title = questionData.content;
-    }
-  }
-  
-  // 解析options字段（可能是LinkedHashMap格式）
-  if (!options.length && questionData.options) {
-    try {
-      if (Array.isArray(questionData.options) && questionData.options.length > 1) {
-        // 跳过类型信息，获取实际的options对象
-        const optionsObj = questionData.options[1];
-        if (optionsObj && typeof optionsObj === 'object') {
-          // 将对象转换为数组
-          options = Object.values(optionsObj);
+    if (question.content) {
+      try {
+        const contentObj = JSON.parse(question.content);
+        if (contentObj.title) {
+          title = contentObj.title;
         }
-      } else if (typeof questionData.options === 'object') {
-        // 直接是对象格式
-        options = Object.values(questionData.options);
+        if (contentObj.options && Array.isArray(contentObj.options)) {
+          options = contentObj.options;
+        }
+      } catch (e) {
+        console.warn('Failed to parse content JSON, using content as title:', e);
+        title = question.content;
       }
-    } catch (e) {
-      console.warn('Failed to parse options:', e);
     }
-  }
   
-  // 解析correctAnswer字段
-  let correctAnswer: string | number = '';
-  if (questionData.correctAnswer) {
-    try {
-      const answerObj = typeof questionData.correctAnswer === 'string' 
-        ? JSON.parse(questionData.correctAnswer) 
-        : questionData.correctAnswer;
-      
-      if (answerObj.answer !== undefined) {
-        correctAnswer = answerObj.answer;
+    // 解析options字段（可能是LinkedHashMap格式）
+    if (question.options && Array.isArray(question.options) && question.options.length > 1) {
+        const optionsMap = question.options[1];
+        if (typeof optionsMap === 'object' && optionsMap !== null) {
+            options = Object.values(optionsMap);
+        }
+    }
+  
+    // 解析correctAnswer字段
+    let correctAnswer: string | number = '';
+    if (question.correctAnswer) {
+      try {
+        const answerObj = JSON.parse(question.correctAnswer);
+        if (answerObj.answer !== undefined) {
+          correctAnswer = answerObj.answer;
+        }
+      } catch (e) {
+        console.warn('Failed to parse correctAnswer:', e);
       }
-    } catch (e) {
-      console.warn('Failed to parse correctAnswer:', e);
     }
-  }
   
-  return {
-    id: questionData.id || '',
-    type: questionData.type || 'SINGLE_CHOICE',
-    difficulty: questionData.difficulty || 'EASY',
-    content: title,
-    title: title,
-    options: options,
-    correctAnswer: correctAnswer,
-    explanation: questionData.explanation || undefined,
-    knowledgePoints: questionData.knowledgePoints || [],
-    creator: questionData.creator || undefined,
-    createdAt: questionData.createdAt || undefined,
-    updatedAt: questionData.updatedAt || undefined
-  };
+    return {
+      id: question.id || '',
+      type: question.type || 'SINGLE_CHOICE',
+      difficulty: question.difficulty || 'EASY',
+      content: title,
+      title: title,
+      options: options,
+      correctAnswer: correctAnswer,
+      explanation: question.explanation || undefined,
+      knowledgePoints: question.knowledgePoints || [],
+      creator: question.creator || undefined,
+      createdAt: question.createdAt || undefined,
+      updatedAt: question.updatedAt || undefined
+    };
 }
+  
+
+/**
+ * 解析从API返回的复杂问题数据结构。
+ * @param apiResponse - API的原始响应。
+ * @returns 解析后的问题对象数组。
+ */
+export function parseComplexQuestionData(apiResponse: any): Question[] {
+    console.log('Parsing complex API response:', apiResponse);
+  
+    if (!apiResponse) {
+      console.error('API response is null or undefined.');
+      return [];
+    }
+  
+    // Case 1: Standard success/data wrapper
+    if (apiResponse.success && apiResponse.data) {
+      // The data is an array where the first element is a type string
+      // and the second is the PageVO object.
+      if (Array.isArray(apiResponse.data) && apiResponse.data.length > 1) {
+        return parseComplexQuestionData(apiResponse.data[1]);
+      }
+    }
+  
+    // Case 2: Direct PageVO object
+    if (typeof apiResponse === 'object' && 'content' in apiResponse && Array.isArray(apiResponse.content)) {
+      // The content array starts with a type string, e.g., "java.util.ArrayList"
+      const questionList = apiResponse.content[1];
+  
+      if (Array.isArray(questionList)) {
+        // Each item in this list is another array, e.g., ["edu.jimei.janus.controller.vo.QuestionVO", { ... }]
+        return questionList.map(parseSingleQuestion);
+      }
+    }
+    
+    // Fallback for other structures or if parsing fails
+    console.warn('Unsupported API response structure:', apiResponse);
+    return [];
+}
+  
 
 import type { Course, CourseVO, UserVO } from '@/types'; // 确保导入了所有需要的类型
 
