@@ -64,16 +64,26 @@ function transformSingleQuestion(questionVO: any): Question {
  * @returns 一个包含题目数组、总页数和当前页码的对象
  */
 export function parsePaginatedQuestions(apiResponse: any): { questions: Question[], totalPages: number, currentPage: number } {
-    if (!apiResponse || !apiResponse.content) {
+    if (!apiResponse || !apiResponse.data || !Array.isArray(apiResponse.data) || apiResponse.data.length < 2) {
         return { questions: [], totalPages: 0, currentPage: 0 };
     }
-    
-    const questions = apiResponse.content.map(transformSingleQuestion);
+
+    const pageVO = apiResponse.data[1];
+    if (!pageVO || !pageVO.content || !Array.isArray(pageVO.content) || pageVO.content.length < 2) {
+        return { questions: [], totalPages: 0, currentPage: 0 };
+    }
+
+    const questionList = pageVO.content[1];
+    if (!Array.isArray(questionList)) {
+        return { questions: [], totalPages: 0, currentPage: 0 };
+    }
+
+    const questions = questionList.map(transformSingleQuestion);
     
     return {
         questions,
-        totalPages: apiResponse.totalPages,
-        currentPage: apiResponse.number,
+        totalPages: pageVO.totalPages,
+        currentPage: pageVO.number,
     };
 }
 
