@@ -7,7 +7,7 @@ import type {
   PageVO
 } from '@/types'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+
 
 /**
  * 获取题目列表（分页）
@@ -21,7 +21,7 @@ export const getQuestions = async (params?: {
   page?: number
   size?: number
 }): Promise<PageVO<QuestionVO>| QuestionVO[]> => {
-  const url = new URL(`${API_BASE_URL}/api/questions`)
+  const url = `/api/questions`
   if (params?.type) url.searchParams.append('type', params.type)
   if (params?.difficulty) url.searchParams.append('difficulty', params.difficulty)
   if (params?.creatorId) url.searchParams.append('creatorId', params.creatorId)
@@ -41,7 +41,7 @@ export const getQuestions = async (params?: {
  * 获取题目详情
  */
 export const getQuestionById = async (id: string): Promise<QuestionVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/questions/${id}`)
+  const response = await fetch(`/api/questions/${id}`)
   if (!response.ok) {
     throw new Error('Failed to fetch question')
   }
@@ -52,7 +52,7 @@ export const getQuestionById = async (id: string): Promise<QuestionVO> => {
  * 创建题目
  */
 export const createQuestion = async (data: CreateQuestionDto): Promise<QuestionVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/questions`, {
+  const response = await fetch(`/api/questions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export const createQuestion = async (data: CreateQuestionDto): Promise<QuestionV
  * 更新题目
  */
 export const updateQuestion = async (id: string, data: UpdateQuestionDto): Promise<QuestionVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/questions/${id}`, {
+  const response = await fetch(`/api/questions/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ export const updateQuestion = async (id: string, data: UpdateQuestionDto): Promi
  * 删除题目
  */
 export const deleteQuestion = async (id: string): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/api/questions/${id}`, {
+  const response = await fetch(`/api/questions/${id}`, {
     method: 'DELETE',
   })
   if (!response.ok) {
@@ -98,7 +98,7 @@ export const deleteQuestion = async (id: string): Promise<void> => {
  * 搜索题目
  */
 export const searchQuestions = async (data: QuestionSearchDto): Promise<QuestionVO[]> => {
-  const response = await fetch(`${API_BASE_URL}/api/questions/search`, {
+  const response = await fetch(`/api/questions/search`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ export const searchQuestions = async (data: QuestionSearchDto): Promise<Question
  * 获取题目统计
  */
 export const getQuestionStats = async (): Promise<QuestionStatsVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/questions/stats`)
+  const response = await fetch(`/api/questions/stats`)
   if (!response.ok) {
     throw new Error('Failed to fetch question stats')
   }
@@ -126,7 +126,7 @@ export const getQuestionStats = async (): Promise<QuestionStatsVO> => {
  * 获取所有题目类型
  */
 export const getQuestionTypes = async (): Promise<string[]> => {
-  const response = await fetch(`${API_BASE_URL}/api/questions/types`)
+  const response = await fetch(`/api/questions/types`)
   if (!response.ok) {
     throw new Error('Failed to fetch question types')
   }
@@ -137,7 +137,7 @@ export const getQuestionTypes = async (): Promise<string[]> => {
  * 获取所有难度等级
  */
 export const getQuestionDifficulties = async (): Promise<string[]> => {
-  const response = await fetch(`${API_BASE_URL}/api/questions/difficulties`)
+  const response = await fetch(`/api/questions/difficulties`)
   if (!response.ok) {
     throw new Error('Failed to fetch question difficulties')
   }

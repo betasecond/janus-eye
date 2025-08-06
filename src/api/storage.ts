@@ -1,6 +1,6 @@
 import type { StorageObjectVO, StatusVO, PageVO } from '@/types'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+
 
 /**
  * 上传文件
@@ -10,7 +10,7 @@ export const uploadFile = async (file: File, uploaderId: string): Promise<Storag
   formData.append('file', file)
   formData.append('uploaderId', uploaderId)
   
-  const response = await fetch(`${API_BASE_URL}/api/storage/upload`, {
+  const response = await fetch(`/api/storage/upload`, {
     method: 'POST',
     body: formData,
   })
@@ -24,7 +24,7 @@ export const uploadFile = async (file: File, uploaderId: string): Promise<Storag
  * 获取文件详情
  */
 export const getFileById = async (id: string): Promise<StorageObjectVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/storage/${id}`)
+  const response = await fetch(`/api/storage/${id}`)
   if (!response.ok) {
     throw new Error('Failed to fetch file')
   }
@@ -35,7 +35,7 @@ export const getFileById = async (id: string): Promise<StorageObjectVO> => {
  * 请求文件向量化
  */
 export const requestFileEmbedding = async (id: string): Promise<StatusVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/storage/${id}/embed`, {
+  const response = await fetch(`/api/storage/${id}/embed`, {
     method: 'POST',
   })
   if (!response.ok) {
@@ -54,7 +54,7 @@ export const getFiles = async (params: {
   page?: number
   size?: number
 }): Promise<PageVO<StorageObjectVO>> => {
-  const url = new URL(`${API_BASE_URL}/api/storage`)
+  const url = `/api/storage`
   url.searchParams.append('currentUserId', params.currentUserId)
   if (params.uploaderId) url.searchParams.append('uploaderId', params.uploaderId)
   if (params.keyword) url.searchParams.append('keyword', params.keyword)

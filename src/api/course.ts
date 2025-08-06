@@ -1,6 +1,7 @@
 import type { CourseVO, CreateCourseDto, UpdateCourseDto, UserVO, CourseStatsVO } from '@/types'
 import { apiGet, apiPost, apiPut, apiDelete } from '@/config/api'
 
+
 /**
  * 获取所有课程
  */
@@ -42,7 +43,7 @@ export const createCourse = async (data: CreateCourseDto): Promise<CourseVO> => 
  * 更新课程
  */
 export const updateCourse = async (id: string, data: UpdateCourseDto): Promise<CourseVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/courses/${id}`, {
+  const response = await fetch(`/api/courses/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -59,7 +60,7 @@ export const updateCourse = async (id: string, data: UpdateCourseDto): Promise<C
  * 删除课程
  */
 export const deleteCourse = async (id: string): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/api/courses/${id}`, {
+  const response = await fetch(`/api/courses/${id}`, {
     method: 'DELETE',
   })
   if (!response.ok) {
@@ -71,7 +72,7 @@ export const deleteCourse = async (id: string): Promise<void> => {
  * 学生选课
  */
 export const enrollCourse = async (courseId: string, studentId: string): Promise<CourseVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/courses/${courseId}/enroll`, {
+  const response = await fetch(`/api/courses/${courseId}/enroll`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -88,7 +89,7 @@ export const enrollCourse = async (courseId: string, studentId: string): Promise
  * 学生退课
  */
 export const unenrollCourse = async (courseId: string, studentId: string): Promise<CourseVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/courses/${courseId}/enroll/${studentId}`, {
+  const response = await fetch(`/api/courses/${courseId}/enroll/${studentId}`, {
     method: 'DELETE',
   })
   if (!response.ok) {
@@ -101,7 +102,7 @@ export const unenrollCourse = async (courseId: string, studentId: string): Promi
  * 获取课程学生列表
  */
 export const getCourseStudents = async (courseId: string): Promise<UserVO[]> => {
-  const response = await fetch(`${API_BASE_URL}/api/courses/${courseId}/students`)
+  const response = await fetch(`/api/courses/${courseId}/students`)
   if (!response.ok) {
     throw new Error('Failed to fetch course students')
   }
@@ -112,7 +113,7 @@ export const getCourseStudents = async (courseId: string): Promise<UserVO[]> => 
  * 获取课程统计
  */
 export const getCourseStats = async (courseId: string): Promise<CourseStatsVO> => {
-  const response = await fetch(`${API_BASE_URL}/api/courses/${courseId}/stats`)
+  const response = await fetch(`/api/courses/${courseId}/stats`)
   if (!response.ok) {
     throw new Error('Failed to fetch course stats')
   }

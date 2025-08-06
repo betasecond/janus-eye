@@ -78,11 +78,18 @@
             <template v-else>
               <section class="mb-8">
                 <h4 class="text-lg font-semibold text-gray-700 mb-3">知识点讲解</h4>
-                <div class="prose max-w-none p-4 rounded-xl bg-white border border-gray-200">
-                  <textarea 
-                    class="form-input w-full min-w-0 flex-1 resize-y overflow-hidden rounded-lg text-gray-800 focus:outline-0 focus:ring-0 border-none bg-transparent min-h-48 p-2 text-base"
-                    v-model="selectedChapter.content"
-                  ></textarea>
+                <div class="prose max-w-none p-4 rounded-xl bg-white border border-gray-200 relative group">
+                  <button @click="toggleEditMode" class="absolute top-2 right-2 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors opacity-0 group-hover:opacity-100">
+                    <Icon :name="isEditing ? 'eye' : 'pencil'" size="16" />
+                  </button>
+                  <div v-if="isEditing" class="mt-4">
+                    <textarea 
+                      class="form-input w-full min-w-0 flex-1 resize-y overflow-hidden rounded-lg text-gray-800 focus:outline-0 focus:ring-0 border-none bg-transparent min-h-48 p-2 text-base"
+                      v-model="editableContent"
+                      @blur="saveContent"
+                    ></textarea>
+                  </div>
+                  <div v-else v-html="renderedContent" class="min-h-48"></div>
                 </div>
               </section>
 
@@ -127,27 +134,31 @@ import type { Syllabus, Chapter, CourseVO } from '@/types'
 import { getSyllabus, getCourses } from '@/api'
 import Icon from '@/components/base/Icon.vue'
 import { addNotification } from '@/store'
+import { parseMarkdownSafe } from '@/utils/markdown'
 
-const loading = ref(true)
 const syllabus = ref<Syllabus | null>(null)
 const courses = ref<CourseVO[]>([])
 const selectedChapter = ref<Chapter | null>(null)
 const isGenerating = ref(false)
 const progress = ref(0)
+const isEditing = ref(false)
+const editableContent = ref('')
+const renderedContent = ref('')
 
 onMounted(async () => {
   try {
     syllabus.value = await getSyllabus()
+    if (syllabus.value?.chapters?.length) {
+      selectChapter(syllabus.value.chapters[0])
+    }
     courses.value = await getCourses()
   } catch (error) {
     console.error("Failed to load syllabus data:", error)
-    addNotification({
-      title: '加载失败',
-      content: '无法加载课程大纲数据，请稍后重试。',
-      type: 'error',
-    });
-  } finally {
-    loading.value = false;
+    // addNotification({
+    //   title: '加载失败',
+    //   content: '无法加载课程大纲数据，请稍后重试。',
+    //   type: 'error',
+    // });
   }
 })
 
@@ -161,6 +172,28 @@ const selectChapter = (chapter: Chapter) => {
     return;
   }
   selectedChapter.value = chapter
+  updateRenderedContent(chapter.content)
+  isEditing.value = false
+}
+
+const updateRenderedContent = async (markdown: string) => {
+  editableContent.value = markdown
+  renderedContent.value = await parseMarkdownSafe(markdown)
+}
+
+const toggleEditMode = () => {
+  isEditing.value = !isEditing.value
+  if (!isEditing.value) {
+    saveContent()
+  }
+}
+
+const saveContent = () => {
+  if (selectedChapter.value) {
+    selectedChapter.value.content = editableContent.value
+    updateRenderedContent(editableContent.value)
+  }
+  isEditing.value = false
 }
 
 const handleGenerateSyllabus = () => {
@@ -171,7 +204,7 @@ const handleGenerateSyllabus = () => {
     });
 }
 
-const handleGenerateContent = () => {
+const handleGenerateContent = async () => {
   if (!selectedChapter.value) {
      addNotification({
       title: '请先选择章节',
@@ -181,32 +214,53 @@ const handleGenerateContent = () => {
     return;
   }
   
-  isGenerating.value = true
-  progress.value = 0
+  isGenerating.value = true;
+  progress.value = 0;
 
   const interval = setInterval(() => {
     if (progress.value < 90) {
-      progress.value += Math.floor(Math.random() * 10) + 1;
-      if(progress.value > 90) progress.value = 90;
+      progress.value += Math.floor(Math.random() * 5) + 1;
+      if (progress.value > 90) progress.value = 90;
     }
-  }, 300)
+  }, 600);
 
-  setTimeout(() => {
-    clearInterval(interval)
-    progress.value = 100
+  try {
+    const { getAIChatResponse } = await import('@/api/ai');
+    // 构造AI提示词
+    const prompt = `请为课程章节"${selectedChapter.value.title}"生成详细的教学内容。内容应该包括：
+    1. 核心概念讲解
+    2. 关键知识点列表
+    3. 实际应用示例
+
+    请使用中文，内容要详细、准确、易懂，适合教学使用。`;
+    const aiContent = await getAIChatResponse(prompt);
+    
+    clearInterval(interval);
+    progress.value = 100;
+    
     setTimeout(() => {
-      isGenerating.value = false
+      isGenerating.value = false;
       if(selectedChapter.value) {
-        selectedChapter.value.content = `[AI 生成内容]：这是为 "${selectedChapter.value.title}" 生成的详细讲解。\n\n首先，我们来探讨该章节的核心概念...\n\n其次，关键的知识点包括：\n1. ...\n2. ...\n3. ...\n\n最后，让我们通过一些例子来加深理解...`
+        selectedChapter.value.content = aiContent;
+        updateRenderedContent(aiContent)
         addNotification({
           title: '操作成功',
           content: `"${selectedChapter.value.title}"的AI内容已成功生成并填充。`,
           type: 'success',
-        })
+        });
       }
-    }, 500)
-  }, 3500)
-}
+    }, 500);
+  } catch (error) {
+    clearInterval(interval);
+    isGenerating.value = false;
+    console.error("AI内容生成失败:", error);
+    addNotification({
+      title: '生成失败',
+      content: 'AI内容生成失败，请稍后重试。',
+      type: 'error',
+    });
+  }
+};
 </script>
 
 <style scoped>
