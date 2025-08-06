@@ -1,8 +1,45 @@
 <template>
   <div class="p-6 md:p-8 bg-gray-50 min-h-full">
     <header class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-800">{{ t('analytics.title') }}</h1>
-      <p class="text-gray-500 mt-1">{{ t('analytics.description') }}</p>
+      <div class="flex justify-between items-start">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-800">{{ t('analytics.title') }}</h1>
+          <p class="text-gray-500 mt-1">{{ t('analytics.description') }}</p>
+        </div>
+        <button 
+          @click="fetchAnalyticsData"
+          :disabled="loading"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          <Icon 
+            :name="loading ? 'spin' : 'refresh'" 
+            :class="{ 'animate-spin': loading }" 
+            class="h-4 w-4" 
+          />
+          {{ loading ? '加载中...' : '刷新数据' }}
+        </button>
+      </div>
+      
+      <!-- 错误和状态提示 -->
+      <div v-if="error" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <Icon name="exclamation-triangle" class="h-5 w-5 text-yellow-400" />
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-yellow-700">
+              {{ error }} - 当前显示模拟数据
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div v-if="loading" class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div class="flex items-center">
+          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+          <p class="ml-3 text-sm text-blue-700">正在加载分析数据...</p>
+        </div>
+      </div>
     </header>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -40,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { BarChart, LineChart, PieChart, HeatmapChart } from 'echarts/charts';
@@ -55,8 +92,9 @@ import {
 import VChart from 'vue-echarts';
 import { useI18n } from 'vue-i18n';
 import Card from '@/components/base/Card.vue';
+import Icon from '@/components/base/Icon.vue';
+import { analyticsApi, type AnalyticsEvent } from '@/api/analytics';
 import { mockAnalyticsData } from '@/data/analyticsData';
-import type { AnalyticsEvent } from '@/data/analyticsData';
 
 use([
   CanvasRenderer,
@@ -74,11 +112,46 @@ use([
 
 const { t } = useI18n();
 
-const analyticsData = computed<AnalyticsEvent[]>(() => mockAnalyticsData);
+// 响应式数据
+const analyticsData = ref<AnalyticsEvent[]>([]);
+const loading = ref(true);
+const error = ref<string | null>(null);
+
+// 从后端获取数据
+const fetchAnalyticsData = async () => {
+  try {
+    loading.value = true;
+    error.value = null;
+    // 获取后端数据
+    const data = await analyticsApi.getTrackingEvents(500);
+    analyticsData.value = data;
+    console.log(data);
+    // 如果后端没有数据，使用 mock 数据作为备用
+    if (data.length === 0) {
+      console.warn('后端没有返回数据，使用 mock 数据');
+      analyticsData.value = mockAnalyticsData;
+    }
+  } catch (err) {
+    console.error('获取分析数据失败，使用 mock 数据:', err);
+    error.value = err instanceof Error ? err.message : '获取数据失败';
+    // 发生错误时使用 mock 数据
+    analyticsData.value = mockAnalyticsData;
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 组件挂载时获取数据
+onMounted(() => {
+  fetchAnalyticsData();
+});
+
+// 计算属性，用于图表数据
+const computedAnalyticsData = computed<AnalyticsEvent[]>(() => analyticsData.value);
 
 // 1. 页面浏览量 (PV) 按天统计
 const pageViewsOption = computed(() => {
-  const pageViews = analyticsData.value
+  const pageViews = computedAnalyticsData.value
     .filter(event => event.eventName === 'Page Viewed')
     .reduce((acc, event) => {
       const date = new Date(event.properties.timestamp).toISOString().split('T')[0];
@@ -105,7 +178,7 @@ const pageViewsOption = computed(() => {
 
 // 2. 热门页面排行
 const topPagesOption = computed(() => {
-  const pageCounts = analyticsData.value
+  const pageCounts = computedAnalyticsData.value
     .filter(event => event.eventName === 'Page Viewed' && event.properties.page)
     .reduce((acc, event) => {
       const pageName = event.properties.page!;
@@ -142,7 +215,7 @@ const topPagesOption = computed(() => {
 
 // 3. 用户活跃时段 (热力图)
 const userActivityOption = computed(() => {
-  const activity = analyticsData.value.reduce((acc, event) => {
+  const activity = computedAnalyticsData.value.reduce((acc, event) => {
     const date = new Date(event.properties.timestamp);
     const day = date.getDay(); // 0 = Sunday, 1 = Monday, ...
     const hour = date.getHours();
@@ -190,7 +263,7 @@ const userActivityOption = computed(() => {
 
 // 4. 热门点击按钮
 const topButtonsOption = computed(() => {
-    const buttonCounts = analyticsData.value
+    const buttonCounts = computedAnalyticsData.value
         .filter(event => event.eventName === 'Button Clicked' && event.properties.buttonText)
         .reduce((acc, event) => {
             const buttonText = event.properties.buttonText!;
@@ -225,7 +298,7 @@ const topButtonsOption = computed(() => {
 
 // 5. 事件类型分布
 const eventDistributionOption = computed(() => {
-    const eventCounts = analyticsData.value
+    const eventCounts = computedAnalyticsData.value
         .reduce((acc, event) => {
             const eventName = event.eventName;
             acc[eventName] = (acc[eventName] || 0) + 1;
