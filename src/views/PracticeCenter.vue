@@ -74,7 +74,7 @@
 import { ref, onMounted } from 'vue';
 import type { Question, PageVO } from '@/types';
 import { getQuestions } from '@/api';
-import { transformQuestionsData } from '@/utils/questionTransformer';
+import { transformQuestionsData, parseComplexQuestionData } from '@/utils/questionTransformer';
 
 const questions = ref<Question[]>([]);
 const currentQuestion = ref<Question | null>(null);
@@ -92,44 +92,58 @@ const loadQuestions = async () => {
     
     // Get questions from API
     const response = await getQuestions();
+    console.log('Raw API response:', response);
     
-    // Check if we got a PageVO response or a direct array
     let questionData;
-    if (response && 'content' in response) {
-      // It's a PageVO response
-      questionData = (response as PageVO<any>).content;
-    } else if (Array.isArray(response)) {
-      // It's a direct array
-      questionData = response;
+    
+    // 检查响应格式
+    if (response && typeof response === 'object') {
+      // 如果是包含success和data字段的响应
+      if ('success' in response && 'data' in response) {
+        console.log('Found success/data structure');
+        const data = response.data;
+        
+        // 检查data是否是数组格式（包含类型信息）
+        if (Array.isArray(data) && data.length > 1) {
+          // 跳过第一个元素（类型信息），获取PageVO数据
+          const pageVOData = data[1];
+          console.log('PageVO data:', pageVOData);
+          
+          if (pageVOData && typeof pageVOData === 'object' && 'content' in pageVOData) {
+            questionData = pageVOData;
+          } else {
+            questionData = pageVOData;
+          }
+        } else {
+          questionData = data;
+        }
+      } else if ('content' in response) {
+        // 直接是PageVO格式
+        questionData = response;
+      } else {
+        // 其他格式，直接使用
+        questionData = response;
+      }
     } else {
-      // Try to parse it as JSON if it's a string
-      try {
-        const parsedData = typeof response === 'string' ? JSON.parse(response) : response;
-        questionData = Array.isArray(parsedData) ? parsedData : [];
-      } catch (e) {
-        console.error('Failed to parse question data:', e);
-        questionData = [];
-      }
+      questionData = response;
     }
     
-    // For testing with the provided JSON data
-    if (questionData.length === 0) {
-      // Use the provided JSON data as fallback
-      const testData = `[{"id": "e4eebc99-9c0b-4ef8-bb6d-6bb9bd380a15","type": "SINGLE_CHOICE","difficulty": "EASY","content": "Python中声明变量的关键字是什么？","explanation": "Python中不需要特殊关键字声明变量，直接赋值即可","knowledgePoints": [{"id": "g6eebc99-9c0b-4ef8-bb6d-6bb9bd380a17","name": "变量","description": "Python变量声明","subject": "Python基础"}],"creator": {"id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11","displayName": "张老师","avatarUrl": "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face","role": "TEACHER"},"createdAt": "2025-07-05T11:00:00Z","updatedAt": "2025-07-05T11:00:00Z"},{"id": "f5eebc99-9c0b-4ef8-bb6d-6bb9bd380a16","type": "MULTIPLE_CHOICE","difficulty": "MEDIUM","content": "Python中哪些是可变数据类型？","explanation": "list, dict, set是可变数据类型","knowledgePoints": [{"id": "h7eebc99-9c0b-4ef8-bb6d-6bb9bd380a18","name": "数据结构","description": "Python数据结构","subject": "Python基础"}],"creator": {"id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11","displayName": "张老师","avatarUrl": "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face","role": "TEACHER"},"createdAt": "2025-07-05T11:00:00Z","updatedAt": "2025-07-05T11:00:00Z"},{"id": "g6eebc99-9c0b-4ef8-bb6d-6bb9bd380a17","type": "TRUE_FALSE","difficulty": "EASY","content": "Python是一种解释型语言","explanation": "Python是解释型语言，代码在运行时逐行解释执行","knowledgePoints": [{"id": "g6eebc99-9c0b-4ef8-bb6d-6bb9bd380a17","name": "变量","description": "Python变量声明","subject": "Python基础"}],"creator": {"id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11","displayName": "张老师","avatarUrl": "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face","role": "TEACHER"},"createdAt": "2025-07-05T11:00:00Z","updatedAt": "2025-07-05T11:00:00Z"}]`;
-      try {
-        questionData = JSON.parse(testData);
-      } catch (e) {
-        console.error('Failed to parse test data:', e);
-      }
-    }
+    console.log('Processed question data:', questionData);
     
-    // Transform the questions to the expected format
-    questions.value = transformQuestionsData(questionData);
+    // 使用新的解析函数处理复杂数据结构
+    questions.value = parseComplexQuestionData(questionData);
+    
+    // 如果没有解析到题目，尝试使用旧的转换函数作为后备
+    if (questions.value.length === 0) {
+      console.log('No questions parsed, trying fallback transformation');
+      questions.value = transformQuestionsData(questionData);
+    }
     
     // Set the first question as current if available
     if (questions.value.length > 0) {
       currentIndex.value = 0;
       currentQuestion.value = questions.value[0];
+      console.log('Current question set:', currentQuestion.value);
     } else {
       currentQuestion.value = null;
       error.value = '没有找到题目';

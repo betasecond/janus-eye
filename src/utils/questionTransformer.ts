@@ -90,6 +90,120 @@ export function transformQuestionsData(questionsData: QuestionVO[] | any[] | str
   return transformedQuestions;
 }
 
+/**
+ * 解析复杂的后端数据结构
+ * 处理包含JSON字符串的content字段和LinkedHashMap格式的options字段
+ */
+export function parseComplexQuestionData(rawData: any): Question[] {
+  console.log('Parsing complex question data:', rawData);
+  
+  // 检查是否是PageVO格式
+  if (rawData && typeof rawData === 'object' && 'content' in rawData) {
+    const pageData = rawData.content;
+    
+    // 如果content是数组，且包含类型信息
+    if (Array.isArray(pageData) && pageData.length > 0) {
+      // 提取实际的题目数据（跳过类型信息）
+      const questions = pageData.filter((item, index) => {
+        // 跳过类型信息（通常是字符串）
+        return typeof item !== 'string' && item && typeof item === 'object';
+      });
+      
+      return questions.map(question => parseSingleQuestion(question));
+    }
+  }
+  
+  // 如果不是PageVO格式，尝试直接解析
+  if (Array.isArray(rawData)) {
+    return rawData.map(question => parseSingleQuestion(question));
+  }
+  
+  console.error('Unsupported data format:', rawData);
+  return [];
+}
+
+/**
+ * 解析单个题目数据
+ */
+function parseSingleQuestion(questionData: any): Question {
+  console.log('Parsing single question:', questionData);
+  
+  // 解析content字段（可能是JSON字符串）
+  let title = '未提供题干内容';
+  let options: string[] = [];
+  
+  if (questionData.content) {
+    try {
+      // 尝试解析content为JSON
+      const contentObj = typeof questionData.content === 'string' 
+        ? JSON.parse(questionData.content) 
+        : questionData.content;
+      
+      if (contentObj.title) {
+        title = contentObj.title;
+      }
+      
+      if (contentObj.options && Array.isArray(contentObj.options)) {
+        options = contentObj.options;
+      }
+    } catch (e) {
+      console.warn('Failed to parse content JSON:', e);
+      // 如果解析失败，直接使用content作为title
+      title = questionData.content;
+    }
+  }
+  
+  // 解析options字段（可能是LinkedHashMap格式）
+  if (!options.length && questionData.options) {
+    try {
+      if (Array.isArray(questionData.options) && questionData.options.length > 1) {
+        // 跳过类型信息，获取实际的options对象
+        const optionsObj = questionData.options[1];
+        if (optionsObj && typeof optionsObj === 'object') {
+          // 将对象转换为数组
+          options = Object.values(optionsObj);
+        }
+      } else if (typeof questionData.options === 'object') {
+        // 直接是对象格式
+        options = Object.values(questionData.options);
+      }
+    } catch (e) {
+      console.warn('Failed to parse options:', e);
+    }
+  }
+  
+  // 解析correctAnswer字段
+  let correctAnswer: string | number = '';
+  if (questionData.correctAnswer) {
+    try {
+      const answerObj = typeof questionData.correctAnswer === 'string' 
+        ? JSON.parse(questionData.correctAnswer) 
+        : questionData.correctAnswer;
+      
+      if (answerObj.answer !== undefined) {
+        correctAnswer = answerObj.answer;
+      }
+    } catch (e) {
+      console.warn('Failed to parse correctAnswer:', e);
+    }
+  }
+  
+  return {
+    id: questionData.id || '',
+    type: questionData.type || 'SINGLE_CHOICE',
+    difficulty: questionData.difficulty || 'EASY',
+    content: title,
+    title: title,
+    options: options,
+    correctAnswer: correctAnswer,
+    explanation: questionData.explanation || undefined,
+    knowledgePoints: questionData.knowledgePoints || [],
+    creator: questionData.creator || undefined,
+    createdAt: questionData.createdAt || undefined,
+    updatedAt: questionData.updatedAt || undefined
+  };
+}
+
 import type { Course, CourseVO, UserVO } from '@/types'; // 确保导入了所有需要的类型
 
 /**
