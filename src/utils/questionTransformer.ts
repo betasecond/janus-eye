@@ -64,29 +64,51 @@ function transformSingleQuestion(questionVO: any): Question {
  * @returns 一个包含题目数组、总页数和当前页码的对象
  */
 export function parsePaginatedQuestions(apiResponse: any): { questions: Question[], totalPages: number, currentPage: number } {
-    console.log("Parsing API Response:", apiResponse);
+    console.log("1. Starting to parse API Response:", apiResponse);
+
+    let pageVO: any;
+
+    // 检查是否是 success/data 包装的格式
+    if (apiResponse && apiResponse.success && Array.isArray(apiResponse.data) && apiResponse.data.length > 1) {
+        console.log("2a. Detected success/data wrapper.");
+        pageVO = apiResponse.data[1];
+    } 
+    // 检查是否是直接的 PageVO 格式
+    else if (apiResponse && 'content' in apiResponse) {
+        console.log("2b. Detected direct PageVO object.");
+        pageVO = apiResponse;
+    } 
+    // 如果两种都不是，则无法解析
+    else {
+        console.warn("2c. Unsupported API response structure.", apiResponse);
+        return { questions: [], totalPages: 0, currentPage: 0 };
+    }
 
     try {
-        if (apiResponse && apiResponse.success && Array.isArray(apiResponse.data) && apiResponse.data.length > 1) {
-            const pageVO = apiResponse.data[1];
-            if (pageVO && Array.isArray(pageVO.content) && pageVO.content.length > 1) {
-                const questionList = pageVO.content[1];
-                if (Array.isArray(questionList)) {
-                    const questions = questionList.map(transformSingleQuestion);
-                    console.log("Parsed Questions:", questions);
-                    return {
-                        questions,
-                        totalPages: pageVO.totalPages,
-                        currentPage: pageVO.number,
-                    };
-                }
+        if (pageVO && Array.isArray(pageVO.content) && pageVO.content.length > 1) {
+            console.log("3. Passed check for PageVO content.");
+            const questionList = pageVO.content[1];
+
+            if (Array.isArray(questionList)) {
+                console.log("4. Found question list. Starting map.", questionList);
+                const questions = questionList.map(transformSingleQuestion);
+                console.log("5. Successfully parsed questions:", questions);
+                return {
+                    questions,
+                    totalPages: pageVO.totalPages,
+                    currentPage: pageVO.number,
+                };
+            } else {
+                console.warn("4b. `questionList` is not an array.", questionList);
             }
+        } else {
+             console.warn("3b. `pageVO.content` check failed.", pageVO ? pageVO.content : 'pageVO is null');
         }
     } catch (error) {
-        console.error("Failed to parse paginated questions:", error, apiResponse);
+        console.error("X. Caught an error during parsing:", error, apiResponse);
     }
     
-    console.warn("Returning empty questions array due to parsing failure.");
+    console.warn("Z. Returning empty questions array due to parsing failure.");
     return { questions: [], totalPages: 0, currentPage: 0 };
 }
 
