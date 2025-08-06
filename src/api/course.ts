@@ -1,4 +1,4 @@
-import type { CourseVO, CreateCourseDto, UpdateCourseDto, UserVO, CourseStatsVO } from '@/types'
+import type { CourseVO, CreateCourseDto, UpdateCourseDto, UserVO, CourseStatsVO, PageVO } from '@/types'
 import { apiGet, apiPost, apiPut, apiDelete } from '@/config/api'
 
 /**
@@ -8,7 +8,9 @@ export const getCourses = (params?: {
   teacherId?: string
   studentId?: string
   keyword?: string
-}): Promise<CourseVO[]> => {
+  page?: number
+  size?: number
+}): Promise<PageVO<CourseVO>> => {
   return apiGet('/api/courses', params)
 }
 

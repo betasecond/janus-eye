@@ -1,0 +1,242 @@
+# Janus Controller API 接口统计
+
+## 1. MetricsController (`/api/v1/metrics`)
+- **GET** `/api/v1/metrics/tracking-events` - 获取跟踪事件列表
+  - 参数: `count` (默认50)
+  - 返回: `ApiResponse<List<TrackingDto>>`
+
+## 2. TrackingController (`/api/v1/track`)
+- **POST** `/api/v1/track` - 发送跟踪事件
+  - 请求体: `TrackingDto`
+  - 返回: `void`
+
+## 3. UserController (`/api/users`)
+- **GET** `/api/users` - 获取所有用户列表
+  - 返回: `ApiResponse<List<UserVO>>`
+- **GET** `/api/users/page` - 分页获取用户列表
+  - 参数: `page` (默认0), `size` (默认10), `sort` (默认createdAt), `direction` (默认desc)
+  - 返回: `ApiResponse<PageVO<UserVO>>`
+- **GET** `/api/users/{id}` - 根据ID获取用户信息
+  - 路径参数: `id` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<UserVO>>`
+
+## 4. StorageController (`/api/storage`)
+- **POST** `/api/storage/upload` - 上传文件
+  - 参数: `file` (MultipartFile), `uploaderId` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<StorageObjectVO>>`
+- **GET** `/api/storage/{id}` - 获取文件详情
+  - 路径参数: `id` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<StorageObjectVO>>`
+- **POST** `/api/storage/{id}/embed` - 嵌入文件
+  - 路径参数: `id` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<StatusVO>>`
+- **GET** `/api/storage` - 获取文件列表
+  - 参数: `currentUserId` (UUID), `uploaderId` (可选), `keyword` (可选), `page` (默认0), `size` (默认20)
+  - 返回: `ResponseEntity<ApiResponse<PageVO<StorageObjectVO>>>`
+
+## 5. QuestionController (`/api/questions`)
+- **POST** `/api/questions` - 创建题目
+  - 请求体: `CreateQuestionDto`
+  - 返回: `ResponseEntity<ApiResponse<QuestionVO>>`
+- **GET** `/api/questions/{id}` - 获取题目详情
+  - 路径参数: `id` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<QuestionVO>>`
+- **GET** `/api/questions` - 获取所有题目
+  - 参数: `query` (QuestionQuery), `page` (默认0), `size` (默认20)
+  - 返回: `ResponseEntity<ApiResponse<PageVO<QuestionVO>>>`
+- **POST** `/api/questions/search` - 搜索题目
+  - 请求体: `QuestionSearchDto`
+  - 返回: `ResponseEntity<ApiResponse<List<QuestionVO>>>`
+- **PUT** `/api/questions/{id}` - 更新题目
+  - 路径参数: `id` (UUID)
+  - 请求体: `UpdateQuestionDto`
+  - 返回: `ResponseEntity<ApiResponse<QuestionVO>>`
+- **DELETE** `/api/questions/{id}` - 删除题目
+  - 路径参数: `id` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<String>>`
+- **GET** `/api/questions/stats` - 获取题目统计
+  - 返回: `ResponseEntity<ApiResponse<QuestionStatsVO>>`
+- **GET** `/api/questions/types` - 获取题目类型
+  - 返回: `ResponseEntity<ApiResponse<List<String>>>`
+- **GET** `/api/questions/difficulties` - 获取难度级别
+  - 返回: `ResponseEntity<ApiResponse<List<String>>>`
+
+## 6. NotificationController (`/api/notifications`)
+- **GET** `/api/notifications` - 获取所有通知
+  - 返回: `ResponseEntity<ApiResponse<List<NotificationVO>>>`
+- **POST** `/api/notifications` - 发送通知
+  - 请求体: `CreateNotificationDto`
+  - 返回: `ResponseEntity<ApiResponse<NotificationVO>>`
+- **POST** `/api/notifications/broadcast` - 广播通知
+  - 请求体: `BroadcastNotificationDto`
+  - 返回: `ResponseEntity<ApiResponse<List<NotificationVO>>>`
+- **GET** `/api/notifications/user/{userId}` - 获取用户通知
+  - 路径参数: `userId` (UUID)
+  - 参数: `unreadOnly` (可选), `type` (可选)
+  - 返回: `ResponseEntity<ApiResponse<List<NotificationVO>>>`
+- **GET** `/api/notifications/user/{userId}/summary` - 获取用户通知摘要
+  - 路径参数: `userId` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<NotificationSummaryVO>>`
+- **PUT** `/api/notifications/{id}/read` - 标记为已读
+  - 路径参数: `id` (UUID)
+  - 参数: `userId` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<NotificationVO>>`
+- **PUT** `/api/notifications/user/{userId}/read-all` - 标记所有为已读
+  - 路径参数: `userId` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<MessageVO>>`
+- **POST** `/api/notifications/mark-read` - 批量标记为已读
+  - 请求体: `MarkReadDto`
+  - 返回: `ResponseEntity<ApiResponse<MessageVO>>`
+- **DELETE** `/api/notifications/{id}` - 删除通知
+  - 路径参数: `id` (UUID)
+  - 参数: `userId` (UUID)
+  - 返回: `ResponseEntity<Void>`
+- **GET** `/api/notifications/types` - 获取通知类型
+  - 返回: `ResponseEntity<ApiResponse<List<String>>>`
+- **GET** `/api/notifications/type/{type}` - 根据类型获取通知
+  - 路径参数: `type` (NotificationType)
+  - 返回: `ResponseEntity<ApiResponse<List<NotificationVO>>>`
+- **DELETE** `/api/notifications/cleanup` - 清理旧通知
+  - 参数: `daysOld` (默认30)
+  - 返回: `ResponseEntity<ApiResponse<MessageVO>>`
+- **GET** `/api/notifications/stats` - 获取通知统计
+  - 返回: `ResponseEntity<ApiResponse<NotificationStatsVO>>`
+- **POST** `/api/notifications/assignment/{assignmentId}/created` - 作业创建通知
+  - 路径参数: `assignmentId` (UUID)
+  - 参数: `courseId` (UUID), `teacherId` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<MessageVO>>`
+- **POST** `/api/notifications/grade/{submissionId}/published` - 成绩发布通知
+  - 路径参数: `submissionId` (UUID)
+  - 参数: `score` (BigDecimal), `studentId` (UUID), `teacherId` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<NotificationVO>>`
+
+## 7. AssignmentController (`/api/assignments`)
+- **POST** `/api/assignments` - 创建作业
+  - 请求体: `CreateAssignmentDto`
+  - 返回: `ResponseEntity<ApiResponse<AssignmentVO>>`
+- **GET** `/api/assignments/{id}` - 获取作业详情
+  - 路径参数: `id` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<AssignmentVO>>`
+- **GET** `/api/assignments` - 获取所有作业
+  - 参数: `courseId` (可选), `creatorId` (可选), `studentId` (可选)
+  - 返回: `ResponseEntity<ApiResponse<List<AssignmentVO>>>`
+- **PUT** `/api/assignments/{id}` - 更新作业
+  - 路径参数: `id` (UUID)
+  - 请求体: `UpdateAssignmentDto`
+  - 返回: `ResponseEntity<ApiResponse<AssignmentVO>>`
+- **DELETE** `/api/assignments/{id}` - 删除作业
+  - 路径参数: `id` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<Void>>`
+- **POST** `/api/assignments/submit` - 提交作业
+  - 请求体: `SubmitAssignmentDto`
+  - 返回: `ResponseEntity<ApiResponse<AssignmentSubmissionVO>>`
+- **GET** `/api/assignments/{id}/submissions` - 获取作业提交
+  - 路径参数: `id` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<List<AssignmentSubmissionVO>>>`
+- **GET** `/api/assignments/submissions/{submissionId}` - 获取提交详情
+  - 路径参数: `submissionId` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<AssignmentSubmissionVO>>`
+- **POST** `/api/assignments/submissions/{submissionId}/grade` - 评分
+  - 路径参数: `submissionId` (UUID)
+  - 请求体: `GradeSubmissionDto`
+  - 返回: `ResponseEntity<ApiResponse<AssignmentSubmissionVO>>`
+- **GET** `/api/assignments/student/{studentId}` - 获取学生提交
+  - 路径参数: `studentId` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<List<AssignmentSubmissionVO>>>`
+- **GET** `/api/assignments/{id}/stats` - 获取作业统计
+  - 路径参数: `id` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<AssignmentStatsVO>>`
+- **GET** `/api/assignments/course/{courseId}/stats` - 获取课程作业统计
+  - 路径参数: `courseId` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<CourseAssignmentStatsVO>>`
+
+## 8. CourseController (`/api/courses`)
+- **POST** `/api/courses` - 创建课程
+  - 请求体: `CreateCourseDto`
+  - 返回: `ResponseEntity<ApiResponse<CourseVO>>`
+- **GET** `/api/courses/{id}` - 获取课程详情
+  - 路径参数: `id` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<CourseVO>>`
+- **GET** `/api/courses` - 获取所有课程
+  - 参数: `teacherId` (可选), `studentId` (可选), `keyword` (可选)
+  - 返回: `ResponseEntity<ApiResponse<List<CourseVO>>>`
+- **PUT** `/api/courses/{id}` - 更新课程
+  - 路径参数: `id` (UUID)
+  - 请求体: `UpdateCourseDto`
+  - 返回: `ResponseEntity<ApiResponse<CourseVO>>`
+- **DELETE** `/api/courses/{id}` - 删除课程
+  - 路径参数: `id` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<String>>`
+- **POST** `/api/courses/{id}/enroll` - 学生选课
+  - 路径参数: `id` (UUID)
+  - 请求体: `EnrollmentDto`
+  - 返回: `ResponseEntity<ApiResponse<CourseVO>>`
+- **DELETE** `/api/courses/{id}/enroll/{studentId}` - 学生退课
+  - 路径参数: `id` (UUID), `studentId` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<CourseVO>>`
+- **GET** `/api/courses/{id}/students` - 获取课程学生
+  - 路径参数: `id` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<List<UserVO>>>`
+- **GET** `/api/courses/{id}/enrollments` - 获取课程注册统计
+  - 路径参数: `id` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<CourseEnrollmentStatsVO>>`
+- **GET** `/api/courses/{id}/stats` - 获取课程统计
+  - 路径参数: `id` (UUID)
+  - 返回: `ResponseEntity<ApiResponse<CourseStatsVO>>`
+
+## 9. StatsController (`/api/stats`)
+- **GET** `/api/stats` - 获取性能统计
+  - 参数: `userId` (可选)
+  - 返回: `ResponseEntity<PerformanceStatsVO>`
+
+## 10. AnalysisController (`/api/analysis`)
+- **GET** `/api/analysis` - 获取学生分析
+  - 参数: `userId` (可选)
+  - 返回: `ResponseEntity<List<StudentAnalysisVO>>`
+
+## 11. ResourceController (`/api/resources`)
+- **GET** `/api/resources` - 获取资源列表
+  - 参数: `currentUserId` (UUID), `page` (默认0), `size` (默认10)
+  - 返回: `ResponseEntity<List<ResourceVO>>`
+
+## 12. MenuController (`/api/menu`)
+- **GET** `/api/menu/teacher` - 获取教师菜单
+  - 返回: `ResponseEntity<List<MenuItemVO>>`
+- **GET** `/api/menu/student` - 获取学生菜单
+  - 返回: `ResponseEntity<List<MenuItemVO>>`
+- **GET** `/api/menu/admin` - 获取管理员菜单
+  - 返回: `ResponseEntity<List<MenuItemVO>>`
+
+## 13. SyllabusController (`/api/syllabus`)
+- **GET** `/api/syllabus` - 获取教学大纲
+  - 返回: `ResponseEntity<SyllabusVO>`
+
+## 14. EmbeddingController (`/ai`)
+- **POST** `/ai/embedding/store` - 存储嵌入
+  - 请求体: `EmbeddingRequest`
+  - 返回: `ResponseEntity<StatusVO>`
+- **POST** `/ai/embedding` - 生成嵌入
+  - 请求体: `EmbeddingRequest`
+  - 返回: `EmbeddingVO`
+
+## 总结
+总共暴露了 **14个Controller**，提供了 **约60个API接口**，涵盖了：
+- 用户管理 (3个接口)
+- 文件存储 (4个接口)
+- 题目管理 (9个接口)
+- 通知系统 (15个接口)
+- 作业管理 (12个接口)
+- 课程管理 (10个接口)
+- 统计分析 (2个接口)
+- 学生分析 (1个接口)
+- 资源管理 (1个接口)
+- 菜单管理 (3个接口)
+- 教学大纲 (1个接口)
+- AI嵌入 (2个接口)
+- 跟踪事件 (2个接口)
+
+所有接口都遵循RESTful设计原则，使用统一的`ApiResponse`包装格式返回数据。
+description:
+globs:
+alwaysApply: false
+---

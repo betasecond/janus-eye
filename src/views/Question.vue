@@ -93,6 +93,27 @@
       </div>
     </div>
     
+    <!-- Pagination -->
+    <div v-if="totalPages > 1" class="flex justify-center items-center mt-6">
+      <button 
+        @click="fetchQuestions(currentPage - 1)" 
+        :disabled="currentPage === 0"
+        class="px-4 py-2 mx-1 rounded-lg bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        上一页
+      </button>
+      <span class="px-4 py-2 mx-1">
+        第 {{ currentPage + 1 }} 页 / 共 {{ totalPages }} 页
+      </span>
+      <button 
+        @click="fetchQuestions(currentPage + 1)" 
+        :disabled="currentPage >= totalPages - 1"
+        class="px-4 py-2 mx-1 rounded-lg bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        下一页
+      </button>
+    </div>
+
     <!-- Loading Skeleton -->
     <div v-else class="space-y-4">
       <div v-for="i in 3" :key="i" class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 animate-pulse">
@@ -108,72 +129,61 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import type { Question, Course } from '@/types';
+import type { QuestionVO, Course, PageVO } from '@/types';
 import { getQuestions, getCourses } from '@/api';
 import Icon from '@/components/base/Icon.vue';
 import { addNotification } from '@/store';
-import {transformCoursesData, transformQuestionsData} from '@/utils/questionTransformer';
 
 const loading = ref(true);
-const questions = ref<Question[]>([]);
+const questions = ref<QuestionVO[]>([]);
 const courses = ref<Course[]>([]);
+const totalPages = ref(0);
+const currentPage = ref(0);
 const selectedQuestionId = ref<string | null>(null);
 
-onMounted(async () => {
-  loading.value = true; // 开始时设置为 true
-
+const fetchQuestions = async (page = 0) => {
+  loading.value = true;
   try {
-    // 使用 Promise.allSettled 来处理多个请求，一个失败不会影响另一个
-    const [questionsResult, coursesResult] = await Promise.allSettled([
-      getQuestions(),
-      getCourses()
-    ]);
-
-    // 1. 处理题目数据
-    if (questionsResult.status === 'fulfilled') {
-      const response = questionsResult.value;
-      console.log('成功获取题目数据:', response);
-      
-      // Correctly access the nested data array
-      const questionData = response?.data?.[1]?.content;
-
-      if (questionData && Array.isArray(questionData)) {
-        questions.value = transformQuestionsData(questionData);
-      } else {
-        console.error('题目数据格式不正确或为空:', response);
-        questions.value = []; //
-      }
+    const response: PageVO<QuestionVO> = await getQuestions({ page, size: 10 });
+    if (response && response.content) {
+      questions.value = response.content;
+      totalPages.value = response.totalPages;
+      currentPage.value = response.number;
     } else {
-      console.error('获取题目失败:', questionsResult.reason);
-      addNotification({ title: '加载失败', content: '无法加载题目数据。', type: 'error' });
-    }
-
-    // 2. 处理课程数据
-    if (coursesResult.status === 'fulfilled') {
-      const response = coursesResult.value;
-      console.log('成功获取课程数据(原始):', response);
-
-      // Add robust checking for course data structure
-      const courseData = response?.data?.[1]?.content;
-
-      if (courseData && Array.isArray(courseData)) {
-        courses.value = transformCoursesData(courseData);
-        console.log('成功获取并转换课程数据(最终):', courses.value);
-      } else {
-         console.error('课程数据格式不正确或为空:', response);
-         courses.value = [];
-      }
-    } else {
-      console.error('获取课程失败:', coursesResult.reason);
-       addNotification({ title: '加载失败', content: `无法加载课程数据: ${coursesResult.reason}`, type: 'error' });
+      console.error('题目数据格式不正确或为空:', response);
+      questions.value = [];
     }
   } catch (error) {
-    // 这个 catch 现在主要捕获 Promise.allSettled 本身之外的、意料之外的错误
-    console.error('加载数据时发生未知错误:', error);
-    addNotification({ title: '加载失败', content: '发生未知错误，请检查控制台。', type: 'error' });
+    console.error('获取题目失败:', error);
+    addNotification({ title: '加载失败', content: '无法加载题目数据。', type: 'error' });
   } finally {
-    loading.value = false; // 所有操作结束后，取消加载状态
+    loading.value = false;
   }
+};
+
+const fetchCourses = async () => {
+  try {
+    const response = await getCourses();
+    if (response && response.content) {
+      courses.value = response.content;
+    } else if (Array.isArray(response)) {
+      courses.value = response;
+    } else {
+       console.error('课程数据格式不正确或为空:', response);
+       courses.value = [];
+    }
+  } catch (error) {
+    console.error('获取课程失败:', error);
+    addNotification({ title: '加载失败', content: `无法加载课程数据: ${error}`, type: 'error' });
+  }
+};
+
+
+onMounted(async () => {
+  await Promise.all([
+    fetchQuestions(),
+    fetchCourses()
+  ]);
 });
 
 // Basic filtering logic (can be expanded)

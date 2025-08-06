@@ -56,7 +56,7 @@ export const deleteQuestion = (id: string): Promise<void> => {
 /**
  * 搜索题目
  */
-export const searchQuestions = (data: QuestionSearchDto): Promise<QuestionVO[]> => {
+export const searchQuestions = (data: QuestionSearchDto): Promise<PageVO<QuestionVO>> => {
   return apiPost(`/api/questions/search`, data)
 }
 

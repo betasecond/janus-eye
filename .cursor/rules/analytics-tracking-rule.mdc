@@ -1,0 +1,120 @@
+---
+description: "How to add and retrieve analytics tracking events from the system"
+---
+
+# Analytics Tracking Guide
+
+This document outlines the standard procedure for adding and retrieving analytics tracking (埋点) events. All tracking functionalities should follow these guidelines to ensure consistency.
+
+## 1. Sending Tracking Data
+
+### 1.1. Tracking Data Structure
+
+All tracking events sent from the client-side should conform to the structure defined in `TrackingDto.kt`. The data should be sent as a JSON object in the request body.
+
+**File Location:** `src/main/kotlin/edu/jimei/janus/controller/dto/TrackingDto.kt`
+
+**JSON Structure:**
+```json
+{
+  "eventName": "string",
+  "eventTime": "ISO 8601 aaaa-MM-dd'T'HH:mm:ss.SSS'Z'",
+  "page": "string",
+  "target": "string",
+  "userId": "long",
+  "properties": {
+    "key1": "value1",
+    "key2": "value2"
+  }
+}
+```
+- `eventName`: The name of the event (e.g., "page_view", "button_click").
+- `eventTime`: The timestamp when the event occurred on the client, in UTC.
+- `page`: The URL or identifier of the page where the event occurred.
+- `target`: A specific identifier for the UI element that was interacted with (e.g., "submit-button", "course-card-123").
+- `userId`: The ID of the user performing the action. Can be null for anonymous users.
+- `properties`: A flexible object to hold any additional context-specific data.
+
+### 1.2. API Endpoint for Sending Data
+
+All tracking data must be sent to the following backend endpoint:
+
+- **URL:** `/api/v1/track`
+- **Method:** `POST`
+- **Controller:** `TrackingController.kt`
+
+### 1.3. Example Frontend Code (Conceptual)
+
+```javascript
+function trackEvent(eventName, { page, target, properties }) {
+  const eventData = {
+    eventName,
+    eventTime: new Date().toISOString(),
+    page: page || window.location.pathname,
+    target,
+    userId: getCurrentUserId(), // Function to get the current user's ID
+    properties: properties || {},
+  };
+
+  fetch('/api/v1/track', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(eventData),
+  });
+}
+
+// Usage example:
+trackEvent('button_click', { target: 'save-profile-button' });
+```
+
+---
+
+## 2. Retrieving Tracking Data
+
+For analytics and display purposes, the frontend can retrieve the latest tracking events from the system.
+
+### 2.1. API Endpoint for Retrieving Data
+
+- **URL:** `/api/v1/metrics/tracking-events`
+- **Method:** `GET`
+- **Controller:** `MetricsController.kt`
+
+### 2.2. Query Parameters
+
+- `count` (optional, number): Specifies the number of most recent events to retrieve.
+  - **Default:** `50`
+  - **Example:** `/api/v1/metrics/tracking-events?count=100`
+
+### 2.3. Response Structure
+
+The API will return a standard `ApiResponse` object. The `data` field will contain a list of `TrackingDto` objects, sorted from newest to oldest.
+
+**Example Response JSON (`/api/v1/metrics/tracking-events?count=2`):**
+```json
+{
+  "success": true,
+  "message": "Operation was successful",
+  "data": [
+    {
+      "eventName": "button_click",
+      "eventTime": "2024-07-26T10:30:05.123Z",
+      "page": "/dashboard",
+      "target": "refresh-button",
+      "userId": 123,
+      "properties": {
+        "fromCache": "false"
+      }
+    },
+    {
+      "eventName": "page_view",
+      "eventTime": "2024-07-26T10:30:01.456Z",
+      "page": "/dashboard",
+      "target": "main_content",
+      "userId": 123,
+      "properties": {}
+    }
+  ]
+}
+```
