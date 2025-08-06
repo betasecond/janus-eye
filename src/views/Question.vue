@@ -131,37 +131,41 @@ onMounted(async () => {
 
     // 1. 处理题目数据
     if (questionsResult.status === 'fulfilled') {
-      const questionsResponse = questionsResult.value;
-      console.log('成功获取题目数据:', questionsResponse);
+      const response = questionsResult.value;
+      console.log('成功获取题目数据:', response);
+      
+      // Correctly access the nested data array
+      const questionData = response?.data?.[1]?.content;
 
-      if (questionsResponse && Array.isArray(questionsResponse.content)) {
-        questions.value = transformQuestionsData(questionsResponse.content);
+      if (questionData && Array.isArray(questionData)) {
+        questions.value = transformQuestionsData(questionData);
       } else {
-        console.error('题目数据格式不正确:', questionsResponse);
-        questions.value = [];
+        console.error('题目数据格式不正确或为空:', response);
+        questions.value = []; //
       }
     } else {
       console.error('获取题目失败:', questionsResult.reason);
       addNotification({ title: '加载失败', content: '无法加载题目数据。', type: 'error' });
     }
 
+    // 2. 处理课程数据
     if (coursesResult.status === 'fulfilled') {
-      const coursesResponse = coursesResult.value;
-      console.log('成功获取课程数据(原始):', coursesResponse);
+      const response = coursesResult.value;
+      console.log('成功获取课程数据(原始):', response);
 
-      // 注意：和题目接口一样，课程接口也可能把数组包在 .content 里
-      // 我们需要先拿到真正的课程数组
-      const rawCoursesArray = Array.isArray(coursesResponse)
-          ? coursesResponse
-          : coursesResponse.content;
+      // Add robust checking for course data structure
+      const courseData = response?.data?.[1]?.content;
 
-      // 使用转换函数！
-      courses.value = transformCoursesData(rawCoursesArray);
-
-      console.log('成功获取并转换课程数据(最终):', courses.value);
-
+      if (courseData && Array.isArray(courseData)) {
+        courses.value = transformCoursesData(courseData);
+        console.log('成功获取并转换课程数据(最终):', courses.value);
+      } else {
+         console.error('课程数据格式不正确或为空:', response);
+         courses.value = [];
+      }
     } else {
       console.error('获取课程失败:', coursesResult.reason);
+       addNotification({ title: '加载失败', content: `无法加载课程数据: ${coursesResult.reason}`, type: 'error' });
     }
   } catch (error) {
     // 这个 catch 现在主要捕获 Promise.allSettled 本身之外的、意料之外的错误

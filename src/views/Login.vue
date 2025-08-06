@@ -72,7 +72,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { setCurrentUser, addNotification } from '@/store'
+import { setCurrentUser, addNotification, createUser } from '@/store'
 
 interface LoginForm {
   username: string
@@ -127,7 +127,7 @@ const handleLogin = () => {
 
 const selectRole = (role: Role) => {
   const user = {
-    id: '1',
+    id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     name: role === 'teacher' ? '张老师' : role === 'student' ? '李同学' : '王管理员',
     email: `${role}@example.com`,
     avatar: roles.value.find(r => r.key === role)?.avatar || '',

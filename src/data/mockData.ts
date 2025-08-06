@@ -15,21 +15,21 @@ import type {
 } from '../types'
 
 const mockTeacher: UserVO = {
-  id: 'teacher-1',
+  id: crypto.randomUUID(),
   displayName: '王老师',
   avatarUrl: 'https://i.pravatar.cc/150?u=teacher1',
   role: 'TEACHER',
 }
 
 const mockStudent: UserVO = {
-  id: 'student-1',
+  id: crypto.randomUUID(),
   displayName: '小明',
   avatarUrl: 'https://i.pravatar.cc/150?u=student1',
   role: 'STUDENT',
 }
 
 const mockAdmin: UserVO = {
-  id: 'admin-1',
+  id: crypto.randomUUID(),
   displayName: '管理员',
   avatarUrl: 'https://i.pravatar.cc/150?u=admin1',
   role: 'ADMIN',
@@ -40,13 +40,13 @@ export const mockUsers: UserVO[] = [
   mockStudent,
   mockAdmin,
   {
-    id: 'student-2',
+    id: crypto.randomUUID(),
     displayName: '小红',
     avatarUrl: 'https://i.pravatar.cc/150?u=student2',
     role: 'STUDENT',
   },
   {
-    id: 'teacher-2',
+    id: crypto.randomUUID(),
     displayName: '李老师',
     avatarUrl: 'https://i.pravatar.cc/150?u=teacher2',
     role: 'TEACHER',
@@ -250,10 +250,11 @@ export const studentMenuItems: MenuItem[] = [
 
 export const adminMenuItems: MenuItem[] = [
   { id: 'users', label: '用户管理', icon: 'users', path: '/admin/users' },
-  { id: 'resources', label: '资源管理', icon: 'folder', path: '/admin/resources' }
+  { id: 'resources', label: '资源管理', icon: 'folder', path: '/admin/resources' },
+  { id: 'analytics', label: '数据分析', icon: 'chart', path: '/admin/analytics' },
 ];
 
 export const mockResources: Resource[] = [
     { id: '1', title: 'Vue 3 官方文档', type: 'document', subject: '前端', uploader: '张老师', uploadDate: '2023-05-10' },
     { id: '2', title: 'React 状态管理教程', type: 'video', subject: '前端', uploader: '李老师', uploadDate: '2023-05-12' },
-] 
+]

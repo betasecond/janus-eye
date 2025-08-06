@@ -9,7 +9,7 @@ export const currentUser = ref<User | null>(null);
 
 export const createUser = (role: 'TEACHER' | 'STUDENT' | 'ADMIN'): User => {
   // Eventually, generate unique IDs or fetch from backend
-  const userId = '1'; // Keeping '1' for now as per existing logic
+  const userId = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'; // Keeping a fixed UUID for now as per existing logic
   let name = '';
   switch (role) {
     case 'TEACHER':

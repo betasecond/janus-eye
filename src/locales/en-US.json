@@ -27,8 +27,8 @@
     "profile": "Profile",
     "users": "User Management",
     "overview": "Overview",
-    "ai-tutor": "ai-tutor"
-
+    "ai-tutor": "AI Tutor",
+    "analytics": "Analytics"
   },
   "home": {
     "welcomeBack": "Welcome back",
@@ -56,5 +56,31 @@
   },
   "announcement": {
     "detailsNotImplemented": "Announcement details page not implemented yet"
+  },
+  "analytics": {
+    "title": "Analytics Dashboard",
+    "description": "Get real-time insights into user behavior and platform usage.",
+    "pageViews": "Page Views (PV)",
+    "topPages": "Top Pages",
+    "userActivity": "User Activity",
+    "topButtons": "Top Clicked Buttons",
+    "eventDistribution": "Event Type Distribution",
+    "activityCount": "Activity Count",
+    "clickCount": "Click Count",
+    "eventCount": "Event Count",
+    "days": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    },
+    "eventTypes": {
+      "pageViewed": "Page Viewed",
+      "pageLeft": "Page Left",
+      "buttonClicked": "Button Clicked"
+    }
   }
 }

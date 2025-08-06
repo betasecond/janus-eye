@@ -94,6 +94,7 @@ import {
   mockNotifications
 } from './data/mockData'
 import type { Notification, MenuItem } from './types'
+import { trackEvent } from '@/services/tracking'
 
 const route = useRoute()
 const router = useRouter()
@@ -137,6 +138,25 @@ onMounted(() => {
   if (savedLocale && ['zh-CN', 'en-US'].includes(savedLocale)) {
     locale.value = savedLocale
   }
+
+  // Add global click listener for button tracking
+  document.addEventListener('click', (event) => {
+    let targetElement = event.target as HTMLElement;
+    // Traverse up the DOM tree to find a button or an element with role="button"
+    while (targetElement && targetElement !== document.body) {
+      if (targetElement.tagName.toLowerCase() === 'button' || targetElement.getAttribute('role') === 'button') {
+        const buttonText = targetElement.textContent?.trim() || 'Unnamed Button';
+        const buttonId = targetElement.id || 'No ID';
+        trackEvent('Button Clicked', {
+          buttonText,
+          buttonId,
+          component: route.name
+        });
+        break; // Found the button, so we can stop traversing
+      }
+      targetElement = targetElement.parentElement as HTMLElement;
+    }
+  });
 })
 
 const currentMenuItems = computed((): MenuItem[] => {

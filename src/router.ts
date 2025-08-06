@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { trackEvent } from '@/services/tracking';
 
 
 const routes = [
@@ -48,6 +49,11 @@ const routes = [
     component: () => import('@/views/ResourceManagement.vue'),
   },
   {
+    path: '/admin/analytics',
+    name: 'AnalyticsDashboard',
+    component: () => import('@/views/AnalyticsDashboard.vue'),
+  },
+  {
     path: '/library',
     name: 'Library',
     component: () => import('@/views/ResourceManagement.vue'), // 注意：这里和上面共用了一个组件
@@ -80,4 +86,21 @@ const router = createRouter({
   routes,
 });
 
-export default router; 
+router.afterEach((to) => {
+  trackEvent('Page Viewed', {
+    page: to.name,
+    path: to.path,
+  });
+});
+
+router.beforeEach((to, from, next) => {
+  if (from.name) {
+    trackEvent('Page Left', {
+      page: from.name,
+      path: from.path,
+    });
+  }
+  next();
+});
+
+export default router;

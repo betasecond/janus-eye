@@ -22,12 +22,13 @@
     "syllabus": "教学大纲",
     "question": "问题",
     "assignments": "作业",
-    "resources": "资源",
+    "resources": "资源管理",
     "practice": "练习",
     "profile": "个人资料",
     "users": "用户管理",
     "overview": "总览",
-    "ai-tutor": "AI助教"
+    "ai-tutor": "AI助教",
+    "analytics": "数据分析"
   },
   "home": {
     "welcomeBack": "欢迎回来",
@@ -55,5 +56,31 @@
   },
   "announcement": {
     "detailsNotImplemented": "公告详情页面暂未实现"
+  },
+  "analytics": {
+    "title": "数据分析仪表盘",
+    "description": "实时洞察用户行为和平台使用情况。",
+    "pageViews": "页面浏览量 (PV)",
+    "topPages": "热门页面",
+    "userActivity": "用户活跃时段",
+    "topButtons": "热门点击按钮",
+    "eventDistribution": "事件类型分布",
+    "activityCount": "活跃次数",
+    "clickCount": "点击次数",
+    "eventCount": "事件总数",
+    "days": {
+      "sun": "周日",
+      "mon": "周一",
+      "tue": "周二",
+      "wed": "周三",
+      "thu": "周四",
+      "fri": "周五",
+      "sat": "周六"
+    },
+    "eventTypes": {
+      "pageViewed": "页面浏览",
+      "pageLeft": "页面离开",
+      "buttonClicked": "按钮点击"
+    }
   }
 }

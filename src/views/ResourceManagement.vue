@@ -56,6 +56,7 @@ const fetchResources = async (userId: string) => {
 
 // 监听currentUser的变化
 watch(currentUser, (newUser) => {
+  console.log('Current user in watcher:', newUser);
   if (newUser) {
     fetchResources(newUser.id);
   }

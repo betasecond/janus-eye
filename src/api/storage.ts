@@ -1,69 +1,40 @@
 import type { StorageObjectVO, StatusVO, PageVO } from '@/types'
-
-
+import { apiGet, apiPost } from '@/config/api'
 
 /**
  * 上传文件
  */
-export const uploadFile = async (file: File, uploaderId: string): Promise<StorageObjectVO> => {
+export const uploadFile = (file: File, uploaderId: string): Promise<StorageObjectVO> => {
   const formData = new FormData()
   formData.append('file', file)
   formData.append('uploaderId', uploaderId)
-  
-  const response = await fetch(`/api/storage/upload`, {
-    method: 'POST',
-    body: formData,
-  })
-  if (!response.ok) {
-    throw new Error('Failed to upload file')
-  }
-  return response.json()
+
+  return apiPost(`/api/storage/upload`, formData)
 }
 
 /**
  * 获取文件详情
  */
-export const getFileById = async (id: string): Promise<StorageObjectVO> => {
-  const response = await fetch(`/api/storage/${id}`)
-  if (!response.ok) {
-    throw new Error('Failed to fetch file')
-  }
-  return response.json()
+export const getFileById = (id: string): Promise<StorageObjectVO> => {
+  return apiGet(`/api/storage/${id}`)
 }
 
 /**
  * 请求文件向量化
  */
-export const requestFileEmbedding = async (id: string): Promise<StatusVO> => {
-  const response = await fetch(`/api/storage/${id}/embed`, {
-    method: 'POST',
-  })
-  if (!response.ok) {
-    throw new Error('Failed to request file embedding')
-  }
-  return response.json()
+export const requestFileEmbedding = (id: string): Promise<StatusVO> => {
+  return apiPost(`/api/storage/${id}/embed`, {})
 }
 
 /**
  * 获取文件列表（分页）
  */
-export const getFiles = async (params: {
+export const getFiles = (params: {
   currentUserId: string
   uploaderId?: string
   keyword?: string
   page?: number
   size?: number
 }): Promise<PageVO<StorageObjectVO>> => {
-  const url = `/api/storage`
-  url.searchParams.append('currentUserId', params.currentUserId)
-  if (params.uploaderId) url.searchParams.append('uploaderId', params.uploaderId)
-  if (params.keyword) url.searchParams.append('keyword', params.keyword)
-  if (params.page) url.searchParams.append('page', params.page.toString())
-  if (params.size) url.searchParams.append('size', params.size.toString())
-  
-  const response = await fetch(url.toString())
-  if (!response.ok) {
-    throw new Error('Failed to fetch files')
-  }
-  return response.json()
+  return apiGet(`/api/storage`, params)
 }

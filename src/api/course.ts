@@ -1,121 +1,69 @@
 import type { CourseVO, CreateCourseDto, UpdateCourseDto, UserVO, CourseStatsVO } from '@/types'
 import { apiGet, apiPost, apiPut, apiDelete } from '@/config/api'
 
-
 /**
  * 获取所有课程
  */
-export const getCourses = async (params?: {
+export const getCourses = (params?: {
   teacherId?: string
   studentId?: string
   keyword?: string
-}): Promise<CourseVO[] > => {
-  const response = await apiGet('/api/courses', params)
-  if (!response.ok) {
-    throw new Error('Failed to fetch courses')
-  }
-  return response.json()
+}): Promise<CourseVO[]> => {
+  return apiGet('/api/courses', params)
 }
 
 /**
  * 获取课程详情
  */
-export const getCourseById = async (id: string): Promise<CourseVO> => {
-  const response = await apiGet(`/api/courses/${id}`)
-  if (!response.ok) {
-    throw new Error('Failed to fetch course')
-  }
-  return response.json()
+export const getCourseById = (id: string): Promise<CourseVO> => {
+  return apiGet(`/api/courses/${id}`)
 }
 
 /**
  * 创建课程
  */
-export const createCourse = async (data: CreateCourseDto): Promise<CourseVO> => {
-  const response = await apiPost('/api/courses', data)
-  if (!response.ok) {
-    throw new Error('Failed to create course')
-  }
-  return response.json()
+export const createCourse = (data: CreateCourseDto): Promise<CourseVO> => {
+  return apiPost('/api/courses', data)
 }
 
 /**
  * 更新课程
  */
-export const updateCourse = async (id: string, data: UpdateCourseDto): Promise<CourseVO> => {
-  const response = await fetch(`/api/courses/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  })
-  if (!response.ok) {
-    throw new Error('Failed to update course')
-  }
-  return response.json()
+export const updateCourse = (id: string, data: UpdateCourseDto): Promise<CourseVO> => {
+  return apiPut(`/api/courses/${id}`, data)
 }
 
 /**
  * 删除课程
  */
-export const deleteCourse = async (id: string): Promise<void> => {
-  const response = await fetch(`/api/courses/${id}`, {
-    method: 'DELETE',
-  })
-  if (!response.ok) {
-    throw new Error('Failed to delete course')
-  }
+export const deleteCourse = (id: string): Promise<void> => {
+  return apiDelete(`/api/courses/${id}`)
 }
 
 /**
  * 学生选课
  */
-export const enrollCourse = async (courseId: string, studentId: string): Promise<CourseVO> => {
-  const response = await fetch(`/api/courses/${courseId}/enroll`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ studentId }),
-  })
-  if (!response.ok) {
-    throw new Error('Failed to enroll course')
-  }
-  return response.json()
+export const enrollCourse = (courseId: string, studentId: string): Promise<CourseVO> => {
+  return apiPost(`/api/courses/${courseId}/enroll`, { studentId })
 }
 
 /**
  * 学生退课
  */
-export const unenrollCourse = async (courseId: string, studentId: string): Promise<CourseVO> => {
-  const response = await fetch(`/api/courses/${courseId}/enroll/${studentId}`, {
-    method: 'DELETE',
-  })
-  if (!response.ok) {
-    throw new Error('Failed to unenroll course')
-  }
-  return response.json()
+export const unenrollCourse = (courseId: string, studentId: string): Promise<CourseVO> => {
+  return apiDelete(`/api/courses/${courseId}/enroll/${studentId}`)
 }
 
 /**
  * 获取课程学生列表
  */
-export const getCourseStudents = async (courseId: string): Promise<UserVO[]> => {
-  const response = await fetch(`/api/courses/${courseId}/students`)
-  if (!response.ok) {
-    throw new Error('Failed to fetch course students')
-  }
-  return response.json()
+export const getCourseStudents = (courseId: string): Promise<UserVO[]> => {
+  return apiGet(`/api/courses/${courseId}/students`)
 }
 
 /**
  * 获取课程统计
  */
-export const getCourseStats = async (courseId: string): Promise<CourseStatsVO> => {
-  const response = await fetch(`/api/courses/${courseId}/stats`)
-  if (!response.ok) {
-    throw new Error('Failed to fetch course stats')
-  }
-  return response.json()
-} 
+export const getCourseStats = (courseId: string): Promise<CourseStatsVO> => {
+  return apiGet(`/api/courses/${courseId}/stats`)
+}

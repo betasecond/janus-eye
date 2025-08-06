@@ -1,177 +1,92 @@
-import type { 
-  NotificationVO, 
-  CreateNotificationDto, 
+import type {
+  NotificationVO,
+  CreateNotificationDto,
   NotificationSummaryVO,
   NotificationStatsVO,
   MessageVO
 } from '@/types'
-
-
+import {
+  apiDelete, apiGet, apiPost, apiPut,
+} from '@/config/api'
 
 /**
  * 发送通知
  */
-export const createNotification = async (data: CreateNotificationDto): Promise<NotificationVO> => {
-  const response = await fetch(`/api/notifications`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  })
-  if (!response.ok) {
-    throw new Error('Failed to create notification')
-  }
-  return response.json()
+export const createNotification = (data: CreateNotificationDto): Promise<NotificationVO> => {
+  return apiPost(`/api/notifications`, data)
 }
 
 /**
  * 广播通知
  */
-export const broadcastNotification = async (data: {
+export const broadcastNotification = (data: {
   title: string
   content: string
   role: string
   type: 'SYSTEM' | 'ASSIGNMENT' | 'GRADE' | 'MESSAGE'
   senderId?: string
 }): Promise<NotificationVO[]> => {
-  const response = await fetch(`/api/notifications/broadcast`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  })
-  if (!response.ok) {
-    throw new Error('Failed to broadcast notification')
-  }
-  return response.json()
+  return apiPost(`/api/notifications/broadcast`, data)
 }
 
 /**
  * 获取用户通知
  */
-export const getUserNotifications = async (userId: string, params?: {
+export const getUserNotifications = (userId: string, params?: {
   unreadOnly?: boolean
   type?: 'SYSTEM' | 'ASSIGNMENT' | 'GRADE' | 'MESSAGE'
 }): Promise<NotificationVO[]> => {
-  const url = `/api/notifications/user/${userId}`
-  if (params?.unreadOnly) url.searchParams.append('unreadOnly', params.unreadOnly.toString())
-  if (params?.type) url.searchParams.append('type', params.type)
-  
-  const response = await fetch(url.toString())
-  if (!response.ok) {
-    throw new Error('Failed to fetch user notifications')
-  }
-  return response.json()
+  return apiGet(`/api/notifications/user/${userId}`, params)
 }
 
 /**
  * 获取用户通知摘要
  */
-export const getUserNotificationSummary = async (userId: string): Promise<NotificationSummaryVO> => {
-  const response = await fetch(`/api/notifications/user/${userId}/summary`)
-  if (!response.ok) {
-    throw new Error('Failed to fetch notification summary')
-  }
-  return response.json()
+export const getUserNotificationSummary = (userId: string): Promise<NotificationSummaryVO> => {
+  return apiGet(`/api/notifications/user/${userId}/summary`)
 }
 
 /**
  * 标记为已读
  */
-export const markNotificationAsRead = async (notificationId: string, userId: string): Promise<NotificationVO> => {
-  const response = await fetch(`/api/notifications/${notificationId}/read?userId=${userId}`, {
-    method: 'PUT',
-  })
-  if (!response.ok) {
-    throw new Error('Failed to mark notification as read')
-  }
-  return response.json()
+export const markNotificationAsRead = (notificationId: string, userId: string): Promise<NotificationVO> => {
+  return apiPut(`/api/notifications/${notificationId}/read`, { userId })
 }
 
 /**
  * 全部标记为已读
  */
-export const markAllNotificationsAsRead = async (userId: string): Promise<MessageVO> => {
-  const response = await fetch(`/api/notifications/user/${userId}/read-all`, {
-    method: 'PUT',
-  })
-  if (!response.ok) {
-    throw new Error('Failed to mark all notifications as read')
-  }
-  return response.json()
+export const markAllNotificationsAsRead = (userId: string): Promise<MessageVO> => {
+  return apiPut(`/api/notifications/user/${userId}/read-all`, {})
 }
-
-// /**
-//  * 批量标记为已读
-//  */
-// export const markNotificationsAsRead = async (data: {
-//   notificationIds: string[]
-//   userId: string
-// }): Promise<MessageVO> => {
-//   const response = await fetch(`/api/notifications/mark-read`, {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     body: JSON.stringify(data),
-//   })
-//   if (!response.ok) {
-//     throw new Error('Failed to mark notifications as read')
-//   }
-//   return response.json()
-// }
 
 /**
  * 删除通知
  */
-export const deleteNotification = async (notificationId: string, userId: string): Promise<void> => {
-  const response = await fetch(`/api/notifications/${notificationId}?userId=${userId}`, {
-    method: 'DELETE',
-  })
-  if (!response.ok) {
-    throw new Error('Failed to delete notification')
-  }
+export const deleteNotification = (notificationId: string, userId: string): Promise<void> => {
+  return apiDelete(`/api/notifications/${notificationId}`, { userId })
 }
 
 /**
  * 获取通知类型
  */
-export const getNotificationTypes = async (): Promise<string[]> => {
-  const response = await fetch(`/api/notifications/types`)
-  if (!response.ok) {
-    throw new Error('Failed to fetch notification types')
-  }
-  return response.json()
+export const getNotificationTypes = (): Promise<string[]> => {
+  return apiGet(`/api/notifications/types`)
 }
 
 /**
  * 清理旧通知
  */
-export const cleanupOldNotifications = async (daysOld?: number): Promise<MessageVO> => {
-  const url = `/api/notifications/cleanup`
-  if (daysOld) url.searchParams.append('daysOld', daysOld.toString())
-  
-  const response = await fetch(url.toString(), {
-    method: 'DELETE',
-  })
-  if (!response.ok) {
-    throw new Error('Failed to cleanup old notifications')
-  }
-  return response.json()
+export const cleanupOldNotifications = (daysOld?: number): Promise<MessageVO> => {
+  return apiDelete(`/api/notifications/cleanup`, { daysOld })
 }
 
 /**
  * 获取通知统计
  */
-export const getNotificationStats = async (): Promise<NotificationStatsVO> => {
-  const response = await fetch(`/api/notifications/stats`)
-  if (!response.ok) {
-    throw new Error('Failed to fetch notification stats')
-  }
-  return response.json()
+export const getNotificationStats = (): Promise<NotificationStatsVO> => {
+  return apiGet(`/api/notifications/stats`)
 }
 
 // 兼容性方法
-export const getNotifications = getUserNotifications 
+export const getNotifications = getUserNotifications
