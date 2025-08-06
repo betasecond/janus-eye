@@ -64,28 +64,32 @@ function transformSingleQuestion(questionVO: any): Question {
  * @returns 一个包含题目数组、总页数和当前页码的对象
  */
 export function parsePaginatedQuestions(apiResponse: any): { questions: Question[], totalPages: number, currentPage: number } {
-    if (!apiResponse || !apiResponse.data || !Array.isArray(apiResponse.data) || apiResponse.data.length < 2) {
-        return { questions: [], totalPages: 0, currentPage: 0 };
-    }
+    console.log("Parsing API Response:", apiResponse);
 
-    const pageVO = apiResponse.data[1];
-    if (!pageVO || !pageVO.content || !Array.isArray(pageVO.content) || pageVO.content.length < 2) {
-        return { questions: [], totalPages: 0, currentPage: 0 };
+    try {
+        if (apiResponse && apiResponse.success && Array.isArray(apiResponse.data) && apiResponse.data.length > 1) {
+            const pageVO = apiResponse.data[1];
+            if (pageVO && Array.isArray(pageVO.content) && pageVO.content.length > 1) {
+                const questionList = pageVO.content[1];
+                if (Array.isArray(questionList)) {
+                    const questions = questionList.map(transformSingleQuestion);
+                    console.log("Parsed Questions:", questions);
+                    return {
+                        questions,
+                        totalPages: pageVO.totalPages,
+                        currentPage: pageVO.number,
+                    };
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Failed to parse paginated questions:", error, apiResponse);
     }
-
-    const questionList = pageVO.content[1];
-    if (!Array.isArray(questionList)) {
-        return { questions: [], totalPages: 0, currentPage: 0 };
-    }
-
-    const questions = questionList.map(transformSingleQuestion);
     
-    return {
-        questions,
-        totalPages: pageVO.totalPages,
-        currentPage: pageVO.number,
-    };
+    console.warn("Returning empty questions array due to parsing failure.");
+    return { questions: [], totalPages: 0, currentPage: 0 };
 }
+
 
 /**
  * 解析课程列表的 API 响应
