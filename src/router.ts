@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { trackEvent } from '@/services/tracking';
 
 
 const routes = [
@@ -78,6 +77,11 @@ const routes = [
     name: 'AIChat',
     component: () => import('@/views/AIChat.vue'),
   },
+  {
+    path: '/test/tracking',
+    name: 'TrackingTest',
+    component: () => import('@/views/TrackingTest.vue'),
+  },
 ];
 
 
@@ -86,21 +90,6 @@ const router = createRouter({
   routes,
 });
 
-router.afterEach((to) => {
-  trackEvent('Page Viewed', {
-    page: to.name,
-    path: to.path,
-  });
-});
-
-router.beforeEach((to, from, next) => {
-  if (from.name) {
-    trackEvent('Page Left', {
-      page: from.name,
-      path: from.path,
-    });
-  }
-  next();
-});
+// 路由跟踪已经在 main.ts 中通过 globalTracking 处理
 
 export default router;

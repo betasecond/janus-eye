@@ -72,9 +72,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import type { Question, PageVO } from '@/types';
+import type { Question } from '@/types';
 import { getQuestions } from '@/api';
-import { transformQuestionsData } from '@/utils/questionTransformer';
+import { parseComplexQuestionData } from '@/utils/questionTransformer';
 
 const questions = ref<Question[]>([]);
 const currentQuestion = ref<Question | null>(null);
@@ -90,52 +90,28 @@ const loadQuestions = async () => {
     error.value = null;
     selectedOption.value = null;
     
+    console.log('PracticeCenter: 开始加载题目...');
+    
     // Get questions from API
     const response = await getQuestions();
+    console.log('PracticeCenter: 获取到的原始响应:', response);
     
-    // Check if we got a PageVO response or a direct array
-    let questionData;
-    if (response && 'content' in response) {
-      // It's a PageVO response
-      questionData = (response as PageVO<any>).content;
-    } else if (Array.isArray(response)) {
-      // It's a direct array
-      questionData = response;
-    } else {
-      // Try to parse it as JSON if it's a string
-      try {
-        const parsedData = typeof response === 'string' ? JSON.parse(response) : response;
-        questionData = Array.isArray(parsedData) ? parsedData : [];
-      } catch (e) {
-        console.error('Failed to parse question data:', e);
-        questionData = [];
-      }
-    }
-    
-    // For testing with the provided JSON data
-    if (questionData.length === 0) {
-      // Use the provided JSON data as fallback
-      const testData = `[{"id": "e4eebc99-9c0b-4ef8-bb6d-6bb9bd380a15","type": "SINGLE_CHOICE","difficulty": "EASY","content": "Python中声明变量的关键字是什么？","explanation": "Python中不需要特殊关键字声明变量，直接赋值即可","knowledgePoints": [{"id": "g6eebc99-9c0b-4ef8-bb6d-6bb9bd380a17","name": "变量","description": "Python变量声明","subject": "Python基础"}],"creator": {"id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11","displayName": "张老师","avatarUrl": "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face","role": "TEACHER"},"createdAt": "2025-07-05T11:00:00Z","updatedAt": "2025-07-05T11:00:00Z"},{"id": "f5eebc99-9c0b-4ef8-bb6d-6bb9bd380a16","type": "MULTIPLE_CHOICE","difficulty": "MEDIUM","content": "Python中哪些是可变数据类型？","explanation": "list, dict, set是可变数据类型","knowledgePoints": [{"id": "h7eebc99-9c0b-4ef8-bb6d-6bb9bd380a18","name": "数据结构","description": "Python数据结构","subject": "Python基础"}],"creator": {"id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11","displayName": "张老师","avatarUrl": "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face","role": "TEACHER"},"createdAt": "2025-07-05T11:00:00Z","updatedAt": "2025-07-05T11:00:00Z"},{"id": "g6eebc99-9c0b-4ef8-bb6d-6bb9bd380a17","type": "TRUE_FALSE","difficulty": "EASY","content": "Python是一种解释型语言","explanation": "Python是解释型语言，代码在运行时逐行解释执行","knowledgePoints": [{"id": "g6eebc99-9c0b-4ef8-bb6d-6bb9bd380a17","name": "变量","description": "Python变量声明","subject": "Python基础"}],"creator": {"id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11","displayName": "张老师","avatarUrl": "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face","role": "TEACHER"},"createdAt": "2025-07-05T11:00:00Z","updatedAt": "2025-07-05T11:00:00Z"}]`;
-      try {
-        questionData = JSON.parse(testData);
-      } catch (e) {
-        console.error('Failed to parse test data:', e);
-      }
-    }
-    
-    // Transform the questions to the expected format
-    questions.value = transformQuestionsData(questionData);
+    // Use the new parsing function to handle the complex data structure
+    questions.value = parseComplexQuestionData(response);
+    console.log('PracticeCenter: 解析后的题目数组:', questions.value);
     
     // Set the first question as current if available
     if (questions.value.length > 0) {
       currentIndex.value = 0;
       currentQuestion.value = questions.value[0];
+      console.log('PracticeCenter: 设置当前题目:', currentQuestion.value);
     } else {
       currentQuestion.value = null;
       error.value = '没有找到题目';
+      console.warn('PracticeCenter: 没有找到任何题目');
     }
   } catch (e) {
-    console.error('Error fetching questions:', e);
+    console.error('PracticeCenter: 加载题目时出错:', e);
     error.value = '加载题目失败，请重试';
   } finally {
     loading.value = false;
@@ -174,4 +150,4 @@ onMounted(() => {
   loadQuestions();
 });
 
-</script> 
+</script>

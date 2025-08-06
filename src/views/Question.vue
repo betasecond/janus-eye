@@ -60,9 +60,9 @@
             <div class="mt-4 flex flex-wrap items-center gap-2">
               <span class="tag bg-blue-100 text-blue-700">{{ question.type }}</span>
               <span class="tag" :class="{
-                'bg-green-100 text-green-700': question.difficulty === 'easy',
-                'bg-yellow-100 text-yellow-700': question.difficulty === 'medium',
-                'bg-red-100 text-red-700': question.difficulty === 'hard',
+                'bg-green-100 text-green-700': question.difficulty === 'EASY',
+                'bg-yellow-100 text-yellow-700': question.difficulty === 'MEDIUM',
+                'bg-red-100 text-red-700': question.difficulty === 'HARD',
               }">
                 {{ question.difficulty }}
               </span>
@@ -115,7 +115,7 @@
     </div>
 
     <!-- Loading Skeleton -->
-    <div v-else class="space-y-4">
+    <div v-else-if="loading" class="space-y-4">
       <div v-for="i in 3" :key="i" class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 animate-pulse">
         <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
         <div class="space-y-2">
@@ -129,13 +129,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import type { QuestionVO, Course, PageVO } from '@/types';
+import type { Question, Course } from '@/types';
 import { getQuestions, getCourses } from '@/api';
+import { parsePaginatedQuestions, parseCourseList } from '@/utils/questionTransformer';
 import Icon from '@/components/base/Icon.vue';
 import { addNotification } from '@/store';
 
 const loading = ref(true);
-const questions = ref<QuestionVO[]>([]);
+const questions = ref<Question[]>([]);
 const courses = ref<Course[]>([]);
 const totalPages = ref(0);
 const currentPage = ref(0);
@@ -144,18 +145,22 @@ const selectedQuestionId = ref<string | null>(null);
 const fetchQuestions = async (page = 0) => {
   loading.value = true;
   try {
-    const response: PageVO<QuestionVO> = await getQuestions({ page, size: 10 });
-    if (response && response.content) {
-      questions.value = response.content;
-      totalPages.value = response.totalPages;
-      currentPage.value = response.number;
-    } else {
-      console.error('题目数据格式不正确或为空:', response);
-      questions.value = [];
-    }
+    console.log('正在获取题目数据...');
+    const response = await getQuestions({ page, size: 10 });
+    console.log('获取到的原始响应:', response);
+    
+    const parsedData = parsePaginatedQuestions(response);
+    console.log('解析后的数据:', parsedData);
+    
+    questions.value = parsedData.questions;
+    totalPages.value = parsedData.totalPages;
+    currentPage.value = parsedData.currentPage;
+    
+    console.log('设置后的题目数组:', questions.value);
   } catch (error) {
     console.error('获取题目失败:', error);
     addNotification({ title: '加载失败', content: '无法加载题目数据。', type: 'error' });
+    questions.value = [];
   } finally {
     loading.value = false;
   }
@@ -164,17 +169,11 @@ const fetchQuestions = async (page = 0) => {
 const fetchCourses = async () => {
   try {
     const response = await getCourses();
-    if (response && response.content) {
-      courses.value = response.content;
-    } else if (Array.isArray(response)) {
-      courses.value = response;
-    } else {
-       console.error('课程数据格式不正确或为空:', response);
-       courses.value = [];
-    }
+    courses.value = parseCourseList(response);
   } catch (error) {
     console.error('获取课程失败:', error);
     addNotification({ title: '加载失败', content: `无法加载课程数据: ${error}`, type: 'error' });
+    courses.value = [];
   }
 };
 

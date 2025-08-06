@@ -130,7 +130,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { Syllabus, Chapter, CourseVO } from '@/types'
+import type { Syllabus, Chapter, CourseVO, PageVO } from '@/types'
 import { getSyllabus, getCourses } from '@/api'
 import Icon from '@/components/base/Icon.vue'
 import { addNotification } from '@/store'
@@ -147,13 +147,44 @@ const renderedContent = ref('')
 
 onMounted(async () => {
   try {
-    syllabus.value = await getSyllabus()
+    console.log('Syllabus: 开始加载课程大纲数据...');
+    
+    const syllabusResponse = await getSyllabus();
+    console.log('Syllabus: 获取到的原始大纲响应:', syllabusResponse);
+    
+    // 修复数据处理逻辑 - 支持新旧两种格式
+    if (syllabusResponse) {
+      // 旧格式：chapters是嵌套数组，需要取第二个元素
+      if (Array.isArray(syllabusResponse.chapters) && syllabusResponse.chapters.length > 1 && typeof syllabusResponse.chapters[0] === 'string') {
+        console.log('Syllabus: 检测到旧格式，使用嵌套数据');
+        const nestedChapters = syllabusResponse.chapters[1];
+        if (Array.isArray(nestedChapters)) {
+          syllabusResponse.chapters = nestedChapters;
+        }
+      }
+      // 新格式：chapters直接是数组，无需处理
+      else if (Array.isArray(syllabusResponse.chapters)) {
+        console.log('Syllabus: 检测到新格式，直接使用chapters数组');
+      }
+    }
+    
+    syllabus.value = syllabusResponse;
+    console.log('Syllabus: 处理后的大纲数据:', syllabus.value);
+
     if (syllabus.value?.chapters?.length) {
       selectChapter(syllabus.value.chapters[0])
     }
-    courses.value = await getCourses()
+    
+    const coursesResponse = await getCourses() as PageVO<CourseVO>;
+    console.log('Syllabus: 获取到的课程响应:', coursesResponse);
+    
+    if (coursesResponse && coursesResponse.content) {
+      courses.value = coursesResponse.content;
+      console.log('Syllabus: 设置的课程数据:', courses.value);
+    }
+
   } catch (error) {
-    console.error("Failed to load syllabus data:", error)
+    console.error("Syllabus: 加载课程大纲数据失败:", error)
     // addNotification({
     //   title: '加载失败',
     //   content: '无法加载课程大纲数据，请稍后重试。',
