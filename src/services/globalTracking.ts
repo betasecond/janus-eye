@@ -121,6 +121,7 @@ class GlobalTrackingService {
 
     try {
       await analyticsApi.sendTrackingEvent({
+        // 传入后端约定的事件名，若上层传来自定义名则直接透传
         eventName,
         eventTime: new Date().toISOString(),
         page: this.state.currentPage,

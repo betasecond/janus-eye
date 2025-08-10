@@ -61,9 +61,16 @@ export const analyticsApi = {
       const response = await apiGet('/api/v1/metrics/tracking-events', { count });
       
       // 转换后端数据格式为前端格式
-      return (response as TrackingEventDto[]).map((dto, index) => ({
-        id: `event-${Date.now()}-${index}`,
-        eventName: dto.eventName,
+      return (response as TrackingEventDto[]).map((dto, index) => {
+        const eventNameMap: Record<string, string> = {
+          'page.view': 'Page Viewed',
+          'page.leave': 'Page Left',
+          'button.click': 'Button Clicked',
+        };
+
+        return {
+          id: `event-${Date.now()}-${index}`,
+          eventName: (eventNameMap[dto.eventName] as any) || dto.eventName,
         properties: {
           timestamp: dto.eventTime,
           url: dto.properties?.url || `${window.location.origin}/${dto.page}`,
@@ -75,8 +82,9 @@ export const analyticsApi = {
           component: dto.properties?.component,
           target: dto.target,
           ...dto.properties
-        }
-      }));
+          }
+        };
+      });
     } catch (error) {
       console.error('Failed to fetch tracking events:', error);
       throw new Error('获取分析数据失败');
@@ -89,6 +97,7 @@ export const analyticsApi = {
    */
   async sendTrackingEvent(event: TrackingEventPayload): Promise<void> {
     try {
+      // 后端按文档返回空Body（200 OK），extractData 会返回 null
       await apiPost('/api/v1/track', event);
     } catch (error) {
       console.error('Failed to send tracking event:', error);

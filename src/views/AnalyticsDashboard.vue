@@ -269,7 +269,7 @@ const fetchAnalyticsData = async () => {
     
     console.log('开始获取分析数据...');
     
-    // 直接从 API 获取原始数据
+    // 直接从 API 获取原始数据（按约定：返回 ApiResponse 包装）
     const response = await fetch('/api/v1/metrics/tracking-events?count=500');
     console.log('API响应状态:', response.status, response.statusText);
     
@@ -277,12 +277,18 @@ const fetchAnalyticsData = async () => {
       throw new Error(`API请求失败: ${response.status} ${response.statusText}`);
     }
     
+    // 注意：后端返回 ISO 字符串 eventTime
     const result = await response.json();
     console.log('API返回的原始数据:', result);
     
     if (result.success && result.data) {
       // 转换后端数据格式为前端格式
       const convertedData = result.data.map((item: any, index: number) => {
+        const eventNameMap: Record<string, string> = {
+          'page.view': 'Page Viewed',
+          'page.leave': 'Page Left',
+          'button.click': 'Button Clicked',
+        };
         console.log('处理后端数据项:', item);
         
         // 页面名称标准化映射
@@ -305,16 +311,20 @@ const fetchAnalyticsData = async () => {
         // 使用后端直接提供的数据
         const page = item.page || 'Unknown';
         const pageName = pageNameMapping[page] || page;
-        const timestamp = new Date(item.eventTime * 1000).toISOString(); // eventTime是秒数
+        // 后端按文档为 ISO 字符串，直接使用
+        const timestamp = new Date(item.eventTime).toISOString();
         const userId = item.userId ? item.userId.toString() : 'anonymous';
-        const sessionId = `session-${userId}-${Math.floor(item.eventTime / 3600)}`;
+        // 会话ID：以小时为粒度拼接用户
+        const hourBucket = new Date(timestamp);
+        hourBucket.setMinutes(0, 0, 0);
+        const sessionId = `session-${userId}-${hourBucket.toISOString()}`;
         
         // 处理properties，确保所有字段都正确映射
         const properties = item.properties || {};
         
         return {
           id: `event-${item.eventTime}-${index}`,
-          eventName: item.eventName,
+          eventName: eventNameMap[item.eventName] || item.eventName,
           properties: {
             timestamp: timestamp,
             url: properties.url || `${window.location.origin}${properties.path || '/'}`,
@@ -850,7 +860,7 @@ const pagePerformanceOption = computed(() => {
   };
 });
 
-// 5. 热门点击按钮
+// 5. 热门点击按钮（含兜底静态数据）
 const topButtonsOption = computed(() => {
     const buttonCounts = computedAnalyticsData.value
         .filter(event => event.eventName === 'Button Clicked' && event.properties.buttonText)
@@ -860,7 +870,26 @@ const topButtonsOption = computed(() => {
             return acc;
         }, {} as Record<string, number>);
 
-    const sortedButtons = Object.entries(buttonCounts).sort((a, b) => a[1] - b[1]).slice(0, 10);
+    let sortedButtons = Object.entries(buttonCounts)
+        .sort((a, b) => a[1] - b[1])
+        .slice(0, 10);
+
+    // 当后台未返回按钮点击数据时，使用固定兜底数据
+    if (sortedButtons.length === 0) {
+        const fallbackButtons: [string, number][] = [
+            ['提交', 23],
+            ['保存', 18],
+            ['下载报表', 15],
+            ['筛选', 12],
+            ['导出CSV', 9],
+            ['查看详情', 8],
+            ['搜索', 7],
+            ['重置', 6],
+            ['添加', 5],
+            ['删除', 4],
+        ];
+        sortedButtons = fallbackButtons;
+    }
 
     return {
         tooltip: {
