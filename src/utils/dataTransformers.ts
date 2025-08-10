@@ -10,29 +10,62 @@ import type { PerformanceStats, PerformanceStatsVO } from '@/types'
  * @throws An error if the response is not ok or if the data format is invalid.
  */
 export async function extractData(response: Response): Promise<any> {
+  // 先读取文本，兼容空响应体（如 200/204 无内容）
+  const rawText = await response.text().catch(() => '');
+
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'An unknown error occurred' }));
-    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    // 尝试从返回文本解析出JSON错误，否则使用原始文本/状态码
+    let errorMessage = `HTTP error! status: ${response.status}`;
+    try {
+      const errorJson = rawText ? JSON.parse(rawText) : null;
+      if (errorJson) {
+        errorMessage = errorJson.message || errorJson.error?.message || errorMessage;
+      }
+    } catch (_) {
+      if (rawText) errorMessage = rawText;
+    }
+    throw new Error(errorMessage);
   }
 
-  const result = await response.json();
+  // 无内容直接返回 null，适配 POST /api/v1/track 等空Body响应
+  if (!rawText || rawText.trim().length === 0) {
+    return null;
+  }
 
-  if (result.success === false) {
+  // 正常JSON解析
+  let result: any;
+  try {
+    result = JSON.parse(rawText);
+  } catch {
+    // 返回非JSON文本时直接返回原始文本
+    return rawText;
+  }
+
+  if (result && result.success === false) {
     throw new Error(result.message || 'The API returned an error');
   }
 
-  if (result.hasOwnProperty('data')) {
-    // Handle the specific Java-style array format [ "java.util.ArrayList", [ ...items ] ]
-    if (Array.isArray(result.data) && result.data.length > 1 && typeof result.data[0] === 'string' && result.data[0].includes('List')) {
+  if (result && Object.prototype.hasOwnProperty.call(result, 'data')) {
+    // 兼容特殊Java风格数组 [ "java.util.ArrayList", [ ...items ] ]
+    if (
+      Array.isArray(result.data) &&
+      result.data.length > 1 &&
+      typeof result.data[0] === 'string' &&
+      result.data[0].includes('List')
+    ) {
       const list = result.data[1];
-      // Handle nested Java-style objects [ "com.example.MyVO", { ...props } ]
-      if (Array.isArray(list) && list.every(item => Array.isArray(item) && item.length > 1)) {
-        return list.map(item => item[1]);
+      if (Array.isArray(list) && list.every((item: any) => Array.isArray(item) && item.length > 1)) {
+        return list.map((item: any) => item[1]);
       }
       return list;
     }
-    // Handle single Java-style object format [ "com.example.MyVO", { ...props } ]
-    if(Array.isArray(result.data) && result.data.length > 1 && typeof result.data[0] === 'string' && result.data[0].includes('VO')) {
+    // 兼容单个对象 [ "com.example.MyVO", { ...props } ]
+    if (
+      Array.isArray(result.data) &&
+      result.data.length > 1 &&
+      typeof result.data[0] === 'string' &&
+      result.data[0].includes('VO')
+    ) {
       return result.data[1];
     }
     return result.data;
