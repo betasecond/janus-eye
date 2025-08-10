@@ -77,11 +77,7 @@ const routes = [
     name: 'AIChat',
     component: () => import('@/views/AIChat.vue'),
   },
-  {
-    path: '/test/tracking',
-    name: 'TrackingTest',
-    component: () => import('@/views/TrackingTest.vue'),
-  },
+
 ];
 
 
